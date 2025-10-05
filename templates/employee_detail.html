@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Employee Details') }} - {{ _('Attendance Tracker') }}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* Font based on language */
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header / Navigation Bar -->
+        {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-8 flex-grow">
+            <!-- Back Button -->
+            <div class="mb-6">
+                <a href="/employees" class="text-[#003366] hover:text-[#002244] flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    {{ _('Back to Employees') }}
+                </a>
+            </div>
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center space-x-4">
+                    <!-- Employee Profile Picture -->
+                    <div class="relative">
+                        <img id="employeeProfilePic" src="{{ url_for('static', filename='default-avatar.svg') }}" alt="Profile" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">
+                        <div id="statusIndicator" class="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-gray-900" id="employeeName">{{ _('Employee Details') }}</h2>
+                        <p class="text-gray-600 mt-2" id="employeeId">{{ _('Loading employee information...') }}</p>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="editEmployee(employeeId)" id="editButton"
+                        class="bg-[#002244] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[#003366] transition-colors flex items-center space-x-2 btn-hover-scale shadow-md hover:shadow-lg">
+                        <i class="fa-solid fa-edit"></i>
+                        <span>{{ _('Edit') }}</span>
+                    </button>
+                    <button onclick="registerFace()" id="registerFaceButton"
+                        class="bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2" style="display: none;">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>{{ _('Register Face') }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employee Details Card -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column: Basic Information -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Personal Information Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('Personal Information') }}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Full Name') }}</label>
+                                <p id="fullName" class="text-gray-800 font-medium">{{ _('Loading...') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Email') }}</label>
+                                <p id="email" class="text-gray-800">{{ _('Loading...') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Employee ID') }}</label>
+                                <p id="employeeCode" class="text-gray-800 font-mono">{{ _('Loading...') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Access Code') }}</label>
+                                <div class="flex items-center space-x-2">
+                                    <p id="accessCode" class="text-gray-800 font-mono bg-yellow-50 border border-yellow-200 px-3 py-1 rounded font-bold">{{ _('Loading...') }}</p>
+                                    <button onclick="copyAccessCode()" class="text-gray-400 hover:text-gray-600 transition-colors" title="{{ _('Copy access code') }}">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Status') }}</label>
+                                <span id="statusBadge" class="px-2 py-1 text-xs font-semibold rounded-full">{{ _('Loading...') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Information Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('Work Information') }}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Department') }}</label>
+                                <p id="department" class="text-gray-800">{{ _('Loading...') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Position') }}</label>
+                                <p id="position" class="text-gray-800">{{ _('Loading...') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">{{ _('Face Registration') }}</label>
+                                <span id="faceRegisteredBadge" class="px-2 py-1 text-xs font-semibold rounded-full">{{ _('Loading...') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Statistics and Actions -->
+                <div class="space-y-6">
+                    <!-- Attendance Statistics Card -->
+                   <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('This Month') }}</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">{{ _('Present Days') }}</span>
+                                <span class="font-semibold text-green-600" id="presentDays">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">{{ _('Late Arrivals') }}</span>
+                                <span class="font-semibold text-amber-600" id="lateDays">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">{{ _('Absent Days') }}</span>
+                                <span class="font-semibold text-red-600" id="absentDays">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('Quick Actions') }}</h3>
+                        <div class="space-y-3">
+                            <button onclick="generateReport()"
+                                class="w-full text-left p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between btn-hover-scale">
+                                <span class="text-gray-700">{{ _('Generate Report') }}</span>
+                                <i class="fa-solid fa-download text-gray-400"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('Recent Check-ins') }}</h3>
+                        <div id="recentActivity" class="space-y-3">
+                            <div class="text-center text-gray-500 py-4">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <p class="mt-2">{{ _('Loading recent activity...') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4 my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">{{ _('Edit Employee') }}</h3>
+                <button onclick="hideEditEmployeeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark fa-lg"></i>
+                </button>
+            </div>
+            <form id="editEmployeeForm" novalidate enctype="multipart/form-data">
+                <input type="hidden" id="edit_employee_id" name="employee_id">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Profile Picture -->
+                    <div class="md:col-span-1 flex flex-col items-center">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ _('Profile Picture') }}</label>
+                        <div class="relative w-32 h-32">
+                            <img id="edit_profile_pic_preview" src="{{ url_for('static', filename='default-avatar.svg') }}" alt="Profile Preview" class="w-full h-full rounded-full object-cover border-2 border-slate-200">
+                            <label for="edit_profile_pic" class="absolute bottom-0 right-0 bg-indigo-600 text-white rounded-full p-2 cursor-pointer hover:bg-indigo-700">
+                                <i class="fa-solid fa-camera"></i>
+                                <input type="file" id="edit_profile_pic" name="profile_pic" class="hidden" accept="image/*" onchange="previewImage(event, 'edit_profile_pic_preview')">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Employee Details -->
+                    <div class="md:col-span-2 space-y-4">
+                        <div>
+                            <label for="edit_full_name" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Full Name') }} *</label>
+                            <input type="text" id="edit_full_name" name="full_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                            <span id="edit_full_name_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                        </div>
+                        <div>
+                            <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Email') }} *</label>
+                            <input type="email" id="edit_email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                            <span id="edit_email_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label for="edit_departmentSelect" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Department') }} *</label>
+                        <select name="department_id" id="edit_departmentSelect" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                            <option value="">{{ _('Select Department') }}</option>
+                            <!-- Options will be loaded dynamically -->
+                        </select>
+                        <span id="edit_department_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                    </div>
+                    <div>
+                        <label for="edit_position" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Position') }} *</label>
+                        <input type="text" id="edit_position" name="position" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]" placeholder="{{ _('e.g., Software Engineer') }}">
+                        <span id="edit_position_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                    </div>
+                    <div>
+                        <label for="edit_hired_date" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Hire Date') }}</label>
+                        <input type="date" id="edit_hired_date" name="hired_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                    </div>
+                </div>
+
+                <!-- General Error Message Display -->
+                <div id="editEmployeeError" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-exclamation-circle mr-2"></i>
+                        <span id="editEmployeeErrorText"></span>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="hideEditEmployeeModal()" id="cancelEditEmployee" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors btn-hover-scale">
+                        {{ _('Cancel') }}
+                    </button>
+                     <button type="submit" id="submitEditEmployee" class="px-4 py-2 bg-[#002244] text-white rounded-lg hover:bg-[#003366] transition-colors flex items-center btn-hover-scale">
+                        <span id="submitEditEmployeeText">{{ _('Save Changes') }}</span>
+                        <div id="submitEditEmployeeSpinner" class="hidden ml-2">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Face Registration Modal -->
+   <div id="faceRegistrationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">{{ _('Register Face') }}</h3>
+                <button onclick="hideFaceRegistrationModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark fa-lg"></i>
+                </button>
+            </div>
+            <div class="text-center mb-6">
+                <div class="w-32 h-32 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fa-solid fa-camera text-gray-400 text-3xl"></i>
+                </div>
+                <p class="text-gray-600 mb-4">{{ _('Please ensure good lighting and look directly at the camera') }}</p>
+                <button onclick="captureFace()"
+                    class="bg-[#002244] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#003366] transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-camera mr-2"></i>
+                    {{ _('Capture Face') }}
+                </button>
+            </div>
+            <div class="text-center text-sm text-gray-500">
+                <p>{{ _('Multiple images will be captured for better accuracy') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            loading: "{{ _('Loading...') }}",
+            employeeIdPrefix: "{{ _('Employee ID') }}",
+            notProvided: "{{ _('Not provided') }}",
+            notGenerated: "{{ _('Not generated') }}",
+            notAssigned: "{{ _('Not assigned') }}",
+            registered: "{{ _('Registered') }}",
+            notRegistered: "{{ _('Not Registered') }}",
+            active: "{{ _('Active') }}",
+            inactive: "{{ _('Inactive') }}",
+            noRecentActivity: "{{ _('No recent activity') }}",
+            failedToLoadActivity: "{{ _('Failed to load activity') }}",
+            present: "{{ _('Present') }}",
+            late: "{{ _('Late') }}",
+            absent: "{{ _('Absent') }}",
+            NA: "{{ _('N/A') }}",
+            invalidEmployeeId: "{{ _('Invalid employee ID') }}",
+            failedToFetchDetails: "{{ _('Failed to fetch employee details') }}",
+            failedToFetchStats: "{{ _('Failed to fetch attendance statistics, using default values') }}",
+            failedToFetchDepts: "{{ _('Failed to fetch departments') }}",
+            selectDepartment: "{{ _('Select Department') }}",
+            failedToFetchForEdit: "{{ _('Failed to load employee data for editing.') }}",
+            fullNameRequired: "{{ _('Full Name is required.') }}",
+            validEmailRequired: "{{ _('Please enter a valid email address.') }}",
+            deptRequired: "{{ _('Please select a department.') }}",
+            positionRequired: "{{ _('Position is required.') }}",
+            saving: "{{ _('Saving...') }}",
+            saveChanges: "{{ _('Save Changes') }}",
+            updateSuccess: "{{ _('Employee updated successfully!') }}",
+            updateFail: "{{ _('Failed to update employee') }}",
+            networkError: "{{ _('Network error. Please try again.') }}",
+            copied: "{{ _('Copied!') }}",
+            copyFail: "{{ _('Failed to copy access code') }}",
+            reportGenerated: "{{ _('Report generated successfully!') }}",
+            reportFail: "{{ _('Failed to generate report.') }}",
+            reportTitle: "{{ _('EMPLOYEE ATTENDANCE REPORT') }}",
+            reportGeneratedOn: "{{ _('Generated on:') }}",
+            reportEmpInfo: "{{ _('Employee Information:') }}",
+            reportName: "{{ _('Name:') }}",
+            reportId: "{{ _('ID:') }}",
+            reportDept: "{{ _('Department:') }}",
+            reportPos: "{{ _('Position:') }}",
+            reportStatus: "{{ _('Status:') }}",
+            reportStats: "{{ _('Attendance Statistics:') }}",
+            reportPresent: "{{ _('✓ Present Days:') }}",
+            reportLate: "{{ _('⏰ Late Arrivals:') }}",
+            reportAbsent: "{{ _('✗ Absent Days:') }}",
+            reportRate: "{{ _('Attendance Rate:') }}",
+            reportFooter: "{{ _('Generated by Attendance Tracker System') }}"
+        };
+
+        let employeeId = null;
+        let employeeData = null;
+        let allDepartmentsData = []; // New global variable
+
+        /**
+         * @description دالة مساعدة لإنشاء رؤوس المصادقة للطلبات.
+         * @returns {Headers} كائن الرؤوس مع رمز المصادقة.
+         */
+        function getAuthHeaders(isFormData = false) {
+            const token = localStorage.getItem('access_token');
+            const headers = new Headers();
+            if (!isFormData) {
+                headers.append('Content-Type', 'application/json');
+            }
+            if (token) {
+                headers.append('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Extract employee ID from URL
+            const pathParts = window.location.pathname.split('/');
+            employeeId = pathParts[pathParts.length - 1];
+            
+            if (employeeId && !isNaN(employeeId)) {
+                fetchEmployeeDetails();
+                loadDepartments(); // Load departments for the edit modal
+                setupEventListeners(); // Setup event listeners for the edit modal
+                fetchRecentActivity();
+            } else {
+                showError(translations.invalidEmployeeId);
+            }
+        });
+
+        function setupEventListeners() {
+            document.getElementById('editEmployeeForm').addEventListener('submit', handleEditEmployee);
+        }
+
+        function previewImage(event, previewId) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById(previewId);
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function showEditEmployeeModal() {
+            document.getElementById('editEmployeeModal').classList.remove('hidden');
+            // Clear previous validation errors
+            document.querySelectorAll('#editEmployeeForm span[id$="_error"]').forEach(span => span.classList.add('hidden'));
+            document.querySelectorAll('#editEmployeeForm input, #editEmployeeForm select').forEach(el => el.classList.remove('border-red-500'));
+            document.getElementById('editEmployeeError').classList.add('hidden');
+        }
+
+        function hideEditEmployeeModal() {
+            document.getElementById('editEmployeeModal').classList.add('hidden');
+        }
+
+        async function fetchEmployeeDetails() {
+            try {
+                const response = await fetch(`/api/employees/${employeeId}`, { headers: getAuthHeaders() });
+                if (response.status === 401) {
+                    window.location.href = '/login'; // Redirect to login if unauthorized
+                    return;
+                }
+                if (!response.ok) throw new Error(translations.failedToFetchDetails);
+                
+                employeeData = await response.json();
+                populateEmployeeData();
+                await fetchAttendanceStatistics(); // إضافة استدعاء لجلب إحصائيات الحضور
+            } catch (error) {
+                console.error('Error fetching employee details:', error);
+                showError(translations.failedToFetchDetails);
+            }
+        }
+
+        // دالة جديدة لجلب إحصائيات الحضور الحقيقية
+        async function fetchAttendanceStatistics() {
+            try {
+                const response = await fetch(`/api/admin/employee/attendance/summary?employee_id=${employeeId}`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateAttendanceCards(data.statistics);
+                } else {
+                    console.warn(translations.failedToFetchStats);
+                }
+            } catch (error) {
+                console.error('Error fetching attendance statistics:', error);
+                // الاستمرار بالقيم الافتراضية في حالة الخطأ
+            }
+        }
+
+        // دالة لتحديث بطاقات الحضور بالبيانات الحقيقية
+        function updateAttendanceCards(stats) {
+            if (stats) {
+                document.getElementById('presentDays').textContent = stats.present_days || 0;
+                document.getElementById('lateDays').textContent = stats.late_days || 0;
+                document.getElementById('absentDays').textContent = stats.absent_days || 0;
+            }
+        }
+
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/api/departments/list', { headers: getAuthHeaders() });
+                if (!response.ok) throw new Error(translations.failedToFetchDepts);
+
+                const data = await response.json();
+                const editDepartmentSelect = document.getElementById('edit_departmentSelect');
+
+                // Clear existing options
+                editDepartmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
+
+                if (data.success && data.departments) {
+                    allDepartmentsData = data.departments; // Store departments globally
+                    data.departments.forEach(dept => {
+                        const optionModal = document.createElement('option');
+                        optionModal.value = dept.id;
+                        optionModal.textContent = dept.name;
+                        editDepartmentSelect.appendChild(optionModal);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+
+        function populateEmployeeData() {
+            document.getElementById('employeeName').textContent = employeeData.full_name;
+            document.getElementById('employeeId').textContent = `${translations.employeeIdPrefix}: EMP${employeeData.id.toString().padStart(4, '0')}`;
+            
+            const profilePic = document.getElementById('employeeProfilePic');
+            profilePic.src = employeeData.avatar_url || '{{ url_for("static", filename="default-avatar.svg") }}';
+            
+            const statusIndicator = document.getElementById('statusIndicator');
+            statusIndicator.className = `absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white ${
+                employeeData.status === 'active' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            
+            document.getElementById('fullName').textContent = employeeData.full_name;
+            document.getElementById('email').textContent = employeeData.email || translations.notProvided;
+            document.getElementById('employeeCode').textContent = `EMP${employeeData.id.toString().padStart(4, '0')}`;
+            document.getElementById('accessCode').textContent = employeeData.access_code || translations.notGenerated;
+            document.getElementById('department').textContent = employeeData.department || translations.notAssigned;
+            document.getElementById('position').textContent = employeeData.position || translations.notAssigned;
+
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = employeeData.status === 'active' ? translations.active : translations.inactive;
+            statusBadge.className = `px-2 py-1 text-xs font-semibold rounded-full ${
+                employeeData.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`;
+
+            const faceBadge = document.getElementById('faceRegisteredBadge');
+            faceBadge.textContent = employeeData.face_registered ? translations.registered : translations.notRegistered;
+            faceBadge.className = `px-2 py-1 text-xs font-semibold rounded-full ${
+                employeeData.face_registered ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+            }`;
+        }
+
+        async function fetchRecentActivity() {
+            try {
+                const response = await fetch(`/api/attendance/history?employee_id=${employeeId}&per_page=10`, { 
+                    headers: getAuthHeaders() 
+                });
+                
+                if (!response.ok) throw new Error(translations.failedToLoadActivity);
+                
+                const result = await response.json();
+                const activities = result.data || result;
+                const activityContainer = document.getElementById('recentActivity');
+                activityContainer.innerHTML = '';
+
+                if (!activities || activities.length === 0) {
+                    activityContainer.innerHTML = `
+                        <div class="text-center text-gray-500 py-4">
+                            <i class="fa-solid fa-clock"></i>
+                            <p class="mt-2">${translations.noRecentActivity}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                activities.slice(0, 10).forEach(activity => {
+                    const activityItem = document.createElement('div');
+                    activityItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors';
+                    
+                    const statusText = {
+                        'Present': translations.present,
+                        'Late': translations.late,
+                        'Absent': translations.absent
+                    }[activity.status] || translations.NA;
+
+                    const statusColor = activity.status === 'Present' ? 'text-green-600' : 
+                                      activity.status === 'Late' ? 'text-orange-600' : 
+                                      activity.status === 'Absent' ? 'text-red-600' : 'text-gray-600';
+                    
+                    activityItem.innerHTML = `
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">${activity.check_in_time || activity.check_in || '--:--'}</p>
+                            <p class="text-xs text-gray-500">${activity.date || ''}</p>
+                        </div>
+                        <span class="text-sm font-medium ${statusColor}">${statusText}</span>
+                    `;
+                    
+                    activityContainer.appendChild(activityItem);
+                });
+
+            } catch (error) {
+                console.error('Error fetching recent activity:', error);
+                const activityContainer = document.getElementById('recentActivity');
+                activityContainer.innerHTML = `
+                    <div class="text-center text-red-500 py-4">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <p class="mt-2">${translations.failedToLoadActivity}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function editEmployee(id) {
+            try {
+                const response = await fetch(`/api/employees/${id}`, { headers: getAuthHeaders() });
+                if (!response.ok) throw new Error(translations.failedToFetchForEdit);
+                const employee = await response.json();
+
+                document.getElementById('edit_employee_id').value = employee.id;
+                document.getElementById('edit_full_name').value = employee.full_name || employee.name || '';
+                document.getElementById('edit_email').value = employee.email || '';
+
+                const profilePicPreview = document.getElementById('edit_profile_pic_preview');
+                profilePicPreview.src = employee.avatar_url || '{{ url_for("static", filename="default-avatar.svg") }}';
+
+                const editDepartmentSelect = document.getElementById('edit_departmentSelect');
+                if (employee.department_id) {
+                    editDepartmentSelect.value = employee.department_id;
+                } else if (employee.department && allDepartmentsData.length > 0) {
+                    const department = allDepartmentsData.find(dept => dept.name.trim() === employee.department.trim());
+                    if (department) {
+                        editDepartmentSelect.value = department.id;
+                    } else {
+                        editDepartmentSelect.value = '';
+                    }
+                } else {
+                    editDepartmentSelect.value = '';
+                }
+
+                document.getElementById('edit_position').value = employee.position || employee.jobTitle || '';
+                
+                if (employee.hired_date) {
+                    try {
+                        const date = new Date(employee.hired_date);
+                        if (!isNaN(date.getTime())) {
+                            document.getElementById('edit_hired_date').value = date.toISOString().split('T')[0];
+                        } else {
+                            document.getElementById('edit_hired_date').value = '';
+                        }
+                    } catch (dateError) {
+                        console.warn('Invalid hired_date format:', employee.hired_date, dateError);
+                        document.getElementById('edit_hired_date').value = '';
+                    }
+                } else {
+                    document.getElementById('edit_hired_date').value = '';
+                }
+
+                showEditEmployeeModal();
+            } catch (error) {
+                console.error('Error fetching employee for edit:', error);
+                showError(translations.failedToFetchForEdit);
+            }
+        }
+
+        function validateField(id, errorId, message, validationFn) {
+            const input = document.getElementById(id);
+            const error = document.getElementById(errorId);
+            const value = input.value.trim();
+
+            if (!validationFn(value)) {
+                error.textContent = message;
+                error.classList.remove('hidden');
+                input.classList.add('border-red-500');
+                return false;
+            }
+
+            error.classList.add('hidden');
+            input.classList.remove('border-red-500');
+            return true;
+        }
+
+        function validateEditEmployeeForm() {
+            let isValid = true;
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+            isValid &= validateField('edit_full_name', 'edit_full_name_error', translations.fullNameRequired, value => value !== '');
+            isValid &= validateField('edit_email', 'edit_email_error', translations.validEmailRequired, value => emailRegex.test(value));
+            isValid &= validateField('edit_departmentSelect', 'edit_department_error', translations.deptRequired, value => value !== '');
+            isValid &= validateField('edit_position', 'edit_position_error', translations.positionRequired, value => value !== '');
+
+            return isValid;
+        }
+
+        async function handleEditEmployee(event) {
+            event.preventDefault();
+
+            if (!validateEditEmployeeForm()) {
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitEditEmployee');
+            const submitText = document.getElementById('submitEditEmployeeText');
+            const submitSpinner = document.getElementById('submitEditEmployeeSpinner');
+            const errorDiv = document.getElementById('editEmployeeError');
+            const errorText = document.getElementById('editEmployeeErrorText');
+
+            errorDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitText.textContent = translations.saving;
+            submitSpinner.classList.remove('hidden');
+
+            try {
+                const employeeId = document.getElementById('edit_employee_id').value;
+                const formData = new FormData(event.target);
+
+                const response = await fetch(`/api/employees/${employeeId}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(true),
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    hideEditEmployeeModal();
+                    fetchEmployeeDetails(); // Re-fetch employee details to update the page
+                    showSuccessMessage(translations.updateSuccess);
+                } else {
+                    errorText.textContent = result.error || translations.updateFail;
+                    errorDiv.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error updating employee:', error);
+                errorText.textContent = translations.networkError;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitText.textContent = translations.saveChanges;
+                submitSpinner.classList.add('hidden');
+            }
+        }
+
+        function registerFace() {
+            document.getElementById('faceRegistrationModal').classList.remove('hidden');
+        }
+
+        function hideFaceRegistrationModal() {
+            document.getElementById('faceRegistrationModal').classList.add('hidden');
+        }
+
+        function captureFace() {
+            // This would integrate with the face recognition API
+            alert('Face capture functionality would be implemented here with camera integration');
+        }
+
+        function viewAttendanceHistory() {
+            alert('Attendance history view would be implemented here');
+        }
+
+        async function generateReport() {
+            try {
+                const presentDays = parseInt(document.getElementById('presentDays').textContent) || 0;
+                const lateDays = parseInt(document.getElementById('lateDays').textContent) || 0;
+                const absentDays = parseInt(document.getElementById('absentDays').textContent) || 0;
+
+                const totalDays = presentDays + lateDays + absentDays;
+                const attendancePercentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+
+                const doc = new window.jspdf.default();
+                
+                doc.setFontSize(20);
+                doc.setTextColor(40, 40, 40);
+                doc.text(translations.reportTitle, 105, 20, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`${translations.reportGeneratedOn} ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 28, { align: 'center' });
+
+                doc.setDrawColor(200, 200, 200);
+                doc.line(14, 35, 196, 35);
+
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'bold');
+                doc.text(translations.reportEmpInfo, 14, 45);
+                
+                doc.setFont(undefined, 'normal');
+                doc.text(`${translations.reportName} ${employeeData.full_name}`, 14, 55);
+                doc.text(`${translations.reportId} EMP${employeeData.id.toString().padStart(4, '0')}`, 14, 65);
+                doc.text(`${translations.reportDept} ${employeeData.department || translations.notAssigned}`, 14, 75);
+                doc.text(`${translations.reportPos} ${employeeData.position || translations.notAssigned}`, 14, 85);
+                doc.text(`${translations.reportStatus} ${employeeData.status || translations.NA}`, 14, 95);
+
+                doc.line(14, 105, 196, 105);
+
+                doc.setFont(undefined, 'bold');
+                doc.text(translations.reportStats, 14, 115);
+                
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(0, 128, 0);
+                doc.text(`${translations.reportPresent} ${presentDays}`, 14, 125);
+                
+                doc.setTextColor(255, 140, 0);
+                doc.text(`${translations.reportLate} ${lateDays}`, 14, 135);
+                
+                doc.setTextColor(220, 0, 0);
+                doc.text(`${translations.reportAbsent} ${absentDays}`, 14, 145);
+
+                const percentageColor = attendancePercentage >= 90 ? [0, 128, 0] : 
+                                        attendancePercentage >= 75 ? [255, 140, 0] : 
+                                        [220, 0, 0];
+                doc.setTextColor(...percentageColor);
+                doc.setFont(undefined, 'bold');
+                doc.text(`${translations.reportRate} ${attendancePercentage}%`, 14, 160);
+
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(translations.reportFooter, 105, 280, { align: 'center' });
+
+                doc.save(`${employeeData.full_name}_Attendance_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+                showSuccessMessage(translations.reportGenerated);
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showError(translations.reportFail);
+            }
+        }
+
+        function resetPassword() {
+            alert('Password reset functionality would be implemented here');
+        }
+
+        function copyAccessCode() {
+            const accessCodeElement = document.getElementById('accessCode');
+            const accessCode = accessCodeElement.textContent;
+
+            if (accessCode && accessCode !== translations.loading && accessCode !== translations.notGenerated) {
+                navigator.clipboard.writeText(accessCode).then(() => {
+                    const originalText = accessCodeElement.textContent;
+                    accessCodeElement.textContent = translations.copied;
+                    accessCodeElement.className = 'text-green-800 font-mono bg-green-50 border border-green-200 px-3 py-1 rounded font-bold';
+
+                    setTimeout(() => {
+                        accessCodeElement.textContent = originalText;
+                        accessCodeElement.className = 'text-slate-800 font-mono bg-yellow-50 border border-yellow-200 px-3 py-1 rounded font-bold';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy access code:', err);
+                    alert(translations.copyFail);
+                });
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
+            errorDiv.textContent = message;
+
+            const main = document.querySelector('main');
+            main.insertBefore(errorDiv, main.firstChild);
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+            successDiv.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i><span>${message}</span>`;
+            document.body.appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+    </script>
+</body>
+
+</html>

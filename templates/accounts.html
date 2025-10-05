@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Account Management - Attendance System') }}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Success Modal Styles */
+        .success-modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .success-modal-content {
+            transition: all 0.3s ease-in-out;
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        .success-modal-backdrop.visible {
+            opacity: 1;
+        }
+        .success-modal-content.visible {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .checkmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #10b981;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .checkmark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            margin: 10% auto;
+            box-shadow: inset 0px 0px 0px #10b981;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        .checkmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #10b981;
+            }
+        }
+
+        /* Failure Modal Styles */
+        .failure-modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .failure-modal-content {
+            transition: all 0.3s ease-in-out;
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        .failure-modal-backdrop.visible {
+            opacity: 1;
+        }
+        .failure-modal-content.visible {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .cross-mark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            margin: 10% auto;
+            box-shadow: inset 0px 0px 0px #ef4444;
+            animation: fill-red .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        .cross-mark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #ef4444;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .cross-mark-line1, .cross-mark-line2 {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes fill-red {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #ef4444;
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div class="flex flex-col min-h-screen">
+        {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-10 flex-grow">
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-900">{{ _('User Account Management') }}</h2>
+                    <p class="text-slate-500 mt-2">{{ _('Add and edit system user accounts') }}</p>
+                </div>
+                <button onclick="showAddUserModal()"
+                     class="bg-[#002244] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#003366] transition-colors flex items-center space-x-2 btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>{{ _('Add New Account') }}</span>
+                </button>
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">{{ _('Email') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">{{ _('Role') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">{{ _('Linked Employee') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">{{ _('Creation Date') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">{{ _('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="divide-y divide-slate-100">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-slate-800">{{ _('Edit User Account') }}</h3>
+                <button onclick="hideEditUserModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark fa-lg"></i>
+                </button>
+            </div>
+            <form id="editUserForm">
+                <input type="hidden" id="edit_user_id" name="user_id">
+                <div class="space-y-4">
+                    <div>
+                        <label for="edit_email" class="block text-sm font-medium text-slate-700 mb-2">{{ _('Email') }}</label>
+                        <input type="email" id="edit_email" name="email" readonly class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-100 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label for="edit_role" class="block text-sm font-medium text-slate-700 mb-2">{{ _('Role') }}</label>
+                        <select id="edit_role" name="role" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <option value="employee">{{ _('Employee') }}</option>
+                            <option value="admin">{{ _('Admin') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit_employee_id" class="block text-sm font-medium text-slate-700 mb-2">{{ _('Link to Employee (Optional)') }}</label>
+                        <select id="edit_employee_id" name="employee_id" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <!-- This list will be populated with employees -->
+                        </select>
+                    </div>
+                </div>
+                <div id="editUserError" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded-lg"></div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="hideEditUserModal()" class="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50">{{ _('Cancel') }}</button>
+                    <button type="submit" class="px-4 py-2 bg-[#002244] text-white rounded-lg hover:bg-[#003366] transition-colors flex items-center btn-hover-scale">{{ _('Save Changes') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">{{ _('Add New Account') }}</h3>
+                <button onclick="hideAddUserModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark fa-lg"></i>
+                </button>
+            </div>
+            <form id="addUserForm">
+                <div class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-700 mb-2">{{ _('Email') }}</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-700 mb-2">{{ _('Password') }}</label>
+                        <input type="password" id="password" name="password" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                    </div>
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-slate-700 mb-2">{{ _('Role') }}</label>
+                        <select id="role" name="role" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                            <option value="employee">{{ _('Employee') }}</option>
+                            <option value="admin">{{ _('Admin') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="employee_id" class="block text-sm font-medium text-slate-700 mb-2">{{ _('Link to Employee (Optional)') }}</label>
+                        <select id="employee_id" name="employee_id" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                            <option value="">{{ _('No link') }}</option>
+                            <!-- This list will be populated with unlinked employees -->
+                        </select>
+                    </div>
+                </div>
+                <div id="addUserError" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded-lg"></div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="hideAddUserModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">{{ _('Cancel') }}</button>
+                    <button type="submit" class="px-4 py-2 bg-[#002244] text-white rounded-lg hover:bg-[#003366] transition-colors flex items-center btn-hover-scale">{{ _('Add Account') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 failure-modal-backdrop">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl failure-modal-content">
+            <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-amber-100 rounded-full">
+                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-4xl"></i>
+            </div>
+            <h3 id="confirmationModalTitle" class="text-2xl font-bold text-slate-800 mb-2">{{ _('Are you sure?') }}</h3>
+            <p id="confirmationModalMessage" class="text-slate-600 mb-6">
+                {{ _('This action cannot be undone.') }}
+            </p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirmationModalCancel" class="px-8 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50">{{ _('Cancel') }}</button>
+                <button id="confirmationModalConfirm" class="px-8 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">{{ _('Confirm') }}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 success-modal-backdrop">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl success-modal-content">
+            <div class="w-24 h-24 mx-auto mb-4">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+            <h3 id="successModalTitle" class="text-2xl font-bold text-slate-800 mb-2">{{ _('Success!') }}</h3>
+            <p id="successModalMessage" class="text-slate-600 text-lg">{{ _('The operation was successful.') }}</p>
+            <div id="passwordDisplayContainer" class="mt-4 hidden">
+                <p class="text-sm text-slate-500 mb-2">{{ _('New Password:') }}</p>
+                <div class="relative">
+                    <input type="text" id="newPasswordInput" readonly class="w-full px-4 py-3 border border-slate-300 rounded-lg text-center text-xl font-mono bg-slate-100 select-all">
+                    <button id="copyPasswordBtn" onclick="copyPassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-indigo-600">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-red-500 mt-2">{{ _('Please provide this password to the user securely and save it in a safe place.') }}</p>
+            </div>
+            <button onclick="closeSuccessModal()" class="mt-6 bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                {{ _('OK') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 failure-modal-backdrop">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl failure-modal-content">
+            <div class="w-24 h-24 mx-auto mb-4">
+                <svg class="cross-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="cross-mark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="cross-mark-line1" fill="none" d="M16 16 36 36"/>
+                    <path class="cross-mark-line2" fill="none" d="M36 16 16 36"/>
+                </svg>
+            </div>
+            <h3 id="errorModalTitle" class="text-2xl font-bold text-slate-800 mb-2">{{ _('An error occurred!') }}</h3>
+            <p id="errorModalMessage" class="text-slate-600 mb-6">
+                {{ _('An unexpected error occurred.') }}
+            </p>
+            <button onclick="closeErrorModal()" class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                {{ _('OK') }}
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            loading: "{{ _('Loading accounts...') }}",
+            failedToLoad: "{{ _('Failed to load the list of accounts from the server.') }}",
+            noAccounts: "{{ _('No accounts to display.') }}",
+            notLinked: "{{ _('<span class=\"text-slate-400\">Not linked</span>') }}",
+            editAccount: "{{ _('Edit Account') }}",
+            deleteAccount: "{{ _('Delete Account') }}",
+            resetPassword: "{{ _('Reset Password') }}",
+            noLink: "{{ _('No link') }}",
+            failedToLoadEmployees: "{{ _('Failed to load the list of employees.') }}",
+            added: "{{ _('Added') }}",
+            addedMsg: "{{ _('The new account has been created successfully.') }}",
+            failedAdd: "{{ _('Failed to add account') }}",
+            updated: "{{ _('Updated') }}",
+            updatedMsg: "{{ _('The account details have been updated successfully.') }}",
+            failedUpdate: "{{ _('Failed to update account') }}",
+            confirmDeletion: "{{ _('Confirm Deletion') }}",
+            confirmDeletionMsg: "{{ _('Are you sure you want to permanently delete this account?') }}",
+            deleted: "{{ _('Deleted') }}",
+            deletedMsg: "{{ _('The account has been deleted successfully.') }}",
+            failedDelete: "{{ _('Failed to delete account') }}",
+            resetPasswordTitle: "{{ _('Reset Password') }}",
+            resetPasswordMsg: "{{ _('A new random password will be generated. Do you want to continue?') }}",
+            resetSuccess: "{{ _('Reset Successful') }}",
+            resetSuccessMsg: "{{ _('The password has been reset successfully.') }}",
+            failedReset: "{{ _('Failed to reset password') }}",
+            copied: "{{ _('Copied!') }}"
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchUsers();
+            setupEventListeners();
+        });
+
+        // =================================================================
+        // Modal Management
+        // =================================================================
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const backdrop = modal.querySelector('.success-modal-backdrop, .failure-modal-backdrop');
+            const content = modal.querySelector('.success-modal-content, .failure-modal-content');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                if (backdrop) backdrop.classList.add('visible');
+                if (content) content.classList.add('visible');
+            }, 10);
+        }
+
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const backdrop = modal.querySelector('.success-modal-backdrop, .failure-modal-backdrop');
+            const content = modal.querySelector('.success-modal-content, .failure-modal-content');
+
+            if (backdrop) backdrop.classList.remove('visible');
+            if (content) content.classList.remove('visible');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function showSuccessModal(title, message, newPassword = null) {
+            document.getElementById('successModalTitle').textContent = title;
+            document.getElementById('successModalMessage').textContent = message;
+            const passwordContainer = document.getElementById('passwordDisplayContainer');
+            if (newPassword) {
+                document.getElementById('newPasswordInput').value = newPassword;
+                passwordContainer.classList.remove('hidden');
+                // Reset copy button state
+                const copyBtn = document.getElementById('copyPasswordBtn');
+                copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+                copyBtn.disabled = false;
+            } else {
+                passwordContainer.classList.add('hidden');
+            }
+            showModal('successModal');
+        }
+
+        function closeSuccessModal() {
+            hideModal('successModal');
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorModalMessage').textContent = message;
+            showModal('errorModal');
+        }
+
+        function closeErrorModal() {
+            hideModal('errorModal');
+        }
+
+        function showConfirmationModal(title, message, onConfirm) {
+            document.getElementById('confirmationModalTitle').textContent = title;
+            document.getElementById('confirmationModalMessage').textContent = message;
+            
+            const confirmBtn = document.getElementById('confirmationModalConfirm');
+            const cancelBtn = document.getElementById('confirmationModalCancel');
+
+            // Clone and replace the confirm button to remove old event listeners
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            
+            newConfirmBtn.onclick = () => {
+                hideModal('confirmationModal');
+                onConfirm();
+            };
+            cancelBtn.onclick = () => hideModal('confirmationModal');
+
+            showModal('confirmationModal');
+        }
+
+        function copyPassword() {
+            const passwordInput = document.getElementById('newPasswordInput');
+            passwordInput.select();
+            document.execCommand('copy');
+
+            const copyBtn = document.getElementById('copyPasswordBtn');
+            copyBtn.innerHTML = `<i class="fa-solid fa-check text-green-500"></i> ${translations.copied}`;
+            copyBtn.disabled = true;
+        }
+
+
+        // =================================================================
+        // API & Data Handling
+        // =================================================================
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            const headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            if (token) {
+                headers.append('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        }
+
+        async function fetchUsers() {
+            const tableBody = document.getElementById('usersTableBody');
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-slate-500"><i class="fa-solid fa-spinner fa-spin fa-lg"></i><p class="mt-2">${translations.loading}</p></td></tr>`;
+            try {
+                const response = await fetch('/api/users', { headers: getAuthHeaders() });
+                if (response.status === 401) { window.location.href = '/login'; return; }
+                if (!response.ok) throw new Error(translations.failedToLoad);
+                
+                const users = await response.json();
+                renderUsers(users);
+            } catch (error) {
+                showErrorModal(error.message);
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-red-500">${error.message}</td></tr>`;
+            }
+        }
+
+        function renderUsers(users) {
+            const tableBody = document.getElementById('usersTableBody');
+            tableBody.innerHTML = '';
+            if (users.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-slate-500">${translations.noAccounts}</td></tr>`;
+                return;
+            }
+            users.forEach(user => {
+                const row = `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">${user.email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">${user.role}</span></td>
+                        <td class="px-6 py-4 whitespace-nowrap">${user.employee_name || translations.notLinked}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${new Date(user.created_at).toLocaleDateString(document.documentElement.lang === 'ar' ? 'ar-SA' : 'en-US')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button onclick='openEditModal(${JSON.stringify(user)})' class="text-[#003366] hover:text-[#002244] transition-colors mr-3" title="${translations.editAccount}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path></svg>
+                            </button>
+                            <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-800 transition-colors mr-3" title="${translations.deleteAccount}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                            <button onclick="resetUserPassword(${user.id})" class="text-purple-600 hover:text-purple-800 transition-colors" title="${translations.resetPassword}">
+                                <i class="fa-solid fa-key"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function setupEventListeners() {
+            document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
+            document.getElementById('editUserForm').addEventListener('submit', handleUpdateUser);
+            document.getElementById('employee_id').addEventListener('change', handleEmployeeSelection);
+        }
+
+        async function showAddUserModal() {
+            document.getElementById('addUserForm').reset();
+            document.getElementById('addUserError').classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/employees/unlinked', { headers: getAuthHeaders() });
+                if (!response.ok) throw new Error(translations.failedToLoadEmployees);
+                const employees = await response.json();
+                const select = document.getElementById('employee_id');
+                select.innerHTML = `<option value="">${translations.noLink}</option>`;
+                employees.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp.id;
+                    option.textContent = emp.full_name;
+                    option.dataset.email = emp.email;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showErrorModal(error.message);
+            }
+            
+            document.getElementById('addUserModal').classList.remove('hidden');
+        }
+
+        function hideAddUserModal() {
+            document.getElementById('addUserModal').classList.add('hidden');
+        }
+
+        async function openEditModal(user) {
+            document.getElementById('editUserForm').reset();
+            document.getElementById('editUserError').classList.add('hidden');
+
+            document.getElementById('edit_user_id').value = user.id;
+            document.getElementById('edit_email').value = user.email;
+            document.getElementById('edit_role').value = user.role;
+
+            const select = document.getElementById('edit_employee_id');
+            select.innerHTML = '';
+            select.add(new Option(translations.noLink, ''));
+
+            if (user.employee_id) {
+                select.add(new Option(user.employee_name, user.employee_id, true, true));
+            }
+
+            try {
+                const response = await fetch('/api/employees/unlinked', { headers: getAuthHeaders() });
+                if (!response.ok) throw new Error(translations.failedToLoadEmployees);
+                const employees = await response.json();
+                employees.forEach(emp => {
+                    if (emp.id !== user.employee_id) {
+                        select.add(new Option(emp.full_name, emp.id));
+                    }
+                });
+            } catch (error) {
+                showErrorModal(error.message);
+            }
+
+            document.getElementById('editUserModal').classList.remove('hidden');
+        }
+
+        function hideEditUserModal() {
+            document.getElementById('editUserModal').classList.add('hidden');
+        }
+
+        function handleEmployeeSelection(event) {
+            const selectElement = event.target;
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const emailInput = document.getElementById('email');
+            
+            if (selectedOption && selectedOption.dataset.email) {
+                emailInput.value = selectedOption.dataset.email;
+            } else {
+                emailInput.value = '';
+            }
+        }
+
+        async function handleAddUser(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const userData = Object.fromEntries(formData.entries());
+            
+            if (userData.employee_id) {
+                userData.employee_id = parseInt(userData.employee_id, 10);
+            } else {
+                delete userData.employee_id;
+            }
+
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(userData)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || translations.failedAdd);
+                
+                hideAddUserModal();
+                showSuccessModal(translations.added, translations.addedMsg);
+                fetchUsers();
+
+            } catch (error) {
+                const errorDiv = document.getElementById('addUserError');
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        async function handleUpdateUser(event) {
+            event.preventDefault();
+            const form = event.target;
+            const userId = form.user_id.value;
+            const updatedData = {
+                role: form.role.value,
+                employee_id: form.employee_id.value ? parseInt(form.employee_id.value, 10) : null
+            };
+
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(updatedData)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || translations.failedUpdate);
+                
+                hideEditUserModal();
+                showSuccessModal(translations.updated, translations.updatedMsg);
+                fetchUsers();
+
+            } catch (error) {
+                const errorDiv = document.getElementById('editUserError');
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function deleteUser(userId) {
+            showConfirmationModal(
+                translations.confirmDeletion,
+                translations.confirmDeletionMsg,
+                async () => {
+                    try {
+                        const response = await fetch(`/api/users/${userId}`, {
+                            method: 'DELETE',
+                            headers: getAuthHeaders()
+                        });
+                        const result = await response.json();
+                        if (!response.ok) throw new Error(result.error || translations.failedDelete);
+                        
+                        showSuccessModal(translations.deleted, translations.deletedMsg);
+                        fetchUsers();
+
+                    } catch (error) {
+                        showErrorModal(error.message);
+                    }
+                }
+            );
+        }
+
+        function resetUserPassword(userId) {
+            showConfirmationModal(
+                translations.resetPasswordTitle,
+                translations.resetPasswordMsg,
+                async () => {
+                    try {
+                        const response = await fetch(`/api/users/${userId}/reset-password`, {
+                            method: 'POST',
+                            headers: getAuthHeaders()
+                        });
+                        const result = await response.json();
+                        if (!response.ok) throw new Error(result.error || translations.failedReset);
+                        
+                        showSuccessModal(
+                            translations.resetSuccess,
+                            translations.resetSuccessMsg,
+                            result.new_password
+                        );
+
+                    } catch (error) {
+                        showErrorModal(error.message);
+                    }
+                }
+            );
+        }
+    </script>
+</body>
+</html>

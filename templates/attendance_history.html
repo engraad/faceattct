@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Attendance History - Admin Dashboard') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .status-present { background-color: #dcfce7; color: #166534; }
+        .status-absent { background-color: #fee2e2; color: #991b1b; }
+        .status-late { background-color: #fef9c3; color: #78350f; }
+        
+        .filter-card {
+            background: linear-gradient(135deg, #003366 0%, #002244 100%);
+        }
+        
+        .table-row:hover {
+            background-color: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+         .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #003366;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+  
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Summary Cards -->
+        <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <!-- Summary cards will be populated by JavaScript -->
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-card rounded-xl p-6 mb-8 text-white">
+            <h3 class="text-xl font-semibold mb-4">
+                <i class="fa-solid fa-filter mr-2"></i>{{ _('Filter Attendance Records') }}
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">{{ _('Employee') }}</label>
+                    <select id="employeeFilter" class="w-full px-4 py-3 rounded-lg text-gray-800 focus:ring-2 focus:ring-[#bda260] focus:ring-opacity-50 bg-white bg-opacity-20 border border-white border-opacity-30">
+                        <option value="">{{ _('All Employees') }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">{{ _('Start Date') }}</label>
+                    <input type="date" id="startDateFilter" class="w-full px-4 py-3 rounded-lg text-gray-800 focus:ring-2 focus:ring-[#bda260] focus:ring-opacity-50 bg-white bg-opacity-20 border border-white border-opacity-30">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">{{ _('End Date') }}</label>
+                    <input type="date" id="endDateFilter" class="w-full px-4 py-3 rounded-lg text-gray-800 focus:ring-2 focus:ring-[#bda260] focus:ring-opacity-50 bg-white bg-opacity-20 border border-white border-opacity-30">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">{{ _('Status') }}</label>
+                    <select id="statusFilter" class="w-full px-4 py-3 rounded-lg text-gray-800 focus:ring-2 focus:ring-[#bda260] focus:ring-opacity-50 bg-white bg-opacity-20 border border-white border-opacity-30">
+                        <option value="">{{ _('All Status') }}</option>
+                        <option value="Present">{{ _('Present') }}</option>
+                        <option value="Absent">{{ _('Absent') }}</option>
+                        <option value="Late">{{ _('Late') }}</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="applyFilters()"  class="w-full bg-[#002244] text-white px-4 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors flex items-center justify-center btn-hover-scale shadow-md hover:shadow-lg">
+                        <i class="fa-solid fa-search mr-2"></i>{{ _('Apply Filters') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Table -->
+       <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fa-solid fa-table mr-2"></i>{{ _('Attendance Records') }}
+                </h3>
+                <div class="flex items-center space-x-4">
+                    <button onclick="exportData()"class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center btn-hover-scale">
+                        <i class="fa-solid fa-download mr-2"></i>{{ _('Export') }}
+                    </button>
+                    <button onclick="refreshData()" class="bg-[#002244] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#003366] transition-colors flex items-center btn-hover-scale">
+                        <i class="fa-solid fa-refresh mr-2"></i>{{ _('Refresh') }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+ <div id="loadingState" class="flex justify-center items-center py-12">
+                <div class="loading-spinner"></div>
+                <span id="loadingText" class="ml-3 text-gray-600">{{ _('Loading attendance records...') }}</span>
+            </div>
+
+            <!-- Table -->
+            <div id="tableContainer" class="hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('Employee') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('Date') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('Check In') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('Check Out') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('Duration') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('Status') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ _('Late') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                 <div id="paginationContainer" class="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+                    <div id="recordsInfo" class="text-sm text-gray-600">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="prevPageBtn" onclick="changePage(-1)" class="px-3 py-1 rounded bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <span id="pageInfo" class="px-3 py-1 text-gray-600"><!-- Populated by JS --></span>
+                        <button id="nextPageBtn" onclick="changePage(1)" class="px-3 py-1 rounded bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+               <div id="emptyState" class="hidden text-center py-12">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-calendar-times text-2xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ _('No Attendance Records Found') }}</h3>
+                <p class="text-gray-600">{{ _('Try adjusting your filters or check back later.') }}</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const translations = {
+            allEmployees: "{{ _('All Employees') }}",
+            totalRecords: "{{ _('Total Records') }}",
+            present: "{{ _('Present') }}",
+            absent: "{{ _('Absent') }}",
+            late: "{{ _('Late') }}",
+            attendanceRate: "{{ _('Attendance Rate') }}",
+            onTime: "{{ _('On time') }}",
+            lateMinutes: "{{ _('m late') }}",
+            showingRecords: "{{ _('Showing') }}",
+            of: "{{ _('of') }}",
+            records: "{{ _('records') }}",
+            page: "{{ _('Page') }}",
+            errorLoadingEmployees: "{{ _('Error loading employees:') }}",
+            errorLoadingSummary: "{{ _('Error loading summary:') }}",
+            errorLoadingAttendance: "{{ _('Error loading attendance data:') }}"
+        };
+
+        let currentPage = 1;
+        let currentFilters = {};
+        let allEmployees = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmployees();
+            loadSummary();
+            loadAttendanceData();
+        });
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+
+                const employeeSelect = document.getElementById('employeeFilter');
+                employeeSelect.innerHTML = `<option value="">${translations.allEmployees}</option>`;
+
+                data.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.id;
+                    option.textContent = `${employee.full_name} (EMP${employee.id.toString().padStart(4, '0')})`;
+                    employeeSelect.appendChild(option);
+                });
+
+                allEmployees = data;
+            } catch (error) {
+                console.error(translations.errorLoadingEmployees, error);
+            }
+        }
+
+        async function loadSummary() {
+            try {
+                const params = new URLSearchParams(currentFilters);
+                const response = await fetch(`/api/attendance/summary?${params}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const summaryContainer = document.getElementById('summaryCards');
+                    summaryContainer.innerHTML = `
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-calendar-check text-blue-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">${translations.totalRecords}</p>
+                                    <p class="text-2xl font-bold text-gray-900">${data.summary.total_records}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-user-check text-green-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">${translations.present}</p>
+                                    <p class="text-2xl font-bold text-gray-900">${data.summary.present_count}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-user-times text-red-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">${translations.absent}</p>
+                                    <p class="text-2xl font-bold text-gray-900">${data.summary.absent_count}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-clock text-yellow-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">${translations.late}</p>
+                                    <p class="text-2xl font-bold text-gray-900">${data.summary.late_count}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-percentage text-indigo-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">${translations.attendanceRate}</p>
+                                    <p class="text-2xl font-bold text-gray-900">${data.summary.attendance_rate}%</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error(translations.errorLoadingSummary, error);
+            }
+        }
+
+        async function loadAttendanceData() {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('tableContainer').classList.add('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+
+                const params = new URLSearchParams({
+                    ...currentFilters,
+                    page: currentPage,
+                    per_page: 50
+                });
+
+                const response = await fetch(`/api/attendance/history?${params}`);
+                const data = await response.json();
+
+                document.getElementById('loadingState').classList.add('hidden');
+
+                if (data.success && data.data.length > 0) {
+                    displayAttendanceData(data.data);
+                    updatePagination(data.pagination);
+                    document.getElementById('tableContainer').classList.remove('hidden');
+                } else {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error(translations.errorLoadingAttendance, error);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        }
+
+        function displayAttendanceData(records) {
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '';
+
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+
+                // Format date
+                const date = new Date(record.date).toLocaleDateString(document.documentElement.lang === 'ar' ? 'ar-SA' : 'en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                // Status badge
+                let statusBadge = '';
+                if (record.status === 'Present') {
+                    statusBadge = `<span class="status-present px-2 py-1 rounded-full text-xs font-medium">${translations.present}</span>`;
+                } else if (record.status === 'Absent') {
+                    statusBadge = `<span class="status-absent px-2 py-1 rounded-full text-xs font-medium">${translations.absent}</span>`;
+                } else {
+                    statusBadge = `<span class="status-late px-2 py-1 rounded-full text-xs font-medium">${translations.late}</span>`;
+                }
+
+                // Late indicator
+                let lateIndicator = '';
+                if (record.status === 'Absent') {
+                    lateIndicator = '<span class="text-gray-500">-</span>';
+                } else if (record.is_late) {
+                    lateIndicator = `<span class="text-red-600 font-medium">${record.late_minutes}${translations.lateMinutes}</span>`;
+                } else {
+                    lateIndicator = `<span class="text-green-600">${translations.onTime}</span>`;
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center">
+                                <span class="text-[#003366] font-semibold text-sm">${record.employee_name.charAt(0)}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${record.employee_name}</div>
+                                <div class="text-sm text-gray-500">${record.employee_code} • ${record.department}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.check_in || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.check_out || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.work_duration || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${lateIndicator}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function updatePagination(pagination) {
+            const recordsInfo = document.getElementById('recordsInfo');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+
+            const start = (pagination.page - 1) * pagination.per_page + 1;
+            const end = Math.min(pagination.page * pagination.per_page, pagination.total);
+
+            recordsInfo.textContent = `${translations.showingRecords} ${start}-${end} ${translations.of} ${pagination.total} ${translations.records}`;
+            pageInfo.textContent = `${translations.page} ${pagination.page} ${translations.of} ${pagination.pages}`;
+
+            prevBtn.disabled = pagination.page <= 1;
+            nextBtn.disabled = pagination.page >= pagination.pages;
+        }
+
+        function applyFilters() {
+            currentFilters = {
+                employee_id: document.getElementById('employeeFilter').value,
+                start_date: document.getElementById('startDateFilter').value,
+                end_date: document.getElementById('endDateFilter').value,
+                status: document.getElementById('statusFilter').value
+            };
+
+            // Remove empty filters
+            Object.keys(currentFilters).forEach(key => {
+                if (!currentFilters[key]) {
+                    delete currentFilters[key];
+                }
+            });
+
+            currentPage = 1;
+            loadSummary();
+            loadAttendanceData();
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            loadAttendanceData();
+        }
+
+        function refreshData() {
+            loadSummary();
+            loadAttendanceData();
+        }
+
+        function exportData() {
+            const params = new URLSearchParams(currentFilters);
+            window.open(`/api/attendance/export?${params}`, '_blank');
+        }
+    </script>
+</body>
+
+</html>

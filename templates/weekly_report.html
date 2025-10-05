@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Weekly Report - Academia') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background: white !important;
+                color: black !important;
+                font-size: 12pt;
+                line-height: 1.4;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            /* تحسين تنسيق التقرير للطباعة */
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: none !important;
+            }
+
+            /* تحسين العناصر للطباعة */
+            .bg-white {
+                background: white !important;
+                border: 1px solid #ddd !important;
+                box-shadow: none !important;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+
+            .rounded-2xl, .rounded-lg {
+                border-radius: 0 !important;
+            }
+
+            .shadow-sm {
+                box-shadow: none !important;
+            }
+
+            /* تحسين الجدول للطباعة */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 11pt;
+            }
+
+            th, td {
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }
+
+            th {
+                background: #f8f8f8 !important;
+                font-weight: bold;
+                color: black !important;
+            }
+
+            /* تحسين العناوين */
+            h2, h3, h4 {
+                color: black !important;
+                margin-bottom: 12px;
+            }
+
+            h2 {
+                font-size: 18pt;
+                border-bottom: 2px solid #333;
+                padding-bottom: 8px;
+            }
+
+            h3 {
+                font-size: 14pt;
+            }
+
+            h4 {
+                font-size: 12pt;
+                font-weight: bold;
+            }
+
+            /* تحسين المخطط البياني */
+            .h-48 {
+                height: 300px !important;
+            }
+
+            canvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            /* تحسين القوائم */
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            li {
+                padding: 6px 0;
+                border-bottom: 1px solid #eee;
+            }
+
+            li:last-child {
+                border-bottom: none;
+            }
+
+            /* منع تقسيم العناصر بين الصفحات */
+            .bg-white, table, .grid {
+                page-break-inside: avoid;
+            }
+
+            /* تحسين الهوامش */
+            @page {
+                margin: 1cm;
+                size: portrait;
+            }
+
+            /* إضافة رأس وتذييل للطباعة */
+            @page {
+                @top-left {
+                    content: "Weekly Attendance Report";
+                    font-size: 10pt;
+                    color: #666;
+                }
+                @bottom-right {
+                    content: "Page " counter(page) " of " counter(pages);
+                    font-size: 10pt;
+                    color: #666;
+                }
+                @bottom-left {
+                    content: "Generated by Al-Saeed University";
+                    font-size: 10pt;
+                    color: #666;
+                }
+            }
+
+            /* إخفاء العناصر غير الضرورية */
+            .flex.items-center.space-x-2,
+            .text-slate-500,
+            .transition-colors {
+                display: none !important;
+            }
+
+            /* تحسين المسافات */
+            .space-y-8 > * + * {
+                margin-top: 24px !important;
+            }
+
+            .mb-10 {
+                margin-bottom: 30px !important;
+            }
+
+            .mb-4 {
+                margin-bottom: 16px !important;
+            }
+
+            .mt-1 {
+                margin-top: 4px !important;
+            }
+
+            .p-6 {
+                padding: 24px !important;
+            }
+
+            .py-10 {
+                padding-top: 30px !important;
+                padding-bottom: 30px !important;
+            }
+
+            .px-6 {
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased text-slate-800">
+
+    <div class="no-print">
+        {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+    </div>
+
+    <!-- Main Report Content -->
+    <main class="container mx-auto px-6 py-10">
+
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-900">{{ _('Weekly Attendance Report') }}</h2>
+                <p id="report-date-range" class="text-slate-500 mt-1">{{ _('Loading week dates...') }}</p>
+            </div>
+            <div class="flex space-x-3 no-print">
+                <button onclick="window.print()"
+                    class="bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg hover:bg-slate-300 transition-colors flex items-center space-x-2">
+                    <i class="fa-solid fa-print"></i><span>{{ _('Print') }}</span>
+                </button>
+                <button onclick="exportToPDF()"
+                    class="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2">
+                    <i class="fa-solid fa-file-pdf"></i><span>{{ _('Export PDF') }}</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="report-content" class="space-y-8">
+            <!-- Loading Spinner -->
+            <div id="loading-state" class="text-center py-20">
+                <i class="fa-solid fa-spinner fa-spin fa-3x text-indigo-500"></i>
+                <p class="mt-4 text-slate-500">{{ _('Generating weekly report...') }}</p>
+            </div>
+
+            <!-- Content will be hidden initially and shown after data loads -->
+            <div id="data-state" class="hidden space-y-8">
+                <!-- Attendance Summary Table -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">{{ _('Attendance Summary') }}</h3>
+                    <div class="overflow-x-auto">
+                        <table id="summary-table" class="min-w-full text-left">
+                            <thead class="border-b border-slate-200">
+                                <tr>
+                                    <th class="py-3 px-4 text-sm font-semibold text-slate-500">{{ _('Day') }}</th>
+                                    <th class="py-3 px-4 text-sm font-semibold text-slate-500">{{ _('Present') }}</th>
+                                    <th class="py-3 px-4 text-sm font-semibold text-slate-500">{{ _('Absent') }}</th>
+                                    <th class="py-3 px-4 text-sm font-semibold text-slate-500">{{ _('Avg. Check-in Time') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Attendance Trend Chart -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="mb-4">
+                        <p class="text-slate-500">{{ _('Weekly Attendance Average') }}</p>
+                        <p id="weekly-avg-attendance" class="text-4xl font-bold mt-1">0</p>
+                    </div>
+                    <div class="h-48"><canvas id="attendanceTrendChart"></canvas></div>
+                </div>
+
+                <!-- Employee Punctuality -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">{{ _('Employee Punctuality') }}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-200 border border-slate-200 rounded-lg">
+                        <div class="bg-white">
+                            <h4 class="p-4 font-semibold border-b border-slate-200">{{ _('Most Punctual') }}</h4>
+                            <ul id="most-punctual-list" class="divide-y divide-slate-100"></ul>
+                        </div>
+                        <div class="bg-white">
+                            <h4 class="p-4 font-semibold border-b border-slate-200">{{ _('Least Punctual') }}</h4>
+                            <ul id="least-punctual-list" class="divide-y divide-slate-100"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const translations = {
+            couldNotLoad: "{{ _('Could not load report data. Please try again later.') }}",
+            weekOf: "{{ _('Week of') }}",
+            noDataAvailable: "{{ _('No data available') }}",
+            attendance: "{{ _('Attendance') }}",
+            reportTitle: "{{ _('WEEKLY ATTENDANCE REPORT') }}",
+            weeklyAverage: "{{ _('Weekly Average:') }}",
+            employees: "{{ _('employees') }}",
+            generated: "{{ _('Generated:') }}",
+            attendanceTrend: "{{ _('Attendance Trend') }}",
+            mostPunctual: "{{ _('Most Punctual:') }}",
+            leastPunctual: "{{ _('Least Punctual:') }}",
+            footer: "{{ _('Generated by Al-Saeed University') }}",
+            pdfError: "{{ _('Error generating PDF report. Please try again.') }}"
+        };
+
+        // Helper function to get authentication headers
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token'); // Assuming token is stored in localStorage
+            if (token) {
+                return {
+                    'Authorization': `Bearer ${token}`
+                };
+            }
+            return {};
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchWeeklyReportData();
+        });
+
+        // Main function to fetch and render all data
+        async function fetchWeeklyReportData() {
+            const loadingEl = document.getElementById('loading-state');
+            const dataEl = document.getElementById('data-state');
+
+            try {
+                const response = await fetch('/api/reports/weekly', {
+                    headers: getAuthHeaders() // Add authentication headers
+                });
+                if (response.status === 401) {
+                    window.location.href = '/login'; // Redirect to login if unauthorized
+                    return;
+                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+
+                // Populate all sections with the fetched data
+                populateHeader(data.week_start, data.week_end);
+                populateSummaryTable(data.daily_summary);
+                populatePunctualityLists(data.punctuality);
+                renderTrendChart(data.daily_summary);
+
+                // Hide loader and show content
+                loadingEl.style.display = 'none';
+                dataEl.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Failed to fetch weekly report:", error);
+                loadingEl.innerHTML =
+                    `<p class="text-red-500 font-semibold">${translations.couldNotLoad}</p>`;
+            }
+        }
+
+        // Helper function to format dates for the header
+        function formatHeaderDate(isoDate) {
+            return new Date(isoDate + 'T00:00:00').toLocaleDateString('{{ language }}' === 'ar' ? 'ar-SA' : 'en-US', {
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function populateHeader(start, end) {
+            const startDate = formatHeaderDate(start);
+            const endDate = formatHeaderDate(end);
+            const year = new Date(start + 'T00:00:00').getFullYear();
+            document.getElementById('report-date-range').textContent = `${translations.weekOf} ${startDate} - ${endDate}, ${year}`;
+        }
+
+        function populateSummaryTable(summaryData) {
+            const tableBody = document.getElementById('summary-table-body');
+            tableBody.innerHTML = ''; // Clear placeholders
+            summaryData.forEach(day => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-medium">${day.day}</td>
+                        <td class="p-4 text-slate-600">${day.present}</td>
+                        <td class="p-4 text-slate-600">${day.absent}</td>
+                        <td class="p-4 text-slate-600">${day.avg_check_in}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function populatePunctualityLists(punctualityData) {
+            const mostList = document.getElementById('most-punctual-list');
+            const leastList = document.getElementById('least-punctual-list');
+            mostList.innerHTML = '';
+            leastList.innerHTML = '';
+
+            punctualityData.most_punctual.forEach(name => {
+                mostList.innerHTML += `<li class="p-4 text-slate-600">${name}</li>`;
+            });
+            if (punctualityData.most_punctual.length === 0) {
+                mostList.innerHTML = `<li class="p-4 text-slate-400">${translations.noDataAvailable}</li>`;
+            }
+
+            punctualityData.least_punctual.forEach(name => {
+                leastList.innerHTML += `<li class="p-4 text-slate-600">${name}</li>`;
+            });
+            if (punctualityData.least_punctual.length === 0) {
+                leastList.innerHTML = `<li class="p-4 text-slate-400">${translations.noDataAvailable}</li>`;
+            }
+        }
+
+        let attendanceChart = null; // Variable to hold the chart instance
+        function renderTrendChart(summaryData) {
+            const labels = summaryData.map(day => day.day.substring(0, 3));
+            const dataPoints = summaryData.map(day => day.present);
+
+            // Calculate average attendance for the card
+            const totalPresent = dataPoints.reduce((acc, val) => acc + val, 0);
+            const weeklyAvg = dataPoints.length > 0 ? Math.round(totalPresent / dataPoints.length) : 0;
+            document.getElementById('weekly-avg-attendance').textContent = weeklyAvg;
+
+            const ctx = document.getElementById('attendanceTrendChart').getContext('2d');
+
+            // If a chart instance already exists, destroy it before creating a new one
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+
+            attendanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: translations.attendance,
+                        data: dataPoints,
+                        borderColor: '#4b5563',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function exportToPDF() {
+            try {
+                // Show loading state
+                const btn = document.querySelector('button[onclick="exportToPDF()"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>{{ _("Generating PDF...") }}';
+                btn.disabled = true;
+
+                // Request PDF from server
+                const response = await fetch('/api/reports/weekly/pdf', {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Download the PDF
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `weekly_report_${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                alert(translations.pdfError);
+            } finally {
+                // Restore button state
+                const btn = document.querySelector('button[onclick="exportToPDF()"]');
+                btn.innerHTML = '<i class="fa-solid fa-file-pdf mr-2"></i>{{ _("Export PDF") }}';
+                btn.disabled = false;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

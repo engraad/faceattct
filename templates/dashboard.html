@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Admin Dashboard - Attendance Tracker') }}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chart.js for Powerful Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            /* slate-50 */
+            overflow-x: hidden; /* منع التمرير الأفقي */
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* منع التمدد الأفقي للمحتوى */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            /* slate-100 */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            /* slate-300 */
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+            /* slate-400 */
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <div class="flex flex-col min-h-screen">
+        {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-8 flex-grow">
+            <!-- Dashboard Header -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-gray-900">{{ _('Dashboard') }}</h2>
+                <p class="text-gray-600 mt-2">{{ _('Welcome back! Here\'s your real-time attendance overview.') }}</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">{{ _('Quick Actions') }}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="/employees" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:transform hover:scale-105">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-[#003366] bg-opacity-10 rounded-lg flex items-center justify-center group-hover:bg-[#003366] group-hover:bg-opacity-20 transition-colors">
+                                <i class="fa-solid fa-users text-[#003366]"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ _('Manage Employees') }}</p>
+                                <p class="text-sm text-gray-500">{{ _('View and edit employee data') }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="/departments" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:transform hover:scale-105">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-[#003366] bg-opacity-10 rounded-lg flex items-center justify-center group-hover:bg-[#003366] group-hover:bg-opacity-20 transition-colors">
+                                <i class="fa-solid fa-building text-[#003366]"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ _('Manage Departments') }}</p>
+                                <p class="text-sm text-gray-500">{{ _('Organize company structure') }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="/attendance/history" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:transform hover:scale-105">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-[#003366] bg-opacity-10 rounded-lg flex items-center justify-center group-hover:bg-[#003366] group-hover:bg-opacity-20 transition-colors">
+                                <i class="fa-solid fa-history text-[#003366]"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ _('View Attendance History') }}</p>
+                                <p class="text-sm text-gray-500">{{ _('Browse attendance records') }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="/onboarding/face-setup" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:transform hover:scale-105">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-[#003366] bg-opacity-10 rounded-lg flex items-center justify-center group-hover:bg-[#003366] group-hover:bg-opacity-20 transition-colors">
+                                <i class="fa-solid fa-user-check text-[#003366]"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ _('Employee Check-In') }}</p>
+                                <p class="text-sm text-gray-500">{{ _('Face recognition attendance') }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="/settings" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:transform hover:scale-105">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-[#003366] bg-opacity-10 rounded-lg flex items-center justify-center group-hover:bg-[#003366] group-hover:bg-opacity-20 transition-colors">
+                                <i class="fa-solid fa-cog text-[#003366]"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ _('System Settings') }}</p>
+                                <p class="text-sm text-gray-500">{{ _('Configure attendance rules') }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Card Template -->
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 flex items-start justify-between">
+                    <div>
+                        <p class="text-gray-600 font-medium">{{ _('Present') }}</p>
+                        <p id="present-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                        <p class="text-green-500 text-sm font-semibold mt-1 flex items-center"><i
+                                class="fa-solid fa-arrow-up mr-1"></i>+10%</p>
+                    </div>
+                    <div class="bg-green-100 text-green-600 p-3 rounded-xl">
+                        <i class="fa-solid fa-user-check fa-xl"></i>
+                    </div>
+                </div>
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 flex items-start justify-between">
+                    <div>
+                        <p class="text-gray-600 font-medium">{{ _('Absent') }}</p>
+                        <p id="absent-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                        <p class="text-red-500 text-sm font-semibold mt-1 flex items-center"><i
+                                class="fa-solid fa-arrow-down mr-1"></i>-5%</p>
+                    </div>
+                    <div class="bg-red-100 text-red-600 p-3 rounded-xl">
+                        <i class="fa-solid fa-user-slash fa-xl"></i>
+                    </div>
+                </div>
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 flex items-start justify-between">
+                    <div>
+                        <p class="text-gray-600 font-medium">{{ _('Late') }}</p>
+                        <p id="late-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                        <p class="text-amber-500 text-sm font-semibold mt-1 flex items-center"><i
+                                class="fa-solid fa-arrow-up mr-1"></i>+2%</p>
+                    </div>
+                    <div class="bg-amber-100 text-amber-600 p-3 rounded-xl">
+                        <i class="fa-solid fa-user-clock fa-xl"></i>
+                    </div>
+                </div>
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 flex items-start justify-between">
+                    <div>
+                        <p class="text-gray-600 font-medium">{{ _('Alerts') }}</p>
+                        <p id="alert-count" class="text-3xl font-bold text-gray-800 mt-2">2</p>
+                        <p class="text-gray-400 text-sm font-semibold mt-1">{{ _('Today') }}</p>
+                    </div>
+                    <div class="bg-gray-100 text-gray-500 p-3 rounded-xl">
+                        <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+           <!-- Main Section: Chart and Recent Attendance -->
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <!-- Left Side: Chart -->
+                <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">{{ _('Weekly Attendance Summary') }}</h3>
+                    <div class="h-80">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Right Side: Recent Attendance Table -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">{{ _('Recent Activity') }}</h3>
+                    <div class="overflow-y-auto h-80">
+                        <table class="min-w-full text-left text-sm">
+                            <thead class="sticky top-0 bg-white">
+                                <tr class="border-b border-gray-200">
+                                    <th scope="col" class="px-4 py-3 font-semibold text-gray-700 uppercase tracking-wider">{{ _('Employee') }}</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold text-gray-700 uppercase tracking-wider">{{ _('Time') }}</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold text-gray-700 uppercase tracking-wider">{{ _('Status') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-attendance-table" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="3" class="text-center p-8 text-gray-500">{{ _('Loading activity...') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            const headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            if (token) {
+                headers.append('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDashboardStats();
+            fetchRecentAttendance();
+            fetchAndRenderAttendanceChart();
+        });
+
+        async function fetchDashboardStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats', { headers: getAuthHeaders() });
+                if (response.status === 401) window.location.href = '/login';
+                if (!response.ok) throw new Error('Stats API fetch failed');
+
+                const stats = await response.json();
+
+                document.getElementById('present-count').textContent = stats.present;
+                document.getElementById('absent-count').textContent = stats.absent;
+                document.getElementById('late-count').textContent = stats.late;
+                document.getElementById('alert-count').textContent = stats.alerts;
+            } catch (error) {
+                console.error('Failed to fetch dashboard stats:', error);
+            }
+        }
+
+        async function fetchRecentAttendance() {
+            try {
+                const response = await fetch('/api/attendance/recent', { headers: getAuthHeaders() });
+                if (response.status === 401) window.location.href = '/login';
+                if (!response.ok) throw new Error('Recent Attendance API fetch failed');
+
+                const records = await response.json();
+                const tableBody = document.getElementById('recent-attendance-table');
+                tableBody.innerHTML = '';
+
+                if (records.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="3" class="text-center p-8 text-gray-500">{{ _('No recent activity.') }}</td></tr>`;
+                    return;
+                }
+
+                records.forEach(record => {
+                    const row = `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-4 font-medium text-gray-800">${record.employee_name || 'N/A'}</td>
+                            <td class="p-4 text-gray-500">${record.check_in || '--:--'}</td>
+                            <td class="p-4">
+                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusPill(record.status)}">
+                                    ${record.status || 'N/A'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Failed to fetch recent attendance:', error);
+                document.getElementById('recent-attendance-table').innerHTML = `<tr><td colspan="3" class="text-center p-8 text-red-500">{{ _('Failed to load activity.') }}</td></tr>`;
+            }
+        }
+
+        function getStatusPill(status) {
+            switch (status) {
+                case 'Present': return 'bg-green-100 text-green-700';
+                case 'Late': return 'bg-amber-100 text-amber-700';
+                case 'Absent': return 'bg-red-100 text-red-700';
+                default: return 'bg-gray-100 text-gray-600';
+            }
+        }
+
+        async function fetchAndRenderAttendanceChart() {
+            try {
+                const response = await fetch('/api/dashboard/weekly-summary', { headers: getAuthHeaders() });
+                if (response.status === 401) window.location.href = '/login';
+                if (!response.ok) throw new Error('Weekly summary API fetch failed');
+                const chartData = await response.json();
+                renderAttendanceChart(chartData.labels, chartData.data);
+            } catch (error) {
+                console.error('Failed to fetch or render attendance chart:', error);
+                renderAttendanceChart([], [], true);
+            }
+        }
+
+        function renderAttendanceChart(labels, data, isError = false) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(0, 51, 102, 0.2)');
+            gradient.addColorStop(1, 'rgba(0, 51, 102, 0)');
+
+            const chartConfig = {
+                type: 'line',
+                data: {
+                    labels: isError ? ['Error'] : labels,
+                    datasets: [{
+                        label: "{{ _('Daily Attendance') }}",
+                        data: isError ? [0] : data,
+                        fill: true,
+                        backgroundColor: gradient,
+                        borderColor: '#003366',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#003366',
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#003366',
+                        pointHoverBorderColor: '#fff',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e5e7eb' }, ticks: { color: '#4b5563' } },
+                        x: { grid: { display: false }, ticks: { color: '#4b5563' } }
+                    }
+                }
+            };
+
+            if (isError) {
+                chartConfig.data.datasets[0].label = "{{ _('Failed to load data') }}";
+                chartConfig.data.datasets[0].borderColor = '#ef4444';
+            }
+
+            new Chart(ctx, chartConfig);
+        }
+    </script>
+</body>
+
+</html>

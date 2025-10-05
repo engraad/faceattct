@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Face Registration - Employee Management') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .camera-container {
+            position: relative;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .face-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 400px;
+             border: 3px solid #003366;
+         
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        
+        .face-guide.detecting {
+            border-color: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+        
+        .face-guide.detected {
+          border-color: #003366;
+            box-shadow: 0 0 20px rgba(0, 51, 102, 0.5);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        
+        .photo-slot {
+            aspect-ratio: 1;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-slot.captured {
+           border-color: #003366;
+            background: #ecfdf5;
+        }
+        
+        .photo-slot.current {
+            border-color: #003366;
+            background: #eff6ff;
+            animation: pulse 2s infinite;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <button onclick="goBack()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">{{ _('Face Registration') }}</h1>
+                        <p class="text-sm text-gray-500" id="employeeName">{{ _('Setting up face recognition...') }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-500">
+                        {{ _('Step') }} <span id="currentStep">1</span> {{ _('of 3') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Step 1: Instructions -->
+        <div id="step1" class="step-content">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                
+                    <div class="w-20 h-20 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-camera text-3xl text-[#003366]"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ _('Face Registration Setup') }}</h2>
+                <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
+                    {{ _("We'll capture multiple photos of your face to set up secure face recognition for attendance. This process takes about 2-3 minutes and requires good lighting.") }}
+                </p>
+                
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-lightbulb text-green-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">{{ _('Good Lighting') }}</h3>
+                        <p class="text-sm text-gray-600">{{ _("Ensure you're in a well-lit area") }}</p>
+                    </div>
+                    <div class="text-center">
+                         <div class="w-12 h-12 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-user text-[#003366]"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">{{ _('Face Centered') }}</h3>
+                        <p class="text-sm text-gray-600">{{ _('Keep your face in the center circle') }}</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-images text-purple-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">{{ _('Multiple Angles') }}</h3>
+                        <p class="text-sm text-gray-600">{{ _("We'll capture 8 different photos") }}</p>
+                    </div>
+                </div>
+                
+                <button onclick="startRegistration()" 
+                    class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    <i class="fa-solid fa-play mr-2"></i>{{ _('Start Face Registration') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Camera Capture -->
+        <div id="step2" class="step-content hidden">
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Camera Section -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ _('Camera') }}</h3>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-600">{{ _('Live') }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="camera-container">
+                        <video id="video" autoplay muted class="w-full rounded-lg bg-gray-900"></video>
+                        <div class="camera-overlay">
+                            <div id="faceGuide" class="face-guide"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-center">
+                        <div id="cameraStatus" class="text-sm text-gray-600 mb-4">
+                            {{ _('Position your face in the circle and click capture') }}
+                        </div>
+                        <button id="captureBtn" onclick="capturePhoto()"
+                          class="bg-[#002244] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors disabled:opacity-50 disabled:cursor-not-allowed btn-hover-scale">
+                         
+                            <i class="fa-solid fa-camera mr-2"></i>
+                            <span id="captureBtnText">{{ _('Capture Photo') }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ _('Progress') }}</h3>
+                        <div class="text-sm text-gray-600">
+                            <span id="photoCount">0</span> / 8 {{ _('photos') }}
+                        </div>
+                    </div>
+                    
+                    <!-- Circular Progress -->
+                    <div class="flex justify-center mb-6">
+                        <div class="relative w-32 h-32">
+                            <svg class="w-32 h-32 progress-ring">
+                                <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="transparent"/>
+                                <circle id="progressCircle" cx="64" cy="64" r="56" stroke="#003366"  stroke-width="8" 
+                                    fill="transparent" stroke-dasharray="351.86" stroke-dashoffset="351.86" 
+                                    class="progress-ring-circle"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="progressPercent" class="text-2xl font-bold text-gray-900">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo Grid -->
+                    <div class="photo-grid" id="photoGrid">
+                        <!-- Photo slots will be generated here -->
+                    </div>
+                    
+                    <div class="mt-6">
+                        <button id="completeBtn" onclick="completeRegistration()" 
+                            class="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                            disabled>
+                            <i class="fa-solid fa-check mr-2"></i>{{ _('Complete Registration') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Completion -->
+        <div id="step3" class="step-content hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-check text-3xl text-green-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ _('Registration Complete!') }}</h2>
+                <p class="text-gray-600 mb-8" id="completionMessage">
+                    {{ _('Face registration completed successfully. You can now use face recognition for attendance.') }}
+                </p>
+                
+                <div class="flex justify-center space-x-4">
+                    <button onclick="goToEmployees()" 
+                    class="bg-[#002244] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                      
+                        <i class="fa-solid fa-users mr-2"></i>{{ _('Back to Employees') }}
+                    </button>
+                    <button onclick="testFaceRecognition()" 
+                        class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                        <i class="fa-solid fa-camera mr-2"></i>{{ _('Test Recognition') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-sm mx-4 text-center">
+           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003366] mx-auto mb-4"></div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ _('Processing...') }}</h3>
+            <p class="text-gray-600" id="loadingMessage">{{ _('Please wait while we process your photo') }}</p>
+        </div>
+    </div>
+
+    <script>
+        // Translations for JS
+        const translations = {
+            employeeIdNotProvided: "{{ _('Employee ID not provided') }}",
+            photo: "{{ _('Photo') }}",
+            startingFaceRegistration: "{{ _('Starting face registration...') }}",
+            faceRegistration: "{{ _('Face Registration') }}",
+            failedToStartRegistration: "{{ _('Failed to start registration') }}",
+            cameraReady: "{{ _('Camera ready! Position your face in the circle') }}",
+            cameraAccessDenied: "{{ _('Camera access denied. Please allow camera access and refresh.') }}",
+            capturing: "{{ _('Capturing...') }}",
+            capturePhoto: "{{ _('Capture Photo') }}",
+            processingPhoto: "{{ _('Processing photo...') }}",
+            photoCaptured: "{{ _('Photo %(photo_index)s captured! Quality: %(quality)s%%') }}",
+            allPhotosCaptured: "{{ _('All photos captured! Click \"Complete Registration\" to finish.') }}",
+            greatNowCapture: "{{ _('Great! Now capture photo %(photo_number)s of %(total_photos)s') }}",
+            photoCaptureFailed: "{{ _('Photo capture failed. Please try again.') }}",
+            networkError: "{{ _('Network error. Please check your connection and try again.') }}",
+            captured: "{{ _('Captured') }}",
+            completingRegistration: "{{ _('Completing registration...') }}",
+            registrationCompletedSuccessfully: "{{ _('Registration completed successfully! %(embeddings_saved)s face embeddings saved for %(employee_name)s.') }}",
+            failedToCompleteRegistration: "{{ _('Failed to complete registration') }}"
+        };
+
+        // Global variables
+        let currentStep = 1;
+        let employeeId = null;
+        let sessionId = null;
+        let capturedPhotos = [];
+        let requiredPhotos = 8;
+        let stream = null;
+        let video = null;
+        let isCapturing = false;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get employee ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            employeeId = urlParams.get('employee_id');
+            
+            if (!employeeId) {
+                alert(translations.employeeIdNotProvided);
+                goBack();
+                return;
+            }
+            
+            initializePhotoGrid();
+        });
+
+        function initializePhotoGrid() {
+            const photoGrid = document.getElementById('photoGrid');
+            photoGrid.innerHTML = '';
+            
+            for (let i = 1; i <= requiredPhotos; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'photo-slot';
+                slot.id = `photo-slot-${i}`;
+                slot.innerHTML = (
+                    `<div class="text-center">
+                        <i class="fa-solid fa-camera text-2xl text-gray-400 mb-2"></i>
+                        <div class="text-xs text-gray-500">${translations.photo} ${i}</div>
+                    </div>`
+                );
+                photoGrid.appendChild(slot);
+            }
+        }
+
+        async function startRegistration() {
+            try {
+                showLoading(translations.startingFaceRegistration);
+                
+                // Start registration session
+                const response = await fetch(`/api/employees/${employeeId}/face-registration/start`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    sessionId = result.session_id;
+                    requiredPhotos = result.required_photos;
+                    
+                    document.getElementById('employeeName').textContent = `${result.employee_name} - ${translations.faceRegistration}`;
+                    
+                    // Initialize camera
+                    await initializeCamera();
+                    
+                    // Move to step 2
+                    showStep(2);
+                } else {
+                    throw new Error(result.error || translations.failedToStartRegistration);
+                }
+            } catch (error) {
+                console.error('Registration start error:', error);
+                alert(translations.failedToStartRegistration + ': ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function initializeCamera() {
+            try {
+                video = document.getElementById('video');
+
+                // Request camera access
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    }
+                });
+
+                video.srcObject = stream;
+
+                // Update status
+                document.getElementById('cameraStatus').textContent = translations.cameraReady;
+
+            } catch (error) {
+                console.error('Camera initialization error:', error);
+                document.getElementById('cameraStatus').textContent = translations.cameraAccessDenied;
+                document.getElementById('captureBtn').disabled = true;
+            }
+        }
+
+        async function capturePhoto() {
+            if (isCapturing) return;
+
+            try {
+                isCapturing = true;
+                const captureBtn = document.getElementById('captureBtn');
+                const captureBtnText = document.getElementById('captureBtnText');
+                const faceGuide = document.getElementById('faceGuide');
+
+                // Update UI
+                captureBtn.disabled = true;
+                captureBtnText.textContent = translations.capturing;
+                faceGuide.className = 'face-guide detecting';
+
+                // Capture frame from video
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0);
+
+                // Convert to blob
+                canvas.toBlob(async (blob) => {
+                    try {
+                        showLoading(translations.processingPhoto);
+
+                        // Send to API
+                        const formData = new FormData();
+                        formData.append('image', blob, `photo_${capturedPhotos.length + 1}.jpg`);
+                        formData.append('photo_index', capturedPhotos.length + 1);
+                        formData.append('session_id', sessionId);
+
+                        const response = await fetch(`/api/employees/${employeeId}/face-registration/capture`, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok && result.success) {
+                            // Photo captured successfully
+                            capturedPhotos.push(result);
+                            updatePhotoGrid(result);
+                            updateProgress();
+
+                            faceGuide.className = 'face-guide detected';
+                            document.getElementById('cameraStatus').textContent =
+                                translations.photoCaptured.replace('%(photo_index)s', result.photo_index).replace('%(quality)s', (result.quality_score * 100).toFixed(1));
+
+                            // Check if we have enough photos
+                            if (capturedPhotos.length >= requiredPhotos) {
+                                document.getElementById('completeBtn').disabled = false;
+                                document.getElementById('cameraStatus').textContent = translations.allPhotosCaptured;
+                            } else {
+                                setTimeout(() => {
+                                    document.getElementById('cameraStatus').textContent =
+                                        translations.greatNowCapture.replace('%(photo_number)s', capturedPhotos.length + 1).replace('%(total_photos)s', requiredPhotos);
+                                }, 2000);
+                            }
+                        } else {
+                            // Photo capture failed
+                            faceGuide.className = 'face-guide';
+                            document.getElementById('cameraStatus').textContent =
+                                result.error || translations.photoCaptureFailed;
+                        }
+
+                    } catch (error) {
+                        console.error('Photo capture error:', error);
+                        faceGuide.className = 'face-guide';
+                        document.getElementById('cameraStatus').textContent = translations.networkError;
+                    } finally {
+                        hideLoading();
+
+                        // Reset button
+                        setTimeout(() => {
+                            captureBtn.disabled = false;
+                            captureBtnText.textContent = translations.capturePhoto;
+                            faceGuide.className = 'face-guide';
+                            isCapturing = false;
+                        }, 1000);
+                    }
+                }, 'image/jpeg', 0.9);
+
+            } catch (error) {
+                console.error('Capture error:', error);
+                isCapturing = false;
+                document.getElementById('captureBtn').disabled = false;
+                document.getElementById('captureBtnText').textContent = translations.capturePhoto;
+            }
+        }
+
+        function updatePhotoGrid(photoResult) {
+            const slot = document.getElementById(`photo-slot-${photoResult.photo_index}`);
+            if (slot) {
+                slot.className = 'photo-slot captured';
+                slot.innerHTML = (
+                    `<div class="text-center">
+                        <i class="fa-solid fa-check text-2xl text-[#003366] mb-2"></i>
+                        <div class="text-xs text-[#003366]">${translations.captured}</div>
+                        <div class="text-xs text-gray-500">${(photoResult.quality_score * 100).toFixed(0)}%</div>
+                    </div>`
+                );
+            }
+
+            // Highlight next photo slot
+            const nextSlot = document.getElementById(`photo-slot-${photoResult.photo_index + 1}`);
+            if (nextSlot) {
+                nextSlot.className = 'photo-slot current';
+            }
+        }
+
+        function updateProgress() {
+            const progress = (capturedPhotos.length / requiredPhotos) * 100;
+            const circumference = 2 * Math.PI * 56; // radius = 56
+            const offset = circumference - (progress / 100) * circumference;
+
+            document.getElementById('progressCircle').style.strokeDashoffset = offset;
+            document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+            document.getElementById('photoCount').textContent = capturedPhotos.length;
+        }
+
+        async function completeRegistration() {
+            try {
+                showLoading(translations.completingRegistration);
+
+                const response = await fetch(`/api/employees/${employeeId}/face-registration/complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        captured_photos: capturedPhotos
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Stop camera
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+
+                    // Update completion message
+                    document.getElementById('completionMessage').textContent =
+                        translations.registrationCompletedSuccessfully.replace('%(embeddings_saved)s', result.embeddings_saved).replace('%(employee_name)s', result.employee_name);
+
+                    // Move to step 3
+                    showStep(3);
+                } else {
+                    throw new Error(result.error || translations.failedToCompleteRegistration);
+                }
+
+            } catch (error) {
+                console.error('Registration completion error:', error);
+                alert(translations.failedToCompleteRegistration + ': ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function showStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+
+            // Show current step
+            document.getElementById(`step${step}`).classList.remove('hidden');
+
+            // Update step indicator
+            document.getElementById('currentStep').textContent = step;
+            currentStep = step;
+        }
+
+        function showLoading(message) {
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loadingModal').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingModal').classList.add('hidden');
+        }
+
+        function goBack() {
+            if (currentStep > 1) {
+                // Stop camera if active
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            }
+            window.history.back();
+        }
+
+        function goToEmployees() {
+            window.location.href = '/employees';
+        }
+
+        function testFaceRecognition() {
+            window.location.href = '/onboarding/face-setup';
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Complete - Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .success-animation {
+            animation: successPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(0, 51, 102, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(0, 51, 102, 0.5);
+            }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+             background: #bda260;
+            animation: confetti-fall 3s linear infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .gradient-bg {
+              background: linear-gradient(135deg, #003366 0%, #002244 100%);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Confetti Animation -->
+    <div id="confetti-container" class="absolute inset-0 pointer-events-none"></div>
+
+    <!-- Main Success Card -->
+      <div class="bg-white rounded-2xl shadow-2xl p-8 md:p-10 max-w-2xl w-full text-center fade-in-up relative z-10">
+
+        <!-- Success Icon -->
+        <div class="mb-8">
+            <div class="w-32 h-32 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mx-auto success-animation">
+                <i class="fa-solid fa-check text-5xl text-[#003366]"></i>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                🎉 Setup Complete!
+            </h1>
+            <p class="text-xl text-gray-600 mb-6 leading-relaxed">
+                Congratulations! Your employee profile has been successfully created and you're now ready to start using the attendance system.
+            </p>
+        </div>
+
+        <!-- Employee Info Card -->
+       <div id="employeeInfo" class="bg-gradient-to-r from-[#003366] to-[#002244] bg-opacity-10 rounded-xl p-6 mb-8">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-user text-[#003366] text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Your Employee Profile</h3>
+                    <p class="text-sm text-gray-600">Profile successfully created and activated</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Full Name:</span>
+                    <span id="employeeName" class="ml-2 text-gray-800 font-semibold">Loading...</span>
+                </div>
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Employee ID:</span>
+                    <span id="employeeId" class="ml-2 text-gray-600">Loading...</span>
+                </div>
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Email Address:</span>
+                    <span id="employeeEmail" class="ml-2 text-gray-600">Loading...</span>
+                </div>
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Access Code:</span>
+                    <span id="accessCode" class="ml-2 text-gray-800 font-mono font-bold bg-yellow-100 px-3 py-1 rounded border border-yellow-300">Loading...</span>
+                </div>
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Department:</span>
+                    <span id="employeeDepartment" class="ml-2 text-gray-600">Loading...</span>
+                </div>
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Position:</span>
+                    <span id="employeePosition" class="ml-2 text-gray-600">Loading...</span>
+                </div>
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Status:</span>
+                    <span class="ml-2 text-green-600 font-medium">
+                        <i class="fa-solid fa-check-circle mr-1"></i>Active
+                    </span>
+                </div>
+                <div class="text-left">
+                    <span class="font-medium text-gray-700">Setup Date:</span>
+                    <span id="setupDate" class="ml-2 text-gray-600">Today</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Access Code Highlight -->
+        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 mb-8">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-key text-2xl text-yellow-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-yellow-800 mb-2">🔑 Important: Save Your Access Code</h3>
+                <p class="text-yellow-700 mb-4">You can use this code to check in if face recognition doesn't work</p>
+                <div class="bg-white border-2 border-yellow-300 rounded-lg p-4 inline-block">
+                    <span class="text-2xl font-mono font-bold text-yellow-800" id="accessCodeHighlight">Loading...</span>
+                </div>
+                <p class="text-sm text-yellow-600 mt-3">
+                    <i class="fa-solid fa-info-circle mr-1"></i>
+                    Write this down or take a screenshot for your records
+                </p>
+            </div>
+        </div>
+
+        <!-- What's Next Section -->
+        <div class="mb-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6">What's Next?</h3>
+            <div class="grid md:grid-cols-3 gap-6">
+                 <div class="text-center hover:transform hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-camera text-2xl text-[#003366]"></i>
+                         </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Daily Check-in</h4>
+                    <p class="text-sm text-gray-600">Use face recognition or your access code to check in/out daily</p>
+                </div>
+                <div class="text-center hover:transform hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-chart-bar text-2xl text-[#003366]"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Track Progress</h4>
+                    <p class="text-sm text-gray-600">View your attendance reports and analytics</p>
+                </div>
+                <div class="text-center hover:transform hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-headset text-2xl text-[#003366]"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Get Support</h4>
+                    <p class="text-sm text-gray-600">Contact HR or IT support if you need help</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center mb-8">
+            <button onclick="startFirstCheckIn()"
+                class="bg-[#002244] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#003366] transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-play mr-2"></i>
+                Start First Check-In
+            </button>
+        </div>
+
+        <!-- Next Step: Code Verification -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center justify-center space-x-3">
+                <i class="fa-solid fa-shield-alt text-blue-600"></i>
+                <p class="text-blue-800">
+                    Next: Verify your access code to complete setup
+                </p>
+                <button onclick="proceedToVerification()" class="bg-[#002244] text-white px-4 py-2 rounded hover:bg-[#003366] transition-colors btn-hover-scale">
+                    Proceed to Verification
+                </button>
+            </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                    <i class="fa-solid fa-lightbulb text-yellow-600 text-lg"></i>
+                </div>
+                <div class="text-left">
+                    <h4 class="font-semibold text-yellow-800 mb-2">Important Reminders</h4>
+                    <ul class="text-yellow-700 text-sm space-y-1">
+                        <li>• Remember your access code: <span id="accessCodeReminder" class="font-mono font-bold">Loading...</span></li>
+                        <li>• Check in/out daily using face recognition or access code</li>
+                        <li>• Contact HR if you need to update your information</li>
+                        <li>• Your face data is securely encrypted and protected</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-[#003366] mx-auto mb-4"></div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Loading...</h3>
+            <p class="text-gray-600">Please wait...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            createConfetti();
+            loadEmployeeInfo();
+            
+            // Auto-redirect after 30 seconds if no action
+            setTimeout(() => {
+                if (confirm('Would you like to proceed to your first check-in?')) {
+                    startFirstCheckIn();
+                }
+            }, 30000);
+        });
+
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+           const colors = ['#bda260', '#003366', '#002244', '#8b5cf6', '#ef4444', '#06b6d4'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    
+                    container.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        if (confetti.parentNode) {
+                            confetti.parentNode.removeChild(confetti);
+                        }
+                    }, 5000);
+                }, i * 100);
+            }
+        }
+
+        async function loadEmployeeInfo() {
+            try {
+                const response = await fetch('/api/onboarding/employee-info');
+                if (!response.ok) throw new Error('Failed to load employee info');
+                
+                const data = await response.json();
+                
+                // Update employee information
+                document.getElementById('employeeName').textContent = data.full_name || 'N/A';
+                document.getElementById('employeeId').textContent = `EMP${data.id.toString().padStart(4, '0')}`;
+                document.getElementById('employeeEmail').textContent = data.email || 'Not provided';
+                document.getElementById('accessCode').textContent = data.access_code;
+                document.getElementById('accessCodeHighlight').textContent = data.access_code;
+                document.getElementById('employeeDepartment').textContent = data.department || 'Not assigned';
+                document.getElementById('employeePosition').textContent = data.position || 'Not assigned';
+                document.getElementById('accessCodeReminder').textContent = data.access_code;
+                document.getElementById('setupDate').textContent = new Date().toLocaleDateString();
+
+            } catch (error) {
+                console.error('Error loading employee info:', error);
+                // Show fallback data
+                document.getElementById('employeeName').textContent = 'New Employee';
+                document.getElementById('employeeId').textContent = 'EMP0001';
+                document.getElementById('employeeEmail').textContent = 'Not provided';
+                document.getElementById('accessCode').textContent = 'ABC123';
+                document.getElementById('accessCodeHighlight').textContent = 'ABC123';
+                document.getElementById('employeeDepartment').textContent = 'Not assigned';
+                document.getElementById('employeePosition').textContent = 'Not assigned';
+                document.getElementById('accessCodeReminder').textContent = 'ABC123';
+            }
+        }
+
+        function startFirstCheckIn() {
+            showLoadingModal('Preparing Check-In', 'Taking you to the check-in page...');
+
+            setTimeout(() => {
+                window.location.href = '/checkin';
+            }, 2000);
+        }
+
+        // Proceed to code verification
+        function proceedToVerification() {
+            showLoadingModal('Proceeding to Verification', 'Taking you to code verification...');
+
+            setTimeout(() => {
+                window.location.href = '/onboarding/code-verification';
+            }, 2000);
+        }
+
+        function showLoadingModal(title, message) {
+            document.querySelector('#loadingModal h3').textContent = title;
+            document.querySelector('#loadingModal p').textContent = message;
+            document.getElementById('loadingModal').classList.remove('hidden');
+            document.getElementById('loadingModal').classList.add('flex');
+        }
+
+        // Add some interactive effects
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                button.style.transform = 'translateY(-2px)';
+                button.style.transition = 'transform 0.2s ease';
+            });
+            
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1' || e.key === 'Enter') {
+                startFirstCheckIn();
+            } else if (e.key === '2') {
+                goToDashboard();
+            }
+        });
+
+        // Add celebration sound effect (optional)
+        function playSuccessSound() {
+            // Create a simple success sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // Play success sound on load (with user interaction)
+        document.addEventListener('click', () => {
+            try {
+                playSuccessSound();
+            } catch (error) {
+                // Ignore audio errors
+            }
+        }, { once: true });
+    </script>
+</body>
+
+</html>

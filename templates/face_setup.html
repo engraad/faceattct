@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Employee Attendance - Face Recognition') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .video-feed {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .camera-frame {
+            border: 4px solid #e5e7eb;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-frame.active {
+           border-color: #003366;
+             box-shadow: 0 0 20px rgba(0, 51, 102, 0.3);
+        }
+
+        .camera-frame.success {
+            border-color: #10b981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .camera-frame.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .recognition-status {
+            transition: all 0.3s ease;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .attempt-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .attempt-indicator.used {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .attempt-indicator.current {
+            background-color: #f59e0b;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Success Modal Styles */
+        .success-modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .success-modal-content {
+            transition: all 0.3s ease-in-out;
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        .success-modal-backdrop.visible {
+            opacity: 1;
+        }
+        .success-modal-content.visible {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .checkmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #10b981;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .checkmark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            margin: 10% auto;
+            box-shadow: inset 0px 0px 0px #10b981;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        .checkmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #10b981;
+            }
+        }
+
+        /* Failure Modal Styles */
+        .failure-modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .failure-modal-content {
+            transition: all 0.3s ease-in-out;
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        .failure-modal-backdrop.visible {
+            opacity: 1;
+        }
+        .failure-modal-content.visible {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .cross-mark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            margin: 10% auto;
+            box-shadow: inset 0px 0px 0px #ef4444;
+            animation: fill-red .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        .cross-mark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #ef4444;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .cross-mark-line1, .cross-mark-line2 {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes fill-red {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #ef4444;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <i class="fa-solid fa-camera text-2xl text-[#003366]"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">{{ _('Employee Attendance') }}</h1>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <div>{{ _('Check-In / Check-Out') }}</div>
+                    <div id="currentTime" class="text-xs text-gray-500 mt-1"></div>
+                    <div class="text-xs text-gray-500">{{ _('Check-in: Before 9:30 AM | Check-out: After 10:00 PM') }}</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Action Selection -->
+        <div class="mb-8">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ _('Select Your Action') }}</h2>
+                <p class="text-gray-600">{{ _('Choose whether you\'re checking in or checking out') }}</p>
+            </div>
+            <div class="flex justify-center space-x-4 mb-6">
+                <button id="checkinBtn" onclick="selectAction('checkin')"
+                      class="action-btn bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-sign-in-alt mr-2"></i>{{ _('Check In') }}
+                </button>
+                <button id="checkoutBtn" onclick="selectAction('checkout')"
+                     class="action-btn bg-orange-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-orange-700 transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-sign-out-alt mr-2"></i>{{ _('Check Out') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ _('Face Recognition Attendance') }}</h2>
+            <p class="text-gray-600 text-lg mb-6">
+                {{ _('Position your face in the camera and we\'ll recognize you. You have 3 attempts, then access code fallback.') }}
+            </p>
+            
+            <!-- Attempt Counter -->
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <span class="text-sm font-medium text-gray-700 mr-3">{{ _('Attempts:') }}</span>
+                <div id="attempt1" class="attempt-indicator w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">1</div>
+                <div id="attempt2" class="attempt-indicator w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">2</div>
+                <div id="attempt3" class="attempt-indicator w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">3</div>
+            </div>
+                     <!-- Status Display -->
+                <div id="statusDisplay" class="text-center mb-6">
+                    <div id="statusIcon" class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-camera text-2xl text-gray-400"></i>
+                    </div>
+                    <div id="statusMessage" class="text-lg font-semibold text-gray-700">
+                        {{ _('Ready to capture your face') }}
+                    </div>
+                    <div id="statusSubtext" class="text-sm text-gray-500 mt-1">
+                        {{ _('Click the capture button when ready') }}
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-center space-x-4">
+                    <button id="captureBtn" onclick="capturePhoto()" disabled
+                    class="bg-[#002244] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors opacity-50 cursor-not-allowed btn-hover-scale">
+                        <i class="fa-solid fa-camera mr-2"></i>
+                        {{ _('Capture Photo') }}
+                    </button>
+                    <button id="retryBtn" onclick="retryCapture()" 
+                        class="bg-slate-300 text-slate-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed hidden">
+                        <i class="fa-solid fa-redo mr-2"></i>
+                        {{ _('Try Again') }}
+                    </button>
+                </div>
+        </div>
+
+        <!-- Camera Section -->
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <!-- Camera Feed -->
+                <div id="cameraFrame" class="video-container mb-6 camera-frame active">
+                    <video id="video" class="video-feed" autoplay muted playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+
+                    <!-- Camera Status Overlay -->
+                    <div id="cameraStatus" class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center text-white rounded-lg hidden">
+                        <div class="text-center">
+                            <i class="fa-solid fa-camera text-4xl mb-4"></i>
+                            <p class="text-lg">{{ _('Initializing camera...') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions Panel -->
+                <div id="instructionsPanel" class="bg-blue-50 rounded-lg p-6 mb-6">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <i class="fa-solid fa-info-circle text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-blue-800 mb-2">{{ _('Instructions for Best Results') }}</h3>
+                            <ul class="text-blue-700 text-sm space-y-1">
+                                <li>{{ _('• Position your face in the center of the oval') }}</li>
+                                <li>{{ _('• Ensure good lighting on your face') }}</li>
+                                <li>{{ _('• Look directly at the camera') }}</li>
+                                <li>{{ _('• Remove sunglasses, hats, or masks') }}</li>
+                                <li>{{ _('• Stay still when capturing') }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+       
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="mt-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6">
+            <div class="flex items-center justify-center space-x-8">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fa-solid fa-lightbulb text-green-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">{{ _('Good Lighting') }}</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fa-solid fa-eye text-blue-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">{{ _('Look at Camera') }}</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fa-solid fa-user text-blue-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">{{ _('Center Your Face') }}</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Processing Modal -->
+    <div id="processingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-[#003366] mx-auto mb-4"></div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ _('Processing Your Photo') }}</h3>
+            <p class="text-gray-600">{{ _('Please wait while we analyze your facial features...') }}</p>
+        </div>
+    </div>
+
+    <!-- Generic Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 failure-modal-backdrop">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl failure-modal-content">
+            <div class="w-24 h-24 mx-auto mb-4">
+                <svg class="cross-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="cross-mark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="cross-mark-line1" fill="none" d="M16 16 36 36"/>
+                    <path class="cross-mark-line2" fill="none" d="M36 16 16 36"/>
+                </svg>
+            </div>
+            <h3 id="errorModalTitle" class="text-2xl font-bold text-gray-800 mb-2">{{ _('An Error Occurred') }}</h3>
+            <p id="errorModalMessage" class="text-gray-600 mb-6">
+                {{ _('Something went wrong.') }}
+            </p>
+
+            <!-- Container for Access Code Input -->
+            <div id="accessCodeContainer" class="hidden">
+                <div class="mb-4">
+                    <input type="text" id="accessCodeInput"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-xl font-mono focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
+                        placeholder="{{ _('Enter Access Code') }}" maxlength="8">
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="verifyAccessCode()"
+                        class="flex-1 bg-[#002244] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors btn-hover-scale">
+                        <i class="fa-solid fa-key mr-2"></i>{{ _('Verify Code') }}
+                    </button>
+                    <button onclick="retryFaceRecognition()"
+                        class="flex-1 bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
+                        <i class="fa-solid fa-redo mr-2"></i>{{ _('Try Again') }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container for simple OK button -->
+            <div id="okButtonContainer" class="hidden">
+                 <button onclick="closeErrorModal()"
+                   class="bg-[#002244] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors btn-hover-scale">
+                    {{ _('OK') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 success-modal-backdrop">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl success-modal-content">
+            <div class="w-24 h-24 mx-auto mb-4">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+            <h3 id="successModalTitle" class="text-2xl font-bold text-gray-800 mb-2">{{ _('Success!') }}</h3>
+            <p id="successModalMessage" class="text-gray-600 text-lg">{{ _('Welcome, [Employee Name]!') }}</p>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="successSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_23b7c3366a.mp3" preload="auto"></audio>
+    <audio id="failureSound" src="https://cdn.pixabay.com/audio/2021/08/04/audio_c668156e23.mp3" preload="auto"></audio>
+
+    <script>
+        let audioUnlocked = false;
+        let currentAttempt = 1;
+        let maxAttempts = 3;
+        let video = null;
+        let canvas = null;
+        let stream = null;
+        let selectedAction = null; // 'checkin' or 'checkout'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCamera();
+            updateAttemptIndicator();
+            updateCurrentTime();
+            // Update time every minute
+            setInterval(updateCurrentTime, 60000);
+        });
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
+        }
+
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            console.log("Attempting to unlock audio context...");
+            const successSound = document.getElementById('successSound');
+            const failureSound = document.getElementById('failureSound');
+            
+            // A robust way to unlock audio context on user gesture
+            const promise1 = successSound.play();
+            if (promise1 !== undefined) {
+                promise1.then(() => successSound.pause()).catch(() => {});
+            }
+            const promise2 = failureSound.play();
+            if (promise2 !== undefined) {
+                promise2.then(() => failureSound.pause()).catch(() => {});
+            }
+            
+            audioUnlocked = true;
+        }
+
+        function selectAction(action) {
+            unlockAudio(); // Unlock audio on the first user interaction
+            selectedAction = action;
+
+            // Update button styles
+            document.getElementById('checkinBtn').classList.remove('bg-green-700', 'ring-2', 'ring-green-300');
+            document.getElementById('checkoutBtn').classList.remove('bg-orange-700', 'ring-2', 'ring-orange-300');
+
+            if (action === 'checkin') {
+                document.getElementById('checkinBtn').classList.add('bg-green-700', 'ring-2', 'ring-green-300');
+            } else {
+                document.getElementById('checkoutBtn').classList.add('bg-orange-700', 'ring-2', 'ring-orange-300');
+            }
+
+            // Enable capture button
+            document.getElementById('captureBtn').disabled = false;
+            document.getElementById('captureBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        async function initializeCamera() {
+            try {
+                video = document.getElementById('video');
+                canvas = document.getElementById('canvas');
+
+                // Show camera status
+                document.getElementById('cameraStatus').classList.remove('hidden');
+
+                // Request camera access with same dimensions as checkin page
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    }
+                });
+
+                video.srcObject = stream;
+
+                // Hide camera status when video starts playing
+                video.addEventListener('loadedmetadata', () => {
+                    document.getElementById('cameraStatus').classList.add('hidden');
+                    updateStatus("{{ _('Camera ready') }}", "{{ _('Position your face and click capture') }}", 'ready');
+                });
+
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                updateStatus("{{ _('Camera access denied') }}", "{{ _('Please allow camera access to continue') }}", 'error');
+            }
+        }
+
+        function updateAttemptIndicator() {
+            // Reset all indicators
+            for (let i = 1; i <= maxAttempts; i++) {
+                const indicator = document.getElementById(`attempt${i}`);
+                indicator.className = 'attempt-indicator w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold';
+            }
+            
+            // Mark used attempts
+            for (let i = 1; i < currentAttempt; i++) {
+                document.getElementById(`attempt${i}`).classList.add('used');
+            }
+            
+            // Mark current attempt
+            if (currentAttempt <= maxAttempts) {
+                document.getElementById(`attempt${currentAttempt}`).classList.add('current');
+            }
+        }
+
+        async function capturePhoto() {
+            if (!video || !canvas) return;
+
+            // Show processing modal
+            document.getElementById('processingModal').classList.remove('hidden');
+            document.getElementById('processingModal').classList.add('flex');
+
+            // Capture the photo with same dimensions as checkin page
+            const context = canvas.getContext('2d');
+
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw current video frame to canvas
+            context.drawImage(video, 0, 0);
+            
+            // Convert to blob
+            canvas.toBlob(async (blob) => {
+                try {
+                    // Send to face recognition API
+                    if (!selectedAction) {
+                        alert("{{ _('Please select Check In or Check Out first') }}");
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('image', blob, 'attendance_capture.jpg');
+                    formData.append('attempt', currentAttempt);
+                    formData.append('action', selectedAction);
+                    
+                    const response = await fetch('/api/attendance/face-recognition', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    // Hide processing modal
+                    document.getElementById('processingModal').classList.add('hidden');
+                    document.getElementById('processingModal').classList.remove('flex');
+                    console.log(result);
+                    if (response.ok && result.recognized) {
+                        // Success - face recognized and attendance recorded
+                        handleSuccessfulRecognition(result);
+                    } else if (result.time_restriction) {
+                        // Time restriction error - show specific message
+                        handleTimeRestriction(result.error);
+                    } else {
+                        // Failed attempt
+                        handleFailedAttempt(result.error || "{{ _('Face recognition failed') }}");
+                    }
+                    
+                } catch (error) {
+                    console.error('Error processing photo:', error);
+                    document.getElementById('processingModal').classList.add('hidden');
+                    document.getElementById('processingModal').classList.remove('flex');
+                    handleFailedAttempt("{{ _('Network error occurred') }}");
+                }
+            }, 'image/jpeg', 0.8);
+        }
+
+        function handleSuccessfulRecognition(result) {
+            // Stop camera
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            // Show custom success modal
+            const modal = document.getElementById('successModal');
+            const modalContent = modal.querySelector('.success-modal-content');
+            const modalTitle = document.getElementById('successModalTitle');
+            const modalMessage = document.getElementById('successModalMessage');
+
+            modalTitle.textContent = `${result.action === 'checkin' ? "{{ _('Check-In') }}" : "{{ _('Check-Out') }}"} {{ _('Successful!') }}`;
+            modalMessage.textContent = `{{ _('Welcome,') }} ${result.employee_name}!`;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Trigger animation and sound together
+            setTimeout(() => {
+                modal.classList.add('visible');
+                modalContent.classList.add('visible');
+                const successSound = document.getElementById('successSound');
+                successSound.currentTime = 0;
+                successSound.play();
+            }, 50);
+
+            // Redirect after animation
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000); // Increased delay to allow user to see the modal
+        }
+
+        function handleTimeRestriction(errorMessage) {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            // Modal will now wait for user to click OK, then redirect.
+            showErrorModal(
+                "{{ _('Time Restriction') }}",
+                errorMessage,
+                false // don't show access code, wait for OK click
+            );
+        }
+
+        function handleFailedAttempt(errorMessage) {
+            currentAttempt++;
+            updateAttemptIndicator();
+            
+            if (currentAttempt > maxAttempts) {
+                showAccessCodeInput();
+            } else {
+                // For intermediate attempts, show a modal that waits for OK.
+                showErrorModal(
+                    "{{ _('Attempt Failed') }}",
+                    `${errorMessage}. {{ _('Attempt') }} ${currentAttempt} {{ _('of') }} ${maxAttempts}.`,
+                    false // wait for OK click
+                );
+                
+                // Also show the error on the main screen briefly
+                document.getElementById('cameraFrame').classList.remove('active');
+                document.getElementById('cameraFrame').classList.add('error');
+                setTimeout(() => {
+                    document.getElementById('cameraFrame').classList.remove('error');
+                    document.getElementById('cameraFrame').classList.add('active');
+                    updateStatus("{{ _('Ready to capture') }}", "{{ _('Position your face and try again') }}", 'ready');
+                }, 2500);
+            }
+        }
+
+        function retryCapture() {
+            updateStatus("{{ _('Ready to capture') }}", "{{ _('Position your face in the center') }}", 'ready');
+            document.getElementById('cameraFrame').classList.remove('error');
+            document.getElementById('cameraFrame').classList.add('active');
+        }
+
+        function updateStatus(message, subtext, type) {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusMessage = document.getElementById('statusMessage');
+            const statusSubtext = document.getElementById('statusSubtext');
+            
+            statusMessage.textContent = message;
+            statusSubtext.textContent = subtext;
+            
+            // Reset classes
+            statusIcon.className = 'w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3';
+            
+            switch (type) {
+                case 'ready':
+                    statusIcon.className += ' bg-gray-100';
+                    statusIcon.innerHTML = '<i class="fa-solid fa-camera text-2xl text-gray-400"></i>';
+                    break;
+                case 'processing':
+                    statusIcon.className += ' bg-yellow-100 pulse';
+                    statusIcon.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-2xl text-yellow-600"></i>';
+                    break;
+                case 'success':
+                    statusIcon.className += ' bg-green-100';
+                    statusIcon.innerHTML = '<i class="fa-solid fa-check text-2xl text-green-600"></i>';
+                    break;
+                case 'error':
+                    statusIcon.className += ' bg-red-100';
+                    statusIcon.innerHTML = '<i class="fa-solid fa-times text-2xl text-red-600"></i>';
+                    break;
+            }
+        }
+
+        function showAccessCodeInput() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            showErrorModal(
+                "{{ _('Face Recognition Failed') }}",
+                "{{ _('We couldn\'t recognize you after 3 attempts. Please use your access code.') }}",
+                true // show access code input
+            );
+        }
+
+        function retryFaceRecognition() {
+            // Reset attempts and restart
+            currentAttempt = 1;
+            updateAttemptIndicator();
+            closeErrorModal();
+            initializeCamera();
+        }
+
+        async function verifyAccessCode() {
+            const accessCode = document.getElementById('accessCodeInput').value.trim().toUpperCase();
+
+            if (!accessCode) {
+                alert("{{ _('Please enter your access code') }}");
+                return;
+            }
+
+            if (!selectedAction) {
+                alert("{{ _('Please select Check In or Check Out first') }}");
+                return;
+            }
+
+            // Show processing
+            updateStatus("{{ _('Verifying...') }}", "{{ _('Checking access code and taking security photo...') }}", 'processing');
+
+            try {
+                // Capture security photo
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // If camera is not active, we need to restart it for security photo
+                if (!stream) {
+                    await initializeCamera();
+                }
+
+                // Set canvas dimensions to match video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                // Capture current frame for security
+                ctx.drawImage(video, 0, 0);
+
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('access_code', accessCode);
+                    formData.append('action', selectedAction);
+                    formData.append('image', blob, 'security_photo.jpg');
+
+                    try {
+                        const response = await fetch('/api/attendance/verify-access-code', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok && result.success) {
+                            // Success - show the success modal
+                            handleSuccessfulRecognition(result);
+                            // The success modal will handle the redirect.
+                        } else if (result.time_restriction) {
+                            // Time restriction error
+                            handleTimeRestriction(result.error);
+                        } else {
+                            // Invalid access code
+                            showErrorModal(
+                                "{{ _('Invalid Access Code') }}",
+                                result.error || "{{ _('The code is incorrect. Please try again.') }}",
+                                false // just show OK button
+                            );
+                        }
+
+                    } catch (error) {
+                        alert("{{ _('Network error. Please try again.') }}");
+                    }
+                }, 'image/jpeg', 0.8);
+
+            } catch (error) {
+                alert("{{ _('Error capturing security photo. Please try again.') }}");
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        function closeErrorModal() {
+            const modal = document.getElementById('errorModal');
+            const modalTitle = document.getElementById('errorModalTitle').textContent;
+
+            modal.classList.remove('visible');
+            modal.querySelector('.failure-modal-content').classList.remove('visible');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                
+                // Redirect if it was a time restriction error after closing
+                if (modalTitle === 'Time Restriction') {
+                    window.location.href = '/';
+                }
+            }, 300);
+        }
+
+        function showErrorModal(title, message, showAccessCode = false, autoCloseDelay = null) {
+            const modal = document.getElementById('errorModal');
+            const modalContent = modal.querySelector('.failure-modal-content');
+            const modalTitle = document.getElementById('errorModalTitle');
+            const modalMessage = document.getElementById('errorModalMessage');
+            const accessCodeContainer = document.getElementById('accessCodeContainer');
+            const okButtonContainer = document.getElementById('okButtonContainer');
+
+            // Update content
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            // Show/hide appropriate buttons/inputs
+            if (showAccessCode) {
+                accessCodeContainer.classList.remove('hidden');
+                okButtonContainer.classList.add('hidden');
+            } else {
+                accessCodeContainer.classList.add('hidden');
+                okButtonContainer.classList.remove('hidden');
+            }
+
+            // Show the modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Trigger animation and sound
+            setTimeout(() => {
+                modal.classList.add('visible');
+                modalContent.classList.add('visible');
+                const failureSound = document.getElementById('failureSound');
+                failureSound.currentTime = 0;
+                failureSound.play();
+            }, 50);
+
+            // Handle auto-closing
+            if (autoCloseDelay) {
+                setTimeout(() => {
+                    closeErrorModal();
+                }, autoCloseDelay);
+            }
+        }
+    </script>
+</body>
+
+</html>

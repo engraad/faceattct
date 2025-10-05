@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Departments') }} - {{ _('Attendance Tracker') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+         /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .department-card {
+            transition: all 0.3s ease;
+        }
+        
+        .department-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #003366 0%, #002244 100%);
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #003366;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 51, 102, 0.15);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Page Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">{{ _('Department Management') }}</h1>
+                <p class="text-gray-600 mt-2">{{ _('Manage organizational departments and their information') }}</p>
+            </div>
+            <button onclick="openCreateModal()" 
+               class="bg-[#002244] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#003366] transition-colors flex items-center btn-hover-scale shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-plus mr-2"></i>{{ _('Add Department') }}
+            </button>
+        </div>
+<style>
+  .border-gold-metallic {
+    border-color: #dcfce7;
+  }
+
+  .bg-gold-metallic,
+  .hover\:bg-gold-metallic:hover {
+  /* The metallic gold gradient */
+    background-image: linear-gradient(to right, #bda260, #e6d08a, #bda260);
+    /* Updated: Ensures text color is the new Brighter Teal Blue on hover/active */
+    color: #003366 !important; 
+  }
+
+  .text-gold-metallic {
+    color: #bda260;
+  }
+</style>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer" class="mb-6 hidden">
+            <div id="alertMessage" class="rounded-lg p-4 text-white font-medium">
+                <i id="alertIcon" class="mr-2"></i>
+                <span id="alertText"></span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div id="statsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Stats will be populated by JavaScript -->
+        </div>
+
+        <!-- Search -->
+         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text" id="searchInput" placeholder="{{ _('Search departments...') }}"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="applyFilters()"
+                        class="bg-[#002244] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors btn-hover-scale">
+                        <i class="fa-solid fa-search mr-2"></i>{{ _('Search') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Departments Grid -->
+        <div id="loadingState" class="flex justify-center items-center py-12">
+            <div class="loading-spinner"></div>
+            <span class="ml-3 text-gray-600">{{ _('Loading departments...') }}</span>
+        </div>
+
+        <div id="departmentsContainer" class="hidden">
+             <div id="departmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Department cards will be populated by JavaScript -->
+            </div>
+
+            <!-- Pagination -->
+            <div id="paginationContainer" class="mt-8 flex justify-center">
+                <div class="flex space-x-2">
+                    <button id="prevPageBtn" onclick="changePage(-1)" 
+                       class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span id="pageInfo" class="px-4 py-2 text-gray-600"></span>
+                    <button id="nextPageBtn" onclick="changePage(1)" 
+                        class="px-4 py-2 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+         <div id="emptyState" class="hidden text-center py-12">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-building text-2xl text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ _('No Departments Found') }}</h3>
+            <p class="text-gray-600 mb-4">{{ _('Get started by creating your first department.') }}</p>
+            <button onclick="openCreateModal()" 
+                class="bg-[#002244] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#003366] transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-plus mr-2"></i>{{ _('Add Department') }}
+            </button>
+        </div>
+    </main>
+
+    <!-- Create/Edit Department Modal -->
+ <div id="departmentModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="modal-backdrop flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="modalTitle" class="text-xl font-bold text-gray-800">{{ _('Add Department') }}</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <form id="departmentForm">
+                    <input type="hidden" id="departmentId">
+
+                    <div class="space-y-4">
+                       <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ _('Department Name') }} *</label>
+                            <input type="text" id="departmentName" name="name" required
+                                class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
+                                placeholder="{{ _('Enter department name') }}">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 mt-8">
+                        <button type="button" onclick="closeModal()" 
+                             class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                            {{ _('Cancel') }}
+                        </button>
+                        <button type="submit" id="submitBtn"
+                            class="px-6 py-3 bg-[#002244] text-white rounded-lg font-semibold hover:bg-[#003366] transition-colors flex items-center btn-hover-scale">
+                            <span id="submitText">{{ _('Create Department') }}</span>
+                            <div id="submitSpinner" class="loading-spinner ml-2 hidden" style="width: 16px; height: 16px;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="modal-backdrop flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-exclamation-triangle text-2xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ _('Delete Department') }}</h3>
+                    <p class="text-gray-600 mb-6">{{ _('Are you sure you want to delete') }} "<span id="deleteDepartmentName"></span>"? {{ _('This action cannot be undone.') }}</p>
+                    
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="closeDeleteModal()" 
+                            class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                            {{ _('Cancel') }}
+                        </button>
+                        <button onclick="confirmDelete()" id="deleteBtn"
+                            class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center">
+                            <span id="deleteBtnText">{{ _('Delete') }}</span>
+                            <div id="deleteSpinner" class="loading-spinner ml-2 hidden" style="width: 16px; height: 16px;"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            totalDepartments: "{{ _('Total Departments') }}",
+            totalEmployees: "{{ _('Total Employees') }}",
+            avgPerDepartment: "{{ _('Avg per Department') }}",
+            largestDepartment: "{{ _('Largest Department') }}",
+            employees: "{{ _('employees') }}",
+            NA: "{{ _('N/A') }}",
+            failedToLoadDepartments: "{{ _('Failed to load departments') }}",
+            employees_count: "{{ _('employees') }}",
+            viewEmployees: "{{ _('View Employees') }}",
+            page: "{{ _('Page') }}",
+            of: "{{ _('of') }}",
+            addDepartment: "{{ _('Add Department') }}",
+            createDepartment: "{{ _('Create Department') }}",
+            editDepartment: "{{ _('Edit Department') }}",
+            updateDepartment: "{{ _('Update Department') }}",
+            failedToLoadDetails: "{{ _('Failed to load department details') }}",
+            failedToSave: "{{ _('Failed to save department') }}",
+            failedToDelete: "{{ _('Failed to delete department') }}",
+            delete: "{{ _('Delete') }}"
+        };
+
+        let currentPage = 1;
+        let currentFilters = {};
+        let departments = [];
+        let editingDepartmentId = null;
+        let deletingDepartmentId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadDepartments();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Search input with debounce
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(applyFilters, 500);
+            });
+
+            // Form submission
+            document.getElementById('departmentForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/departments/stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    displayStats(data.stats);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function displayStats(stats) {
+            const container = document.getElementById('statsContainer');
+            container.innerHTML = `
+                <div class="stats-card rounded-xl p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-200 text-sm font-medium">${translations.totalDepartments}</p>
+                            <p class="text-3xl font-bold">${stats.total_departments}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-building text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">${translations.totalEmployees}</p>
+                            <p class="text-3xl font-bold text-gray-900">${stats.total_employees}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-users text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">${translations.avgPerDepartment}</p>
+                            <p class="text-3xl font-bold text-gray-900">${stats.avg_employees_per_dept}</p>
+                        </div>
+                       <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-chart-bar text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">${translations.largestDepartment}</p>
+                            <p class="text-lg font-bold text-gray-900">${stats.largest_department ? stats.largest_department.name : translations.NA}</p>
+                            <p class="text-sm text-gray-500">${stats.largest_department ? stats.largest_department.employee_count + ' ' + translations.employees : ''}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-crown text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadDepartments() {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('departmentsContainer').classList.add('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+
+                const params = new URLSearchParams({
+                    ...currentFilters,
+                    page: currentPage,
+                    per_page: 12
+                });
+
+                const response = await fetch(`/api/departments?${params}`);
+                const data = await response.json();
+
+                document.getElementById('loadingState').classList.add('hidden');
+
+                if (data.success && data.departments.length > 0) {
+                    departments = data.departments;
+                    displayDepartments(departments);
+                    updatePagination(data.pagination);
+                    document.getElementById('departmentsContainer').classList.remove('hidden');
+                } else {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+                document.getElementById('loadingState').classList.add('hidden');
+                showAlert('error', translations.failedToLoadDepartments);
+            }
+        }
+
+        function displayDepartments(departments) {
+            const grid = document.getElementById('departmentsGrid');
+            grid.innerHTML = '';
+
+            departments.forEach(dept => {
+                const card = document.createElement('div');
+                card.className = 'department-card bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:transform hover:scale-105 transition-all duration-300';
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-[#003366] bg-opacity-10 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-building text-[#003366] text-xl"></i>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editDepartment(${dept.id})"
+                                class="text-gray-400 hover:text-[#003366] transition-colors">
+                                <i class="fa-solid fa-edit"></i>
+                            </button>
+                            <button onclick="deleteDepartment(${dept.id}, '${dept.name}')"
+                                class="text-gray-400 hover:text-red-600 transition-colors">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">${dept.name}</h3>
+
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fa-solid fa-users w-4 mr-2"></i>
+                            <span>${dept.employee_count} ${translations.employees_count}</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fa-solid fa-hashtag w-4 mr-2"></i>
+                            <span>ID: ${dept.id}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="viewDepartmentEmployees(${dept.id})"
+                            class="text-[#003366] hover:text-[#002244] text-sm font-medium">
+                            ${translations.viewEmployees} →
+                        </button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function updatePagination(pagination) {
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+
+            pageInfo.textContent = `${translations.page} ${pagination.page} ${translations.of} ${pagination.pages}`;
+            prevBtn.disabled = pagination.page <= 1;
+            nextBtn.disabled = pagination.page >= pagination.pages;
+        }
+
+        function applyFilters() {
+            currentFilters = {
+                search: document.getElementById('searchInput').value.trim()
+            };
+
+            // Remove empty filters
+            Object.keys(currentFilters).forEach(key => {
+                if (!currentFilters[key]) {
+                    delete currentFilters[key];
+                }
+            });
+
+            currentPage = 1;
+            loadDepartments();
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            loadDepartments();
+        }
+
+        function openCreateModal() {
+            editingDepartmentId = null;
+            document.getElementById('modalTitle').textContent = translations.addDepartment;
+            document.getElementById('submitText').textContent = translations.createDepartment;
+            document.getElementById('departmentForm').reset();
+            document.getElementById('departmentModal').classList.remove('hidden');
+        }
+
+        async function editDepartment(id) {
+            try {
+                const response = await fetch(`/api/departments/${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    editingDepartmentId = id;
+                    const dept = data.department;
+
+                    document.getElementById('modalTitle').textContent = translations.editDepartment;
+                    document.getElementById('submitText').textContent = translations.updateDepartment;
+                    document.getElementById('departmentId').value = dept.id;
+                    document.getElementById('departmentName').value = dept.name;
+
+                    document.getElementById('departmentModal').classList.remove('hidden');
+                } else {
+                    showAlert('error', translations.failedToLoadDetails);
+                }
+            } catch (error) {
+                console.error('Error loading department:', error);
+                showAlert('error', translations.failedToLoadDetails);
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('submitSpinner');
+            const submitText = document.getElementById('submitText');
+
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.remove('hidden');
+
+            try {
+                const formData = new FormData(event.target);
+                const departmentData = {
+                    name: formData.get('name')
+                };
+
+                const url = editingDepartmentId
+                    ? `/api/departments/${editingDepartmentId}`
+                    : '/api/departments';
+                const method = editingDepartmentId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(departmentData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('success', data.message);
+                    closeModal();
+                    loadStats();
+                    loadDepartments();
+                } else {
+                    showAlert('error', data.error || translations.failedToSave);
+                }
+            } catch (error) {
+                console.error('Error saving department:', error);
+                showAlert('error', translations.failedToSave);
+            } finally {
+                // Hide loading state
+                submitBtn.disabled = false;
+                spinner.classList.add('hidden');
+            }
+        }
+
+        function deleteDepartment(id, name) {
+            deletingDepartmentId = id;
+            document.getElementById('deleteDepartmentName').textContent = name;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        async function confirmDelete() {
+            const deleteBtn = document.getElementById('deleteBtn');
+            const spinner = document.getElementById('deleteSpinner');
+
+            // Show loading state
+            deleteBtn.disabled = true;
+            spinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`/api/departments/${deletingDepartmentId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('success', data.message);
+                    closeDeleteModal();
+                    loadStats();
+                    loadDepartments();
+                } else {
+                    showAlert('error', data.error || translations.failedToDelete);
+                }
+            } catch (error) {
+                console.error('Error deleting department:', error);
+                showAlert('error', translations.failedToDelete);
+            } finally {
+                // Hide loading state
+                deleteBtn.disabled = false;
+                spinner.classList.add('hidden');
+            }
+        }
+
+        function viewDepartmentEmployees(departmentId) {
+            // Navigate to employees page with department filter
+            window.location.href = `/employees?department=${departmentId}`;
+        }
+
+        function closeModal() {
+            document.getElementById('departmentModal').classList.add('hidden');
+            editingDepartmentId = null;
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            deletingDepartmentId = null;
+        }
+
+        function showAlert(type, message) {
+            const container = document.getElementById('alertContainer');
+            const messageDiv = document.getElementById('alertMessage');
+            const icon = document.getElementById('alertIcon');
+            const text = document.getElementById('alertText');
+
+            // Set message content
+            text.textContent = message;
+
+            // Set icon and styling based on type
+            if (type === 'success') {
+                messageDiv.className = 'rounded-lg p-4 text-white font-medium bg-green-600';
+                icon.className = 'fa-solid fa-check-circle mr-2';
+            } else {
+                messageDiv.className = 'rounded-lg p-4 text-white font-medium bg-red-600';
+                icon.className = 'fa-solid fa-exclamation-circle mr-2';
+            }
+
+            // Show alert
+            container.classList.remove('hidden');
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                container.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

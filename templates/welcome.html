@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Welcome - Attendance System') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Arabic Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Arabic Font */
+        [dir="rtl"] * {
+            font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+        }
+        
+        /* Flip icons in RTL */
+        [dir="rtl"] .flip-icon {
+            transform: scaleX(-1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #003366 0%, #002244 100%);
+        }
+        
+        .welcome-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .pulse-button {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 51, 102, 0.4);
+                transform: scale(1);
+            }
+            50% {
+               box-shadow: 0 0 30px rgba(0, 51, 102, 0.6);
+                transform: scale(1.02);
+            }
+        }
+        
+        .floating-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        @keyframes fadeIn {
+             from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, white 2px, transparent 2px), radial-gradient(circle at 75% 75%, white 2px, transparent 2px); background-size: 50px 50px;"></div>
+    </div>
+
+    <!-- Main Welcome Card -->
+    <div class="welcome-card rounded-2xl shadow-2xl p-8 md:p-10 max-w-2xl w-full text-center fade-in relative z-10">
+        <!-- Company Logo/Icon -->
+        <div class="mb-8">
+             <div class="w-24 h-24 bg-[#003366] rounded-full flex items-center justify-center mx-auto floating-icon border-4 border-[#bda260]">
+                <span class="text-white text-4xl font-bold select-none">SU</span>
+            </div>
+        </div>
+
+        <!-- Welcome Message -->
+        <div class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                {{ _('Welcome to ') }}
+                <span class="bg-gradient-to-r from-[#003366] to-[#002244] bg-clip-text text-transparent">
+                    {{ _('Al-Saeed University') }}
+                </span>
+            </h1>
+            <p class="text-xl text-slate-600 mb-6 leading-relaxed">
+                {{ _('Ready to start your journey with us? Let\'s get you set up for success.') }}
+            </p>
+            <div class="flex items-center justify-center gap-2 text-slate-500 mb-8">
+                 <i class="fa-solid fa-shield-halved text-[#003366]"></i>
+                <span class="text-sm">{{ _('Secure • Fast • Easy Setup') }}</span>
+            </div>
+        </div>
+
+        <!-- Features Preview -->
+        <div class="grid md:grid-cols-3 gap-6 mb-10">
+            <div class="text-center hover:transform hover:scale-105 transition-transform duration-300">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-camera text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="font-semibold text-slate-800 mb-1">{{ _('Face Recognition') }}</h3>
+                <p class="text-sm text-slate-600">{{ _('Quick & secure identification') }}</p>
+            </div>
+           <div class="text-center hover:transform hover:scale-105 transition-transform duration-300">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-clock text-2xl text-green-600"></i>
+                </div>
+                <h3 class="font-semibold text-slate-800 mb-1">{{ _('Time Tracking') }}</h3>
+                <p class="text-sm text-slate-600">{{ _('Automated attendance logging') }}</p>
+            </div>
+           <div class="text-center hover:transform hover:scale-105 transition-transform duration-300">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-chart-line text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="font-semibold text-slate-800 mb-1">{{ _('Analytics') }}</h3>
+                <p class="text-sm text-slate-600">{{ _('Track your progress') }}</p>
+            </div>
+        </div>
+
+        <!-- Main Action Button -->
+        <div class="mb-8">
+            <button onclick="startOnboarding()"
+                 class="pulse-button bg-gradient-to-r from-[#002244] to-[#003366] text-white font-bold text-lg px-8 py-4 rounded-xl hover:from-[#003366] hover:to-[#002244] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <i class="fa-solid fa-rocket ltr:mr-3 rtl:ml-3 flip-icon"></i>
+                {{ _('Click Here to Prepare You for This Day') }}
+            </button>
+        </div>
+
+        <!-- Login Link -->
+        <div class="mb-6">
+            <p class="text-slate-600 mb-3">{{ _('Already registered?') }}</p>
+            <a href="/login"
+               class="inline-flex items-center px-6 py-3 bg-white border-2 border-[#003366] text-[#003366] font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fa-solid fa-sign-in-alt ltr:mr-2 rtl:ml-2 flip-icon"></i>
+                {{ _('Go to Login') }}
+            </a>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="text-center">
+            <p class="text-sm text-slate-500 mb-4">
+                {{ _('This setup will take approximately 2-3 minutes') }}
+            </p>
+            <div class="flex items-center justify-center gap-6 text-xs text-slate-400">
+                <div class="flex items-center gap-1">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>{{ _('New Employee Setup') }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>{{ _('Secure Process') }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>{{ _('Support Available') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="absolute top-10 ltr:left-10 rtl:right-10 w-20 h-20 bg-white bg-opacity-10 rounded-full floating-icon" style="animation-delay: -1s;"></div>
+    <div class="absolute bottom-10 ltr:right-10 rtl:left-10 w-16 h-16 bg-white bg-opacity-10 rounded-full floating-icon" style="animation-delay: -2s;"></div>
+    <div class="absolute top-1/2 ltr:left-5 rtl:right-5 w-12 h-12 bg-white bg-opacity-10 rounded-full floating-icon" style="animation-delay: -0.5s;"></div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-[#003366] mx-auto mb-4"></div>
+            <h3 class="text-xl font-semibold text-slate-800 mb-2">{{ _('Preparing Your Setup') }}</h3>
+            <p class="text-slate-600">{{ _('Please wait while we initialize your onboarding process...') }}</p>
+        </div>
+    </div>
+
+    <!-- Help Button -->
+    <button onclick="showHelp()" 
+        class="fixed bottom-6 ltr:right-6 rtl:left-6 w-14 h-14 bg-white bg-opacity-90 rounded-full shadow-lg flex items-center justify-center text-[#003366] hover:bg-opacity-100 transition-all duration-300 hover:scale-110">
+        <i class="fa-solid fa-question text-xl"></i>
+    </button>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-lg mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-slate-800">{{ _('Need Help?') }}</h3>
+                <button onclick="closeHelp()" class="text-slate-400 hover:text-slate-600 ltr:order-last rtl:order-first">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fa-solid fa-info text-blue-600 text-sm"></i>
+                    </div>
+                    <div class="text-start">
+                        <h4 class="font-semibold text-slate-800 mb-1">{{ _('What is this setup?') }}</h4>
+                        <p class="text-sm text-slate-600">{{ _('This is a one-time setup to register your face for our attendance system. It\'s quick, secure, and will make your daily check-ins effortless.') }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fa-solid fa-shield text-green-600 text-sm"></i>
+                    </div>
+                    <div class="text-start">
+                        <h4 class="font-semibold text-slate-800 mb-1">{{ _('Is it secure?') }}</h4>
+                        <p class="text-sm text-slate-600">{{ _('Yes! Your facial data is encrypted and stored securely. We follow industry-standard security practices to protect your privacy.') }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fa-solid fa-clock text-purple-600 text-sm"></i>
+                    </div>
+                    <div class="text-start">
+                        <h4 class="font-semibold text-slate-800 mb-1">{{ _('How long does it take?') }}</h4>
+                        <p class="text-sm text-slate-600">{{ _('The entire process takes about 2-3 minutes. You\'ll capture a few photos and verify your identity.') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 text-center">
+                <p class="text-sm text-slate-500 mb-4">{{ _('Need additional support?') }}</p>
+                <div class="flex justify-center gap-4">
+                    <a href="mailto:support@company.com" class="text-[#003366] hover:text-[#002244] text-sm">
+                        <i class="fa-solid fa-envelope ltr:mr-1 rtl:ml-1"></i>
+                        {{ _('Email Support') }}
+                    </a>
+                    <a href="tel:+1234567890" class="text-[#003366] hover:text-[#002244] text-sm">
+                        <i class="fa-solid fa-phone ltr:mr-1 rtl:ml-1"></i>
+                        {{ _('Call Support') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add hover effects to feature cards
+            const featureCards = document.querySelectorAll('.text-center');
+            featureCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.transition = 'transform 0.3s ease';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+        });
+
+        function startOnboarding() {
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            document.getElementById('loadingModal').classList.add('flex');
+
+            // Simulate preparation time
+            setTimeout(() => {
+                // Redirect to face recognition setup page
+                window.location.href = '/onboarding/face-setup';
+            }, 2000);
+        }
+
+        function showHelp() {
+            document.getElementById('helpModal').classList.remove('hidden');
+            document.getElementById('helpModal').classList.add('flex');
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').classList.add('hidden');
+            document.getElementById('helpModal').classList.remove('flex');
+        }
+
+        // Close help modal when clicking outside
+        document.getElementById('helpModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('helpModal')) {
+                closeHelp();
+            }
+        });
+
+        // Add keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeHelp();
+            }
+            if (e.key === 'Enter' || e.key === ' ') {
+                const helpModal = document.getElementById('helpModal');
+                if (!helpModal.classList.contains('hidden')) {
+                    return;
+                }
+                startOnboarding();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('System Settings - Attendance Tracker') }}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background-color: #f8fafc;
+        }
+
+        /* Flip icons in RTL */
+        [dir="rtl"] .flip-icon {
+            transform: scaleX(-1);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        /* LTR Switch */
+        [dir="ltr"] .slider:before {
+            left: 4px;
+            bottom: 4px;
+        }
+
+        [dir="ltr"] input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* RTL Switch */
+        [dir="rtl"] .slider:before {
+            right: 4px;
+            bottom: 4px;
+        }
+
+        [dir="rtl"] input:checked + .slider:before {
+            transform: translateX(-26px);
+        }
+
+        input:checked + .slider {
+            background-color: #003366;
+        }
+
+        /* RTL Tabs scroll */
+        [dir="rtl"] .tabs-container {
+            direction: ltr;
+        }
+
+        [dir="rtl"] .tabs-container > * {
+            direction: rtl;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div class="flex flex-col min-h-screen">
+        {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-10 flex-grow">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 text-start">{{ _('System Settings') }}</h2>
+                <p class="text-slate-500 mt-2 text-start">{{ _('Configure your attendance system preferences and policies') }}</p>
+            </div>
+
+            <!-- Settings Tabs -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="border-b border-gray-200 tabs-container overflow-x-auto">
+                    <nav class="flex gap-8 px-6">
+                        <button id="tab-general" class="py-4 px-1 border-b-2 border-[#003366] text-sm font-medium text-[#003366] whitespace-nowrap">
+                            {{ _('General') }}
+                        </button>
+                        <button id="tab-attendance" class="py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            {{ _('Attendance') }}
+                        </button>
+                        <button id="tab-notifications" class="py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            {{ _('Notifications') }}
+                        </button>
+                       <button id="tab-security" class="py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">
+                            {{ _('Security') }}
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="space-y-6">
+                <!-- General Settings -->
+                <div id="content-general" class="settings-content">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 text-start">{{ _('General Settings') }}</h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Language Setting -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('System Language') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('Choose the default language for the system') }}</p>
+                                </div>
+                                <select id="language" onchange="changeLanguage(this.value)" 
+                                class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                   
+                                    <option value="en" {{ 'selected' if get_locale() == 'en' else '' }}>{{ _('English') }}</option>
+                                    <option value="ar" {{ 'selected' if get_locale() == 'ar' else '' }}>{{ _('Arabic') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Date Format -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('Date Format') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('How dates should be displayed') }}</p>
+                                </div>
+                               <select id="dateFormat" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+
+                            <!-- Time Format -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('Time Format') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('12-hour or 24-hour clock') }}</p>
+                                </div>
+                               <select id="timeFormat" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                    <option value="12h">{{ _('12-hour (AM/PM)') }}</option>
+                                    <option value="24h">{{ _('24-hour') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Settings -->
+                <div id="content-attendance" class="settings-content hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 text-start">{{ _('Attendance Policies') }}</h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Work Hours -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2 text-start">{{ _('Work Start Time') }}</label>
+                                    <input type="time" id="workStartTime" dir="ltr"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2 text-start">{{ _('Work End Time') }}</label>
+                                    <input type="time" id="workEndTime" dir="ltr"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                </div>
+                            </div>
+
+                            <!-- Attendance Deadline -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 text-start">{{ _('Check-in Deadline') }}</label>
+                                <input type="time" id="attendanceDeadline" dir="ltr"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                <p class="text-sm text-gray-500 mt-1 text-start">{{ _('Employees must check in before this time.') }}</p>
+                            </div>
+
+                            <!-- Checkout Start Time -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 text-start">{{ _('Checkout Start Time') }}</label>
+                                <input type="time" id="checkoutStartTime" dir="ltr"
+                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                <p class="text-sm text-gray-500 mt-1 text-start">{{ _('Employees can only check out after this time.') }}</p>
+                            </div>
+
+                            <!-- Late Policy -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 text-start">{{ _('Late Arrival Tolerance (minutes)') }}</label>
+                                <input type="number" id="lateTolerance" min="0" max="120" dir="ltr"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                <p class="text-sm text-gray-500 mt-1 text-start">{{ _('Employees arriving after this many minutes will be marked as late') }}</p>
+                            </div>
+
+                            <!-- Strict Checkout Policy -->
+                            <div class="flex items-center justify-between border-t border-gray-200 pt-6">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('Enforce Strict Checkout Policy') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('If enabled, checkout is only allowed after the official \'Work End Time\'.') }}</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="enforceWorkEndTime">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Auto Check-out -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('Auto Check-out') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('Automatically check out employees at end of day') }}</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="autoCheckout">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Weekend Days -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 text-start">{{ _('Weekend Days') }}</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="weekendDays" value="0" class="ltr:mr-2 rtl:ml-2">
+                                        <span class="text-sm">{{ _('Monday') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="weekendDays" value="1" class="ltr:mr-2 rtl:ml-2">
+                                        <span class="text-sm">{{ _('Tuesday') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="weekendDays" value="2" class="ltr:mr-2 rtl:ml-2">
+                                        <span class="text-sm">{{ _('Wednesday') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="weekendDays" value="3" class="ltr:mr-2 rtl:ml-2">
+                                        <span class="text-sm">{{ _('Thursday') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="weekendDays" value="4" class="ltr:mr-2 rtl:ml-2">
+                                        <span class="text-sm">{{ _('Friday') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="weekendDays" value="5" class="ltr:mr-2 rtl:ml-2">
+                                        <span class="text-sm">{{ _('Saturday') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="weekendDays" value="6" class="ltr:mr-2 rtl:ml-2">
+                                        <span class="text-sm">{{ _('Sunday') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div id="content-notifications" class="settings-content hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 text-start">{{ _('Notification Preferences') }}</h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Email Notifications -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('Email Notifications') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('Receive email alerts for important events') }}</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="emailNotifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Browser Notifications -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('Browser Notifications') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('Show desktop notifications') }}</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="browserNotifications">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Notification Types -->
+                            <div class="border-t border-gray-200 pt-6">
+                                <h4 class="text-sm font-medium text-gray-700 mb-4 text-start">{{ _('Notification Types') }}</h4>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="notificationTypes" value="late" checked class="ltr:mr-3 rtl:ml-3">
+                                        <span class="text-sm">{{ _('Late arrivals') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="notificationTypes" value="absent" checked class="ltr:mr-3 rtl:ml-3">
+                                        <span class="text-sm">{{ _('Absences') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="notificationTypes" value="overtime" class="ltr:mr-3 rtl:ml-3">
+                                        <span class="text-sm">{{ _('Overtime hours') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="notificationTypes" value="system" checked class="ltr:mr-3 rtl:ml-3">
+                                        <span class="text-sm">{{ _('System updates') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div id="content-security" class="settings-content hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 text-start">{{ _('Security Settings') }}</h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Session Timeout -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 text-start">{{ _('Session Timeout (minutes)') }}</label>
+                                <input type="number" id="sessionTimeout" min="5" max="240" dir="ltr"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                                <p class="text-sm text-gray-500 mt-1 text-start">{{ _('Automatic logout after inactivity') }}</p>
+                            </div>
+
+                            <!-- Password Policy -->
+                            <div class="border-t border-gray-200 pt-6">
+                                <h4 class="text-sm font-medium text-gray-700 mb-4 text-start">{{ _('Password Policy') }}</h4>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="passwordPolicy" value="complexity" checked class="ltr:mr-3 rtl:ml-3">
+                                        <span class="text-sm">{{ _('Require complex passwords') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="passwordPolicy" value="expiration" class="ltr:mr-3 rtl:ml-3">
+                                        <span class="text-sm">{{ _('Password expiration (90 days)') }}</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="passwordPolicy" value="history" checked class="ltr:mr-3 rtl:ml-3">
+                                        <span class="text-sm">{{ _('Prevent password reuse') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Two-Factor Authentication -->
+                            <div class="flex items-center justify-between border-t border-gray-200 pt-6">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('Two-Factor Authentication') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('Add an extra layer of security to your account') }}</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="twoFactorAuth">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- API Access -->
+                            <div class="flex items-center justify-between border-t border-gray-200 pt-6">
+                                <div class="text-start">
+                                    <h4 class="text-sm font-medium text-gray-700">{{ _('API Access') }}</h4>
+                                    <p class="text-sm text-gray-500">{{ _('Enable REST API for integration') }}</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="apiAccess">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="mt-8 flex ltr:justify-end rtl:justify-start">
+                <button onclick="saveSettings()"
+                    class="bg-[#002244] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#003366] transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-save ltr:mr-2 rtl:ml-2"></i>
+                    {{ _('Save Settings') }}
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check current language
+        const currentLang = "{{ get_locale() }}";
+        const isRTL = currentLang === 'ar';
+
+        function changeLanguage(lang) {
+            window.location.href = '/change_language/' + lang;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTabNavigation();
+            loadSettings();
+        });
+
+        function setupTabNavigation() {
+            const tabs = {
+                'tab-general': 'content-general',
+                'tab-attendance': 'content-attendance',
+                'tab-notifications': 'content-notifications',
+                'tab-security': 'content-security'
+            };
+
+            Object.entries(tabs).forEach(([tabId, contentId]) => {
+                document.getElementById(tabId).addEventListener('click', () => {
+                    // Hide all content
+                    document.querySelectorAll('.settings-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+
+                    // Remove active class from all tabs
+                    document.querySelectorAll('nav button').forEach(button => {
+                        button.classList.remove('border-[#003366]', 'text-[#003366]');
+                        button.classList.add('border-transparent', 'text-gray-500');
+                    });
+
+                    // Show selected content and activate tab
+                    document.getElementById(contentId).classList.remove('hidden');
+                    document.getElementById(tabId).classList.remove('border-transparent', 'text-gray-500');
+                    document.getElementById(tabId).classList.add('border-[#003366]', 'text-[#003366]');
+                });
+            });
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                if (!response.ok) throw new Error('Failed to load settings');
+                const settings = await response.json();
+
+                // Apply settings to form
+                document.getElementById('dateFormat').value = settings.dateFormat;
+                document.getElementById('timeFormat').value = settings.timeFormat;
+                document.getElementById('workStartTime').value = settings.workStartTime;
+                document.getElementById('workEndTime').value = settings.workEndTime;
+                document.getElementById('attendanceDeadline').value = settings.attendanceDeadline ? settings.attendanceDeadline.substring(0, 5) : '';
+                document.getElementById('checkoutStartTime').value = settings.checkoutStartTime ? settings.checkoutStartTime.substring(0, 5) : '';
+                document.getElementById('lateTolerance').value = settings.lateTolerance;
+                document.getElementById('enforceWorkEndTime').checked = settings.enforceWorkEndTime;
+                document.getElementById('autoCheckout').checked = settings.autoCheckout;
+                document.getElementById('emailNotifications').checked = settings.emailNotifications;
+                document.getElementById('browserNotifications').checked = settings.browserNotifications;
+                document.getElementById('sessionTimeout').value = settings.sessionTimeout;
+                document.getElementById('twoFactorAuth').checked = settings.twoFactorAuth;
+                document.getElementById('apiAccess').checked = settings.apiAccess;
+
+                // Set weekend days
+                document.querySelectorAll('input[name="weekendDays"]').forEach(checkbox => {
+                    checkbox.checked = settings.weekendDays.includes(parseInt(checkbox.value));
+                });
+
+                // Set notification types
+                document.querySelectorAll('input[name="notificationTypes"]').forEach(checkbox => {
+                    checkbox.checked = settings.notificationTypes.includes(checkbox.value);
+                });
+
+                // Set password policy
+                document.querySelectorAll('input[name="passwordPolicy"]').forEach(checkbox => {
+                    checkbox.checked = settings.passwordPolicy.includes(checkbox.value);
+                });
+
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                alert("{{ _('Failed to load settings. Using default values.') }}");
+            }
+        }
+
+        async function saveSettings() {
+            try {
+                const settings = {
+                    dateFormat: document.getElementById('dateFormat').value,
+                    timeFormat: document.getElementById('timeFormat').value,
+                    workStartTime: document.getElementById('workStartTime').value,
+                    workEndTime: document.getElementById('workEndTime').value,
+                    attendanceDeadline: document.getElementById('attendanceDeadline').value + ':00',
+                    checkoutStartTime: document.getElementById('checkoutStartTime').value + ':00',
+                    lateTolerance: parseInt(document.getElementById('lateTolerance').value),
+                    enforceWorkEndTime: document.getElementById('enforceWorkEndTime').checked,
+                    autoCheckout: document.getElementById('autoCheckout').checked,
+                    weekendDays: Array.from(document.querySelectorAll('input[name="weekendDays"]:checked'))
+                        .map(checkbox => parseInt(checkbox.value)),
+                    emailNotifications: document.getElementById('emailNotifications').checked,
+                    browserNotifications: document.getElementById('browserNotifications').checked,
+                    notificationTypes: Array.from(document.querySelectorAll('input[name="notificationTypes"]:checked'))
+                        .map(checkbox => checkbox.value),
+                    sessionTimeout: parseInt(document.getElementById('sessionTimeout').value),
+                    passwordPolicy: Array.from(document.querySelectorAll('input[name="passwordPolicy"]:checked'))
+                        .map(checkbox => checkbox.value),
+                    twoFactorAuth: document.getElementById('twoFactorAuth').checked,
+                    apiAccess: document.getElementById('apiAccess').checked
+                };
+
+                const response = await fetch('/api/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(settings),
+                });
+
+                if (!response.ok) throw new Error('Failed to save settings');
+
+                // Show success message
+                const message = isRTL ? 'تم حفظ الإعدادات بنجاح!' : 'Settings saved successfully!';
+                alert(message);
+                
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                const message = isRTL ? 'فشل حفظ الإعدادات. حاول مرة أخرى.' : 'Failed to save settings. Please try again.';
+                alert(message);
+            }
+        }
+
+        // Request browser notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        document.getElementById('browserNotifications').checked = true;
+                    }
+                });
+            }
+        }
+
+        // Listen for browser notification toggle
+        document.getElementById('browserNotifications').addEventListener('change', function() {
+            if (this.checked) {
+                requestNotificationPermission();
+            }
+        });
+    </script>
+</body>
+
+</html>

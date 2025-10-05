@@ -1,0 +1,304 @@
+<style>
+  .border-gold-metallic {
+    border-color: #dcfce7;
+  }
+
+  .bg-gold-metallic,
+  .hover\:bg-gold-metallic:hover {
+    /* The metallic gold gradient */
+    background-image: linear-gradient(to right, #B38728, #FBF5B7, #BF953F);
+    /* Updated: Ensures text color is the new Brighter Teal Blue on hover/active */
+    color: #005f73 !important; 
+  }
+
+  .text-gold-metallic {
+    color: #BF953F;
+  }
+
+</style>
+
+<header class="sticky top-0 bg-white/90 backdrop-blur-md z-50 border-b border-gold-metallic">
+  <div class="container mx-auto px-6 h-full flex justify-between items-center flex-wrap">
+    <div class="flex items-center space-x-3">
+      
+        <i class="fa-solid fa-chart-simple fa-lg "style="color: #002244;"></i>
+      
+      <h1 class="text-xl font-bold text-[#002E48]">{{ _('Attendance Tracker') }}</h1>
+    </div>
+
+    <nav class="hidden md:flex items-center space-x-2">
+      <a href="/dashboard" id="nav-dashboard"
+        class="flex items-center px-2 py-2 rounded-lg font-bold text-[#002E48] hover:bg-slate-100 transition-colors">
+        <i class="fa-solid fa-tachometer-alt mr-2"></i>{{ _('Dashboard') }}
+      </a>
+      <a href="/employees" id="nav-employees"
+        class="flex items-center px-2 py-2 rounded-lg font-bold text-[#002E48] hover:bg-slate-100 transition-colors">
+        <i class="fa-solid fa-users mr-2"></i>{{ _('Employees') }}
+      </a>
+      <a href="/accounts" id="nav-accounts"
+        class="flex items-center px-2 py-2 rounded-lg font-bold text-[#002E48] hover:bg-slate-100 transition-colors">
+        <i class="fa-solid fa-user-shield mr-2"></i>{{ _('Account Management') }}
+      </a>
+      <a href="/departments" id="nav-departments"
+        class="flex items-center px-2 py-2 rounded-lg font-bold text-[#002E48] hover:bg-slate-100 transition-colors">
+        <i class="fa-solid fa-building mr-2"></i>{{ _('Departments') }}
+      </a>
+      <a href="/attendance/history" id="nav-attendance"
+        class="flex items-center px-0 py-2 font-bold text-[#002E48] hover:bg-slate-100 transition-colors whitespace-nowrap">
+        <i class="fa-solid fa-history mr-1"></i>{{ _('Attendance History') }}
+      </a>
+      <div id="reports-dropdown-container" class="relative">
+        <button id="reports-button"
+          class="flex items-center px-2 py-2 rounded-lg font-bold text-[#002E48] hover:bg-slate-100 transition-colors space-x-2">
+          <i class="fa-solid fa-chart-bar mr-1"></i>
+          <span>{{ _('Reports') }}</span>
+          <i id="reports-chevron" class="fa-solid fa-chevron-down fa-xs transition-transform "></i>
+        </button>
+        <div id="reports-menu"
+          class="hidden absolute mt-2 w-48 bg-white rounded-lg shadow-xl border border-gold-metallic z-30">
+          <a href="/reports/daily"
+            class="block px-4 py-2 text-[#002E48] font-bold hover:bg-slate-100 rounded-t-lg">
+            <i class="fa-solid fa-calendar-day mr-2"></i>{{ _('Daily Report') }}
+          </a>
+          <a href="/reports/weekly" class="block px-4 py-2 text-[#002E48] font-bold hover:bg-slate-100">
+            <i class="fa-solid fa-calendar-week mr-2"></i>{{ _('Weekly Report') }}
+          </a>
+          <a href="/reports/monthly"
+            class="block px-4 py-2 text-[#002E48] font-bold hover:bg-slate-100 rounded-b-lg">
+            <i class="fa-solid fa-calendar-alt mr-2"></i>{{ _('Monthly Report') }}
+          </a>
+        </div>
+      </div>
+      <a href="/settings" id="nav-settings"
+        class="flex items-center px-2 py-2 rounded-lg font-bold text-[#002E48] hover:bg-slate-100 transition-colors">
+        <i class="fa-solid fa-cog mr-2"></i>{{ _('Settings') }}
+      </a>
+      <!-- Right Side: Profile & Notifications -->
+        <div class="hidden md:flex items-center space-x-4">
+            <button class="text-slate-500 hover:text-indigo-600 transition-colors">
+                <i class="fa-regular fa-bell fa-lg"></i>
+            </button>
+            <div class="relative">
+                <button id="profile-button" class="flex items-center space-x-2 text-slate-600 hover:text-indigo-600 transition-colors">
+                    <img id="header-profile-pic" src="{{ url_for('static', filename='default-avatar.svg') }}" alt="Admin Profile"
+                        class="w-8 h-8 rounded-full object-cover border-2 border-slate-200">
+                    <span id="header-user-name" class="font-medium">Admin</span>
+                    <i class="fa-solid fa-chevron-down fa-xs"></i>
+                </button>
+                <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-30">
+                    <a href="/profile" class="block px-4 py-2 text-[#002E48] font-bold hover:bg-slate-100 rounded-t-lg">
+                        <i class="fa-solid fa-user mr-2"></i>{{ _('Profile') }}
+                    </a>
+                    <a href="/help" class="block px-4 py-2 text-[#002E48] font-bold hover:bg-slate-100">
+                        <i class="fa-solid fa-question-circle mr-2"></i>{{ _('Help') }}
+                    </a>
+                    <hr class="my-1">
+                    <a href="/" class="block px-4 py-2 text-red-600 font-bold hover:bg-red-50 rounded-b-lg">
+                        <i class="fa-solid fa-sign-out-alt mr-2"></i>{{ _('Logout') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+  </div>
+
+  <!-- Mobile Menu (Hidden by default) -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-200">
+        <div class="px-6 py-4 space-y-2">
+            <a href="/dashboard" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-tachometer-alt mr-2"></i>{{ _('Dashboard') }}
+            </a>
+            <a href="/employees" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-users mr-2"></i>{{ _('Employees') }}
+            </a>
+                        <a href="/accounts" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-user-shield mr-2"></i>{{ _('Account Management') }}
+            </a>
+            <a href="/departments" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-building mr-2"></i>{{ _('Departments') }}
+            </a>
+            <a href="/attendance/history" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-history mr-2"></i>{{ _('Attendance History') }}
+            </a>
+            <div class="px-4 py-2">
+                <p class="text-sm font-medium text-slate-500 mb-2">{{ _('Reports') }}</p>
+                <div class="pl-4 space-y-1">
+                    <a href="/reports/daily" class="block px-3 py-1 rounded text-slate-600 hover:bg-slate-100">{{ _('Daily Report') }}</a>
+                    <a href="/reports/weekly" class="block px-3 py-1 rounded text-slate-600 hover:bg-slate-100">{{ _('Weekly Report') }}</a>
+                    <a href="/reports/monthly" class="block px-3 py-1 rounded text-slate-600 hover:bg-slate-100">{{ _('Monthly Report') }}</a>
+                </div>
+            </div>
+            <a href="/onboarding/face-setup" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-user-check mr-2"></i>{{ _('Check-In') }}
+            </a>
+            <a href="/settings" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-cog mr-2"></i>{{ _('Settings') }}
+            </a>
+            <hr class="my-2">
+            <a href="/profile" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-user mr-2"></i>{{ _('Profile') }}
+            </a>
+            <a href="/help" class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-question-circle mr-2"></i>{{ _('Help') }}
+            </a>
+            <a href="/logout" class="block px-4 py-2 rounded-lg text-red-600 hover:bg-red-50">
+                <i class="fa-solid fa-sign-out-alt mr-2"></i>{{ _('Logout') }}
+            </a>
+        </div>
+    </div>
+</header>
+
+
+<script>
+// Standard Header JavaScript - Include this in all pages
+document.addEventListener('DOMContentLoaded', function() {
+    // Reports Dropdown Functionality
+    const reportsButton = document.getElementById('reports-button');
+    const reportsMenu = document.getElementById('reports-menu');
+    const reportsChevron = document.getElementById('reports-chevron');
+    const dropdownContainer = document.getElementById('reports-dropdown-container');
+
+    if (reportsButton && reportsMenu) {
+        reportsButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            reportsMenu.classList.toggle('hidden');
+            if (reportsChevron) {
+                reportsChevron.classList.toggle('rotate-180');
+            }
+        });
+
+        // Close dropdown if clicked outside
+        window.addEventListener('click', (event) => {
+            if (!dropdownContainer.contains(event.target)) {
+                reportsMenu.classList.add('hidden');
+                if (reportsChevron) {
+                    reportsChevron.classList.remove('rotate-180');
+                }
+            }
+        });
+    }
+
+    // Profile Dropdown Functionality
+    const profileButton = document.getElementById('profile-button');
+    const profileMenu = document.getElementById('profile-menu');
+
+    if (profileButton && profileMenu) {
+        profileButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            profileMenu.classList.toggle('hidden');
+        });
+
+        // Close profile dropdown if clicked outside
+        window.addEventListener('click', (event) => {
+            if (!profileButton.contains(event.target) && !profileMenu.contains(event.target)) {
+                profileMenu.classList.add('hidden');
+            }
+        });
+    }
+
+    // Mobile Menu Functionality
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+
+    // Highlight current page in navigation
+    highlightCurrentPage();
+    // Load user profile data into header
+    loadUserProfile();
+});
+
+function loadUserProfile() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+        console.log("No token found, skipping profile load.");
+        return;
+    }
+
+    fetch('/api/user/profile', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            // Token is invalid or expired, redirect to login
+            localStorage.removeItem('access_token');
+            window.location.href = '/login';
+            return;
+        }
+        if (!response.ok) {
+            throw new Error('Failed to fetch user profile');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!data) return;
+
+        const userNameElement = document.getElementById('header-user-name');
+        const profilePicElement = document.getElementById('header-profile-pic');
+
+        if (userNameElement) {
+            userNameElement.textContent = data.full_name || 'User';
+        }
+
+        if (profilePicElement) {
+            if (data.profile_pic) {
+                // Construct the full URL for the profile picture
+                profilePicElement.src = `/static/profile_pics/${data.profile_pic}`;
+            } else {
+                // Use a default placeholder if no profile picture is available
+                profilePicElement.src = '{{ url_for("static", filename="default-avatar.svg") }}'; 
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error loading user profile:', error);
+    });
+}
+
+function highlightCurrentPage() {
+    const currentPath = window.location.pathname;
+    const navLinks = {
+        '/dashboard': 'nav-dashboard',
+        '/employees': 'nav-employees',
+        '/accounts': 'nav-accounts',
+        '/departments': 'nav-departments',
+        '/attendance/history': 'nav-attendance',
+        '/onboarding/face-setup': 'nav-checkin',
+        '/settings': 'nav-settings'
+    };
+
+    // Remove active class from all nav items
+    Object.values(navLinks).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.remove('bg-indigo-100', 'text-indigo-600');
+            element.classList.add('text-slate-600');
+        }
+    });
+
+    // Add active class to current page
+    if (navLinks[currentPath]) {
+        const activeElement = document.getElementById(navLinks[currentPath]);
+        if (activeElement) {
+            activeElement.classList.remove('text-slate-600');
+            activeElement.classList.add('bg-indigo-100');
+            activeElement.style.color='#002244';
+        }
+    }
+
+    // Handle reports pages
+    if (currentPath.startsWith('/reports/')) {
+        const reportsButton = document.getElementById('reports-button');
+        if (reportsButton) {
+            reportsButton.classList.remove('text-slate-600');
+            reportsButton.classList.add('bg-indigo-100', 'text-indigo-600');
+        }
+    }
+}
+</script>

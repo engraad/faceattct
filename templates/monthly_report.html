@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Monthly Report - Attendance System') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <!-- Navigation Header -->
+    <div class="no-print">
+        {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-10 flex-grow">
+        <!-- Report Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800">{{ _('Monthly Attendance Report') }}</h2>
+                <p class="text-slate-600 mt-1">{{ _('Comprehensive monthly attendance analysis and insights') }}</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium text-slate-700">{{ _('Month:') }}</label>
+                    <input type="month" id="monthSelector" onchange="loadMonthlyReport()"
+                       
+                         class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+                
+                </div>
+                <button onclick="exportToPDF()"
+                    
+                    class="no-print bg-[#002244] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[#003366] transition-colors flex items-center space-x-2 btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-file-pdf"></i><span>{{ _('Export PDF') }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-12">
+            
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003366] mx-auto mb-4"></div>
+            <p class="text-gray-600">{{ _('Loading monthly report...') }}</p>
+        </div>
+
+        <!-- Report Content -->
+        <div id="data-state" class="hidden space-y-8">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">{{ _('Total Working Days') }}</p>
+                            <p id="totalWorkingDays" class="text-2xl font-bold text-gray-800">22</p>
+                        </div>
+                        <div class="w-12 h-12 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-calendar-days text-[#003366]"></i>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">{{ _('Average Attendance') }}</p>
+                            <p id="averageAttendance" class="text-2xl font-bold text-green-600">85%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-chart-line text-green-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-600">{{ _('Total Late Arrivals') }}</p>
+                            <p id="totalLateArrivals" class="text-2xl font-bold text-yellow-600">45</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-clock text-yellow-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">{{ _('Perfect Attendance') }}</p>
+                            <p id="perfectAttendance" class="text-2xl font-bold text-purple-600">12</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-star text-purple-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Daily Attendance Trend -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ _('Daily Attendance Trend') }}</h3>
+                    <canvas id="attendanceTrendChart" width="400" height="200"></canvas>
+                </div>
+
+                <!-- Department Comparison -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ _('Department Attendance') }}</h3>
+                    <canvas id="departmentChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Statistics -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Top Performers -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ _('Top Performers') }}</h3>
+                    <div id="topPerformers" class="space-y-3">
+                        <!-- Top performers will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Attendance Issues -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ _('Attendance Concerns') }}</h3>
+                    <div id="attendanceConcerns" class="space-y-3">
+                        <!-- Attendance concerns will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Summary Table -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">{{ _('Employee Monthly Summary') }}</h3>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="searchEmployee" placeholder="{{ _('Search employees...') }}"
+                           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+                        <select id="departmentFilter"
+                            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+                            <option value="">{{ _('All Departments') }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="employee-summary-table" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ _('Employee') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ _('Department') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ _('Days Present') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ _('Days Absent') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ _('Late Arrivals') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ _('Attendance %') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ _('Status') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeSummaryTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Table rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const translations = {
+            failedToLoad: "{{ _('Failed to load monthly report') }}",
+            tryAgain: "{{ _('Try Again') }}",
+            allDepartments: "{{ _('All Departments') }}",
+            attendancePercentage: "{{ _('Attendance %') }}",
+            excellent: "{{ _('Excellent') }}",
+            good: "{{ _('Good') }}",
+            needsImprovement: "{{ _('Needs Improvement') }}",
+            reportTitle: "{{ _('MONTHLY ATTENDANCE REPORT') }}",
+            generated: "{{ _('Generated:') }}",
+            summaryTitle: "{{ _('EMPLOYEE MONTHLY SUMMARY') }}",
+            footer: "{{ _('Generated by Al-Saeed University') }}",
+            pdfError: "{{ _('Error generating PDF report. Please try again.') }}",
+            error: "{{ _('Error:') }}",
+            unknownError: "{{ _('Unknown error occurred') }}"
+        };
+
+        let currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+        let attendanceTrendChart = null;
+        let departmentChart = null;
+
+        // Helper function to get authentication headers
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token'); // Assuming token is stored in localStorage
+            if (token) {
+                return {
+                    'Authorization': `Bearer ${token}`
+                };
+            }
+            return {};
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set current month as default
+            document.getElementById('monthSelector').value = currentMonth;
+            // Bind filtering events
+            const searchInput = document.getElementById('searchEmployee');
+            const deptSelect = document.getElementById('departmentFilter');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterTable);
+            }
+            if (deptSelect) {
+                deptSelect.addEventListener('change', filterTable);
+            }
+            loadMonthlyReport();
+        });
+
+        async function loadMonthlyReport() {
+            const selectedMonth = document.getElementById('monthSelector').value;
+            if (!selectedMonth) return;
+
+            currentMonth = selectedMonth;
+            
+            // Show loading state
+            document.getElementById('loading-state').classList.remove('hidden');
+            document.getElementById('data-state').classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/reports/monthly?month=${selectedMonth}`, {
+                    headers: getAuthHeaders() // Add authentication headers
+                });
+                if (response.status === 401) {
+                    window.location.href = '/login'; // Redirect to login if unauthorized
+                    return;
+                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+
+                // Populate summary cards
+                populateSummaryCards(data.summary);
+                
+                // Render charts
+                renderAttendanceTrendChart(data.dailyTrend);
+                renderDepartmentChart(data.departmentStats);
+                
+                // Populate lists
+                populateTopPerformers(data.topPerformers);
+                populateAttendanceConcerns(data.concerns);
+                
+                // Populate employee table
+                populateEmployeeTable(data.employeeSummary);
+
+                // Populate department filter dynamically from data
+                populateDepartmentFilter(data.departmentStats, data.employeeSummary);
+
+                // Hide loading and show content
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('data-state').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading monthly report:', error);
+                document.getElementById('loading-state').innerHTML = `
+                    <div class="text-center text-red-600">
+                        <i class="fa-solid fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p>${translations.failedToLoad}</p>
+                        <button onclick="loadMonthlyReport()" class="mt-2 text-[#003366] hover:text-[#002244]">
+                            ${translations.tryAgain}
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Populate department filter options based on actual data
+        function populateDepartmentFilter(departmentStats = [], employeeSummary = []) {
+            const select = document.getElementById('departmentFilter');
+            if (!select) return;
+
+            const previousValue = select.value;
+
+            const departmentSet = new Set();
+            try {
+                (departmentStats || []).forEach(d => { if (d && d.department) departmentSet.add(String(d.department)); });
+            } catch (_) {}
+            try {
+                (employeeSummary || []).forEach(e => { if (e && e.department) departmentSet.add(String(e.department)); });
+            } catch (_) {}
+
+            const departments = Array.from(departmentSet).sort((a, b) => a.localeCompare(b));
+
+            // Build options
+            let optionsHtml = `<option value="">${translations.allDepartments}</option>`;
+            for (const dept of departments) {
+                const safeValue = dept.replace(/"/g, '&quot;');
+                optionsHtml += `<option value="${safeValue}">${dept}</option>`;
+            }
+
+            select.innerHTML = optionsHtml;
+
+            // Restore selection if possible
+            if (previousValue && (previousValue === '' || departments.includes(previousValue))) {
+                select.value = previousValue;
+            } else {
+                select.value = '';
+            }
+
+            // Apply current filter after options update
+            filterTable();
+        }
+
+        function populateSummaryCards(summary) {
+            document.getElementById('totalWorkingDays').textContent = summary.totalWorkingDays;
+            document.getElementById('averageAttendance').textContent = `${summary.averageAttendance}%`;
+            document.getElementById('totalLateArrivals').textContent = summary.totalLateArrivals;
+            document.getElementById('perfectAttendance').textContent = summary.perfectAttendance;
+        }
+
+        function renderAttendanceTrendChart(dailyTrend) {
+            const ctx = document.getElementById('attendanceTrendChart').getContext('2d');
+            
+            if (attendanceTrendChart) {
+                attendanceTrendChart.destroy();
+            }
+
+            attendanceTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dailyTrend.map(d => d.date),
+                    datasets: [{
+                        label: translations.attendancePercentage,
+                        data: dailyTrend.map(d => d.attendancePercentage),
+                        borderColor: 'rgb(79, 70, 229)',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDepartmentChart(departmentStats) {
+            const ctx = document.getElementById('departmentChart').getContext('2d');
+            
+            if (departmentChart) {
+                departmentChart.destroy();
+            }
+
+            departmentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: departmentStats.map(d => d.department),
+                    datasets: [{
+                        data: departmentStats.map(d => d.attendancePercentage),
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(139, 92, 246, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateTopPerformers(topPerformers) {
+            const container = document.getElementById('topPerformers');
+            container.innerHTML = '';
+
+            topPerformers.forEach((performer, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3 bg-green-50 rounded-lg';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-bold text-green-600">${index + 1}</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">${performer.name}</p>
+                            <p class="text-sm text-gray-500">${performer.department}</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-semibold text-green-600">${performer.attendancePercentage}%</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function populateAttendanceConcerns(concerns) {
+            const container = document.getElementById('attendanceConcerns');
+            container.innerHTML = '';
+
+            concerns.forEach(concern => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3 bg-red-50 rounded-lg';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-exclamation text-red-600 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">${concern.name}</p>
+                            <p class="text-sm text-gray-500">${concern.issue}</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-semibold text-red-600">${concern.attendancePercentage}%</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function populateEmployeeTable(employeeSummary) {
+            const tbody = document.getElementById('employeeSummaryTable');
+            tbody.innerHTML = '';
+
+            employeeSummary.forEach(employee => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50';
+                
+                const statusClass = employee.attendancePercentage >= 90 ? 'bg-green-100 text-green-800' :
+                                  employee.attendancePercentage >= 75 ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-red-100 text-red-800';
+                
+                const statusText = employee.attendancePercentage >= 90 ? translations.excellent :
+                                 employee.attendancePercentage >= 75 ? translations.good : translations.needsImprovement;
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${employee.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${employee.department}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${employee.daysPresent}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${employee.daysAbsent}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${employee.lateArrivals}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${employee.attendancePercentage}%</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Helper: Add a tall canvas to the PDF across multiple pages if needed
+        function addCanvasAsPagedImage(doc, sourceCanvas, x, startY, margins = { top: 20, bottom: 20, left: 14, right: 14 }) {
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const targetWidth = pageWidth - (margins.left + margins.right);
+            const scaleRatio = targetWidth / sourceCanvas.width;
+
+            const firstPageAvailableHeight = pageHeight - startY - margins.bottom;
+            let firstSliceHeightPx = Math.floor(firstPageAvailableHeight / scaleRatio);
+
+            // If no room on current page, start on a new page
+            if (firstSliceHeightPx <= 0) {
+                doc.addPage();
+                startY = margins.top;
+                firstSliceHeightPx = Math.floor((pageHeight - margins.top - margins.bottom) / scaleRatio);
+            }
+
+            let y = startY;
+            let offsetPx = 0;
+            const fullPageSlicePx = Math.floor((pageHeight - margins.top - margins.bottom) / scaleRatio);
+
+            while (offsetPx < sourceCanvas.height) {
+                const remainingPx = sourceCanvas.height - offsetPx;
+                const currentSlicePx = Math.min(offsetPx === 0 ? firstSliceHeightPx : fullPageSlicePx, remainingPx);
+
+                const sliceCanvas = document.createElement('canvas');
+                sliceCanvas.width = sourceCanvas.width;
+                sliceCanvas.height = currentSlicePx;
+
+                const ctx = sliceCanvas.getContext('2d');
+                ctx.drawImage(
+                    sourceCanvas,
+                    0,
+                    offsetPx,
+                    sourceCanvas.width,
+                    currentSlicePx,
+                    0,
+                    0,
+                    sourceCanvas.width,
+                    currentSlicePx
+                );
+
+                const imgData = sliceCanvas.toDataURL('image/png', 1.0);
+                const sliceHeightOnPage = currentSlicePx * scaleRatio;
+
+                doc.addImage(imgData, 'PNG', margins.left, y, targetWidth, sliceHeightOnPage);
+
+                offsetPx += currentSlicePx;
+
+                if (offsetPx < sourceCanvas.height) {
+                    doc.addPage();
+                    y = margins.top;
+                } else {
+                    y += sliceHeightOnPage;
+                }
+            }
+
+            return y;
+        }
+
+        async function exportToPDF() {
+            const selectedMonth = document.getElementById('monthSelector').value;
+            if (!selectedMonth) {
+                alert(translations.pdfError);
+                return;
+            }
+
+            try {
+                // Show loading state
+                const btn = document.querySelector('button[onclick="exportToPDF()"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>{{ _("Generating PDF...") }}';
+                btn.disabled = true;
+
+                // Request PDF from server
+                const response = await fetch(`/api/reports/monthly/pdf?month=${selectedMonth}`, {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Download the PDF
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `monthly_report_${selectedMonth}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                alert(translations.pdfError);
+            } finally {
+                // Restore button state
+                const btn = document.querySelector('button[onclick="exportToPDF()"]');
+                btn.innerHTML = '<i class="fa-solid fa-file-pdf mr-2"></i>{{ _("Export PDF") }}';
+                btn.disabled = false;
+            }
+        }
+
+        /**
+         * @description تصفية جدول ملخص الموظفين بناءً على الاسم والقسم.
+         */
+        function filterTable() {
+            const searchTerm = document.getElementById('searchEmployee').value.toLowerCase();
+            const departmentFilter = document.getElementById('departmentFilter').value;
+            const tableBody = document.getElementById('employeeSummaryTable');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (const row of rows) {
+                const employeeName = row.cells[0].textContent.toLowerCase();
+                const department = row.cells[1].textContent.trim();
+
+                const nameMatch = employeeName.includes(searchTerm);
+                const departmentMatch = (departmentFilter === '') || (department === departmentFilter);
+
+                if (nameMatch && departmentMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Help & About - Attendance System') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ _('Help & Documentation') }}</h2>
+            <p class="text-gray-600">{{ _('Everything you need to know about the Facial Recognition Attendance System') }}</p>
+        </div>
+
+        <!-- Quick Help Cards -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center hover:transform hover:scale-105 transition-transform duration-300">
+                <div class="w-16 h-16 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-camera text-2xl text-[#003366]"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ _('Face Recognition') }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ _('Learn how to use the facial recognition check-in system') }}</p>
+                <button onclick="scrollToSection('face-recognition')" 
+                     class="text-[#003366] hover:text-[#002244] font-medium text-sm transition-colors">
+                    {{ _('Learn More →') }}
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center hover:transform hover:scale-105 transition-transform duration-300">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-keyboard text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ _('Access Codes') }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ _('How to use your unique access code for check-in') }}</p>
+                <button onclick="scrollToSection('access-codes')" 
+                    class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">
+                    {{ _('Learn More →') }}
+                </button>
+            </div>
+            
+             <div class="bg-white rounded-xl shadow-lg p-6 text-center hover:transform hover:scale-105 transition-transform duration-300">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-chart-bar text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ _('Reports') }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ _('Understanding attendance reports and analytics') }}</p>
+                <button onclick="scrollToSection('reports')" 
+                    class="text-purple-600 hover:text-purple-700 font-medium text-sm transition-colors">
+                    {{ _('Learn More →') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Help Sections -->
+        <div class="space-y-8">
+            <!-- Getting Started -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa-solid fa-play-circle text-[#003366] mr-3"></i>
+                    {{ _('Getting Started') }}
+                </h3>
+                <div class="space-y-4">
+                    <div class="border-l-4 border-[#003366] pl-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">{{ _('First Time Setup') }}</h4>
+                        <p class="text-gray-600 text-sm">
+                            {{ _("When you first join the company, your face will be registered in the system by HR. You'll also receive a unique 6-digit access code as a backup method.") }}
+                        </p>
+                    </div>
+                    <div class="border-l-4 border-[#003366] pl-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">{{ _('Daily Check-In') }}</h4>
+                        <p class="text-gray-600 text-sm">
+                            {{ _("Use any of the three methods: Face Recognition, Biometric Scan, or Access Code. The system automatically determines if you're checking in or out based on your last activity.") }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Face Recognition -->
+            <div id="face-recognition" class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa-solid fa-camera text-[#003366] mr-3"></i>
+                    {{ _('Face Recognition Check-In') }}
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('How to Use') }}</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-600 text-sm">
+                            <li>{{ _('Navigate to the Face Recognition page') }}</li>
+                            <li>{{ _('Allow camera access when prompted') }}</li>
+                            <li>{{ _('Position your face in the camera frame') }}</li>
+                            <li>{{ _('Click "Capture Face" when ready') }}</li>
+                            <li>{{ _('Wait for recognition and confirmation') }}</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('Tips for Best Results') }}</h4>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600 text-sm">
+                            <li>{{ _('Ensure good lighting on your face') }}</li>
+                            <li>{{ _('Look directly at the camera') }}</li>
+                            <li>{{ _('Remove sunglasses or masks') }}</li>
+                            <li>{{ _('Keep your face centered in the frame') }}</li>
+                            <li>{{ _('Stay still during capture') }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Access Codes -->
+            <div id="access-codes" class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa-solid fa-keyboard text-green-600 mr-3"></i>
+                    {{ _('Access Code Check-In') }}
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('Using Your Access Code') }}</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-600 text-sm">
+                            <li>{{ _('Go to the Code Check-In page') }}</li>
+                            <li>{{ _('Enter your 6-digit access code') }}</li>
+                            <li>{{ _('Click Submit or press Enter') }}</li>
+                            <li>{{ _('Wait for verification') }}</li>
+                            <li>{{ _('Receive confirmation message') }}</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('Important Notes') }}</h4>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600 text-sm">
+                            <li>{{ _('Your access code is unique to you') }}</li>
+                            <li>{{ _('Keep your code confidential') }}</li>
+                            <li>{{ _('Contact HR if you forget your code') }}</li>
+                            <li>{{ _('Codes are case-sensitive') }}</li>
+                            <li>{{ _('Use as backup when face recognition fails') }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports -->
+            <div id="reports" class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa-solid fa-chart-bar text-purple-600 mr-3"></i>
+                    {{ _('Understanding Reports') }}
+                </h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('Daily Reports') }}</h4>
+                        <p class="text-gray-600 text-sm mb-2">
+                            {{ _('View attendance for a specific day, including who is present, absent, or late.') }}
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 text-gray-600 text-sm ml-4">
+                            <li>{{ _('Summary statistics (present, absent, late counts)') }}</li>
+                            <li>{{ _('Detailed attendance table with check-in/out times') }}</li>
+                            <li>{{ _('Late arrivals list') }}</li>
+                            <li>{{ _('Absent employees list') }}</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('Weekly Reports') }}</h4>
+                        <p class="text-slate-600 text-sm mb-2">
+                            {{ _('Analyze attendance patterns over a week (Monday to Friday).') }}
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 text-slate-600 text-sm ml-4">
+                            <li>{{ _('Daily attendance breakdown') }}</li>
+                            <li>{{ _('Average check-in times per day') }}</li>
+                            <li>{{ _('Most and least punctual employees') }}</li>
+                            <li>{{ _('Attendance trends visualization') }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa-solid fa-wrench text-orange-600 mr-3"></i>
+                    {{ _('Troubleshooting') }}
+                </h3>
+                <div class="space-y-4">
+                   <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold text-gray-800 mb-2">{{ _('Face Recognition Not Working') }}</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-600 text-sm">
+                            <li>{{ _('Check camera permissions in your browser') }}</li>
+                            <li>{{ _('Ensure adequate lighting') }}</li>
+                            <li>{{ _('Try the access code method instead') }}</li>
+                            <li>{{ _('Contact IT support if issues persist') }}</li>
+                        </ul>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold text-gray-800 mb-2">{{ _('Forgot Access Code') }}</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-600 text-sm">
+                            <li>{{ _('Check your employee profile') }}</li>
+                            <li>{{ _('Contact HR department') }}</li>
+                            <li>{{ _('Use face recognition as alternative') }}</li>
+                            <li>{{ _('Request code reset from admin') }}</li>
+                        </ul>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold text-gray-800 mb-2">{{ _('System Not Responding') }}</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-600 text-sm">
+                            <li>{{ _('Refresh the page') }}</li>
+                            <li>{{ _('Clear browser cache') }}</li>
+                            <li>{{ _('Try a different browser') }}</li>
+                            <li>{{ _('Report to IT support') }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About System -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fa-solid fa-info-circle text-[#003366] mr-3"></i>
+                    {{ _('About This System') }}
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('System Information') }}</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">{{ _('Version:') }}</span>
+                                <span class="font-medium">2.0.0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">{{ _('Last Updated:') }}</span>
+                                <span class="font-medium">{{ _('December 2024') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sgray-600">{{ _('Technology:') }}</span>
+                                <span class="font-medium">{{ _('AI-Powered') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">{{ _('Security:') }}</span>
+                                <span class="font-medium">{{ _('Enterprise Grade') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">{{ _('Features') }}</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-600 text-sm">
+                            <li>{{ _('Facial Recognition Technology') }}</li>
+                            <li>{{ _('Biometric Authentication') }}</li>
+                            <li>{{ _('Access Code Backup') }}</li>
+                            <li>{{ _('Real-time Attendance Tracking') }}</li>
+                            <li>{{ _('Comprehensive Reporting') }}</li>
+                            <li>{{ _('Mobile-Friendly Interface') }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Support -->
+            <div class="bg-gradient-to-r from-[#002244] to-[#003366] rounded-xl shadow-lg p-8 text-white">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <i class="fa-solid fa-headset mr-3"></i>
+                    {{ _('Need More Help?') }}
+                </h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-envelope text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold mb-2">{{ _('Email Support') }}</h4>
+                        <p class="text-sm opacity-90">support@company.com</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-phone text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold mb-2">{{ _('Phone Support') }}</h4>
+                        <p class="text-sm opacity-90">+1 (555) 123-4567</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-clock text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold mb-2">{{ _('Support Hours') }}</h4>
+                        <p class="text-sm opacity-90">{{ _('Mon-Fri, 9AM-5PM') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Add smooth scrolling for all internal links
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add any initialization code here
+            console.log('Help page loaded');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Profile - Attendance Tracker') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .profile-card {
+           background: linear-gradient(135deg, #003366 0%, #002244 100%);
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .avatar-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .avatar-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #003366;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .success-popup {
+            position: fixed;
+            bottom: 20px;
+            right: -350px; /* Start off-screen */
+            width: 320px;
+            background-color: #fff;
+            color: #1f2937;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: right 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            border-left: 5px solid #10b981;
+        }
+
+        .success-popup.visible {
+            right: 20px;
+        }
+
+        .success-popup-icon {
+            color: #10b981;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .success-popup-message {
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-slate-800">{{ _('Profile Settings') }}</h1>
+            <p class="text-slate-600 mt-2">{{ _('Manage your account information and preferences') }}</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer" class="mb-6 hidden">
+            <div id="alertMessage" class="rounded-lg p-4 text-white font-medium">
+                <i id="alertIcon" class="mr-2"></i>
+                <span id="alertText"></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Profile Overview Card -->
+            <div class="lg:col-span-1">
+                <div class="profile-card rounded-2xl p-6 text-white mb-6">
+                    <div class="text-center">
+                        <div class="relative inline-block mb-4">
+                            <img id="profileAvatar" src="{{ url_for('static', filename='default-avatar.svg') }}" 
+                                alt="Profile Avatar" 
+                                class="w-24 h-24 rounded-full border-4 border-white shadow-lg">
+                            <div class="avatar-upload">
+                                <label for="avatarInput"  class="absolute bottom-0 right-0 bg-white text-[#003366] rounded-full p-2 cursor-pointer hover:bg-gray-100 transition-colors shadow-lg">
+                                    <i class="fa-solid fa-camera text-sm"></i>
+                                </label>
+                                <input type="file" id="avatarInput" accept="image/*">
+                            </div>
+                        </div>
+                        <h3 id="profileName" class="text-xl font-bold mb-1">{{ _('Loading...') }}</h3>
+                        <p id="profilePosition"  class="text-[#003366] text-opacity-70 mb-2">{{ _('Loading...') }}</p>
+                        <p id="profileEmployeeId"class="text-[#003366] text-opacity-50 text-sm">{{ _('Loading...') }}</p>
+                    </div>
+                    
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center text-sm">
+                            <i class="fa-solid fa-envelope w-5"></i>
+                            <span id="profileEmail" class="ml-3">{{ _('Loading...') }}</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fa-solid fa-key w-5"></i>
+                            <span id="profileAccessCode" class="ml-3">{{ _('Loading...') }}</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fa-solid fa-building w-5"></i>
+                            <span id="profileDepartment" class="ml-3">{{ _('Loading...') }}</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fa-solid fa-calendar w-5"></i>
+                            <span id="profileJoinDate" class="ml-3">{{ _('Loading...') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <h4 class="font-semibold text-slate-800 mb-4">{{ _('Account Info') }}</h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">{{ _('Last Login:') }}</span>
+                            <span id="lastLogin" class="font-medium">{{ _('Loading...') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">{{ _('Account Created:') }}</span>
+                            <span id="accountCreated" class="font-medium">{{ _('Loading...') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">{{ _('Role:') }}</span>
+                            <span id="profileRole" class="bg-[#003366] bg-opacity-10 text-[#003366] px-2 py-1 rounded-full text-xs font-medium">{{ _('Loading...') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Forms -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Personal Information -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200">
+                    <div class="p-6 border-b border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800">
+                            <i class="fa-solid fa-user mr-2 text-[#003366]"></i>{{ _('Personal Information') }}
+                        </h3>
+                        <p class="text-slate-600 text-sm mt-1">{{ _('Update your personal details and contact information') }}</p>
+                    </div>
+                    
+                    <form id="profileForm" class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('First Name') }}</label>
+                                <input type="text" id="firstName" name="first_name" readonly
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('Last Name') }}</label>
+                                <input type="text" id="lastName" name="last_name" readonly
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('Email Address *') }}</label>
+                                <input type="email" id="email" name="email" required readonly
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('Access Code') }}</label>
+                                <input type="text" id="accessCode" name="access_code" readonly
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('Department') }}</label>
+                                <input type="text" id="department" name="department" readonly
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('Position') }}</label>
+                                <input type="text" id="position" name="position" readonly
+                                    class="form-input w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed">
+                            </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Removed Emergency Contact, Address, and Bio sections -->
+                        
+                        <div class="mt-8 flex justify-end space-x-4">
+                            <button type="button" id="openPasswordModalBtn" 
+                               class="px-6 py-3 bg-[#002244] text-white rounded-lg font-semibold hover:bg-[#003366] transition-colors btn-hover-scale shadow-md hover:shadow-lg">
+                                {{ _('Change Password') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800">
+                      <i class="fa-solid fa-lock mr-2 text-[#003366]"></i>{{ _('Change Password') }}
+                    </h3>
+                    <p class="text-slate-600 text-sm mt-1">{{ _('Update your password to keep your account secure') }}</p>
+                </div>
+                <button id="closePasswordModalBtn" class="text-slate-500 hover:text-slate-800">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="passwordForm" class="p-6">
+                <div id="modalAlertContainer" class="mb-4 hidden">
+                    <div id="modalAlertMessage" class="rounded-lg p-4 text-white font-medium">
+                        <i id="modalAlertIcon" class="mr-2"></i>
+                        <span id="modalAlertText"></span>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('Current Password') }}</label>
+                        <input type="password" id="currentPassword" name="current_password" required
+                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('New Password') }}</label>
+                        <input type="password" id="newPassword" name="new_password" required
+                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+                        <p class="text-xs text-slate-500 mt-1">{{ _('Password must be at least 8 characters long') }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">{{ _('Confirm New Password') }}</label>
+                        <input type="password" id="confirmPassword" name="confirm_password" required
+                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex justify-end">
+                    <button type="submit" id="changePasswordBtn"
+                        class="w-full px-6 py-3 bg-[#002244] text-white rounded-lg font-semibold hover:bg-[#003366] transition-colors flex items-center justify-center btn-hover-scale">
+                        <span>{{ _('Change Password') }}</span>
+                        <div id="passwordSpinner" class="loading-spinner ml-2 hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="successPopup" class="success-popup">
+        <div class="success-popup-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <p class="success-popup-message">{{ _('The password has been changed successfully') }}</p>
+    </div>
+
+    <script>
+        const translations = {
+            'Failed to load profile data': "{{ _('Failed to load profile data') }}",
+            'File size must be less than 5MB': "{{ _('File size must be less than 5MB') }}",
+            'Avatar updated successfully!': "{{ _('Avatar updated successfully!') }}",
+            'Failed to upload avatar': "{{ _('Failed to upload avatar') }}",
+            'Failed to change password': "{{ _('Failed to change password') }}",
+            'N/A': "{{ _('N/A') }}"
+        };
+
+        let profileData = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Password form submission
+            document.getElementById('passwordForm').addEventListener('submit', handlePasswordSubmit);
+
+            // Avatar upload
+            document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
+
+            // Modal controls
+            document.getElementById('openPasswordModalBtn').addEventListener('click', openPasswordModal);
+            document.getElementById('closePasswordModalBtn').addEventListener('click', closePasswordModal);
+            document.getElementById('passwordModal').addEventListener('click', (event) => {
+                if (event.target.id === 'passwordModal') {
+                    closePasswordModal();
+                }
+            });
+        }
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+            document.getElementById('passwordForm').reset(); // Reset form on close
+        }
+
+        async function loadProfile() {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const response = await fetch('/api/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (data.success) {
+                    profileData = data.profile;
+                    populateProfileData(profileData);
+                } else {
+                    showAlert('error', translations['Failed to load profile data']);
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showAlert('error', translations['Failed to load profile data']);
+            }
+        }
+
+        function populateProfileData(profile) {
+            // Update profile overview
+            document.getElementById('profileAvatar').src = profile.avatar_url || '{{ url_for("static", filename="default-avatar.svg") }}';
+            document.getElementById('profileName').textContent = profile.full_name;
+            document.getElementById('profilePosition').textContent = profile.position;
+            document.getElementById('profileEmployeeId').textContent = profile.employee_id;
+            document.getElementById('profileEmail').textContent = profile.email;
+            document.getElementById('profileAccessCode').textContent = profile.access_code; // New: Access Code
+            document.getElementById('profileDepartment').textContent = profile.department;
+            document.getElementById('profileJoinDate').textContent = formatDate(profile.join_date);
+            document.getElementById('lastLogin').textContent = formatDateTime(profile.last_login);
+            document.getElementById('accountCreated').textContent = formatDate(profile.account_created);
+            document.getElementById('profileRole').textContent = profile.role;
+
+            // Populate form fields
+            const nameParts = profile.full_name.split(' ');
+            document.getElementById('firstName').value = profile.first_name || nameParts[0] || '';
+            document.getElementById('lastName').value = profile.last_name || nameParts.slice(1).join(' ') || '';
+            document.getElementById('email').value = profile.email || '';
+            document.getElementById('accessCode').value = profile.access_code || ''; // New: Access Code
+            document.getElementById('department').value = profile.department || '';
+            document.getElementById('position').value = profile.position || '';
+            // Removed emergencyContact, address, bio
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        async function handlePasswordSubmit(event) {
+            event.preventDefault();
+
+            const changeBtn = document.getElementById('changePasswordBtn');
+            const spinner = document.getElementById('passwordSpinner');
+
+            // Show loading state
+            changeBtn.disabled = true;
+            spinner.classList.remove('hidden');
+
+            try {
+                const formData = new FormData(event.target);
+                const passwordData = {
+                    current_password: formData.get('current_password'),
+                    new_password: formData.get('new_password'),
+                    confirm_password: formData.get('confirm_password')
+                };
+
+                const token = localStorage.getItem('access_token');
+                const csrfToken = getCookie('csrf_access_token'); // Get CSRF token from cookie
+
+                const response = await fetch('/api/profile/password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'X-CSRF-TOKEN': csrfToken // Add CSRF token to headers
+                    },
+                    body: JSON.stringify(passwordData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closePasswordModal();
+                    showSuccessPopup();
+                } else {
+                    showModalAlert('error', data.error || translations['Failed to change password']);
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showModalAlert('error', translations['Failed to change password']);
+            } finally {
+                // Hide loading state
+                changeBtn.disabled = false;
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('error', translations['File size must be less than 5MB']);
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/api/profile/avatar', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('profileAvatar').src = data.avatar_url;
+                    showAlert('success', translations['Avatar updated successfully!']);
+                } else {
+                    showAlert('error', data.error || translations['Failed to upload avatar']);
+                }
+            } catch (error) {
+                console.error('Error uploading avatar:', error);
+                showAlert('error', translations['Failed to upload avatar']);
+            }
+        }
+
+        function showAlert(type, message) {
+            const container = document.getElementById('alertContainer');
+            const messageDiv = document.getElementById('alertMessage');
+            const icon = document.getElementById('alertIcon');
+            const text = document.getElementById('alertText');
+
+            // Set message content
+            text.textContent = message;
+
+            // Set icon and styling based on type
+            if (type === 'success') {
+                messageDiv.className = 'success-message rounded-lg p-4 text-white font-medium';
+                icon.className = 'fa-solid fa-check-circle mr-2';
+            } else {
+                messageDiv.className = 'error-message rounded-lg p-4 text-white font-medium';
+                icon.className = 'fa-solid fa-exclamation-circle mr-2';
+            }
+
+            // Show alert
+            container.classList.remove('hidden');
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                container.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showModalAlert(type, message) {
+            const container = document.getElementById('modalAlertContainer');
+            const messageDiv = document.getElementById('modalAlertMessage');
+            const icon = document.getElementById('modalAlertIcon');
+            const text = document.getElementById('modalAlertText');
+
+            // Set message content
+            text.textContent = message;
+
+            // Set icon and styling based on type
+            if (type === 'success') {
+                messageDiv.className = 'success-message rounded-lg p-4 text-white font-medium';
+                icon.className = 'fa-solid fa-check-circle mr-2';
+            } else {
+                messageDiv.className = 'error-message rounded-lg p-4 text-white font-medium';
+                icon.className = 'fa-solid fa-exclamation-circle mr-2';
+            }
+
+            // Show alert
+            container.classList.remove('hidden');
+        }
+
+        function showSuccessPopup() {
+            const popup = document.getElementById('successPopup');
+            popup.classList.add('visible');
+            setTimeout(() => {
+                popup.classList.remove('visible');
+            }, 4000);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return translations['N/A'];
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return translations['N/A'];
+            return new Date(dateTimeString).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+
+</html>

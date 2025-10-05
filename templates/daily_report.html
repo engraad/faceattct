@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Daily Report') }} - {{ _('Attendance Tracker') }}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chart.js for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased text-gray-800">
+      <!-- Header -->
+    <div class="no-print">
+        {% include 'includes/header.html' %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Report Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-extrabold text-gray-900">{{ _('Daily Attendance Report') }}</h2>
+                <p id="report-date" class="text-gray-600 mt-1">{{ _('Loading date...') }}</p>
+            </div>
+            <div class="flex space-x-3 no-print">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+                
+                <button id="export-pdf-btn" class="bg-[#002244] hover:bg-[#003366] text-white font-bold py-2 px-4 rounded-xl inline-flex items-center transition duration-300 btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fas fa-file-pdf mr-2"></i>
+                    {{ _('Export PDF') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Date Selector -->
+               <div class="no-print bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ _('Select Date') }}</h3>
+            <div class="flex items-center space-x-4">
+                <input type="date" id="dateSelector" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                <button onclick="loadReport()"class="bg-[#002244] text-white px-4 py-3 rounded-lg hover:bg-[#003366] transition-colors btn-hover-scale">
+                    {{ _('Load Report') }}
+                </button>
+                <button onclick="loadToday()"class="bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors btn-hover-scale">
+                    {{ _('Today') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-20">
+            <i class="fa-solid fa-spinner fa-spin fa-3x text-[#003366]"></i>
+            <p class="mt-4 text-gray-600">{{ _('Loading daily report...') }}</p>
+        </div>
+
+        <!-- Data State (Hidden initially) -->
+        <div id="data-state" class="hidden space-y-8">
+            <!-- Summary Cards -->
+             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                    <div class="bg-green-100 text-green-600 p-3 rounded-xl inline-block mb-4">
+                        <i class="fa-solid fa-user-check fa-xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-medium">{{ _('Present') }}</p>
+                    <p id="present-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                    <div class="bg-red-100 text-red-600 p-3 rounded-xl inline-block mb-4">
+                        <i class="fa-solid fa-user-slash fa-xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-medium">{{ _('Absent') }}</p>
+                    <p id="absent-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                    <div class="bg-amber-100 text-amber-600 p-3 rounded-xl inline-block mb-4">
+                        <i class="fa-solid fa-user-clock fa-xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-medium">{{ _('Late') }}</p>
+                    <p id="late-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                    <div class="bg-blue-100 text-blue-600 p-3 rounded-xl inline-block mb-4">
+                        <i class="fa-solid fa-users fa-xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-medium">{{ _('Total') }}</p>
+                    <p id="total-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                </div>
+            </div>
+
+            <!-- Attendance Distribution Chart -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('Attendance Distribution') }}</h3>
+                <div class="h-64">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Attendance Table -->
+             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">{{ _('Employee Attendance Details') }}</h3>
+                    <div class="flex items-center space-x-2 no-print">
+                        <input type="text" id="searchEmployee" placeholder="{{ _('Search employees...') }}" 
+                            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"
+                            oninput="filterTable()">
+                        <select id="statusFilter" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"
+                            onchange="filterTable()">
+                              <option value="all">{{ _('All Status') }}</option>
+                            <option value="Present">{{ _('Present') }}</option>
+                            <option value="Absent">{{ _('Absent') }}</option>
+                            <option value="Late">{{ _('Late') }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+   <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Employee') }}</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Department') }}</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Check-in Time') }}</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Check-out Time') }}</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Status') }}</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Hours Worked') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="6" class="text-center p-8 text-gray-500">{{ _('Loading attendance data...') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Late Arrivals Section -->
+             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('Late Arrivals') }}</h3>
+                <div id="lateArrivalsList" class="space-y-3">
+                    <div class="text-center text-gray-500 py-4">
+                        <i class="fa-solid fa-clock"></i>
+                        <p class="mt-2">{{ _('No late arrivals today') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Absent Employees Section -->
+             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ _('Absent Employees') }}</h3>
+                <div id="absentEmployeesList" class="space-y-3">
+                    <div class="text-center text-gray-500 py-4">
+                        <i class="fa-solid fa-user-slash"></i>
+                        <p class="mt-2">{{ _('All employees are present today') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const translations = {
+            pleaseSelectDate: "{{ _('Please select a date') }}",
+            couldNotLoadReport: "{{ _('Could not load report data. Please try again later.') }}",
+            present: "{{ _('Present') }}",
+            absent: "{{ _('Absent') }}",
+            late: "{{ _('Late') }}",
+            noRecordsForDate: "{{ _('No attendance records found for this date') }}",
+            noLateArrivals: "{{ _('No late arrivals today') }}",
+            allPresent: "{{ _('All employees are present today') }}",
+            absentStatus: "{{ _('Absent') }}",
+            pdfReportTitle: "{{ _('DAILY ATTENDANCE REPORT') }}",
+            pdfAttendanceRate: "{{ _('Attendance Rate:') }}",
+            pdfGenerated: "{{ _('Generated:') }}",
+            pdfPresent: "{{ _('Present:') }}",
+            pdfAbsent: "{{ _('Absent:') }}",
+            pdfLate: "{{ _('Late:') }}",
+            pdfDistributionTitle: "{{ _('Attendance Distribution') }}",
+            pdfGeneratedBy: "{{ _('Generated by Al-Saeed University') }}",
+            pdfError: "{{ _('Error generating PDF report. Please try again.') }}"
+        };
+
+        let attendanceChart = null;
+
+        // Helper function to get authentication headers
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token'); // Assuming token is stored in localStorage
+            if (token) {
+                return {
+                    'Authorization': `Bearer ${token}`
+                };
+            }
+            return {};
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateSelector').value = today;
+            
+            // Load report for today
+            loadReport();
+        });
+
+        function loadToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateSelector').value = today;
+            loadReport();
+        }
+
+        async function loadReport() {
+            const date = document.getElementById('dateSelector').value;
+            if (!date) {
+                alert(translations.pleaseSelectDate);
+                return;
+            }
+
+            const loadingEl = document.getElementById('loading-state');
+            const dataEl = document.getElementById('data-state');
+
+            loadingEl.classList.remove('hidden');
+            dataEl.classList.add('hidden');
+
+            try {
+                // Fetch from the daily report API endpoint
+                const response = await fetch(`/api/reports/daily?date=${date}`, {
+                    headers: getAuthHeaders() // Add authentication headers
+                });
+                if (response.status === 401) {
+                    window.location.href = '/login'; // Redirect to login if unauthorized
+                    return;
+                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const reportData = await response.json();
+
+                populateReportHeader(date);
+                populateSummaryCards(reportData.summary);
+                renderAttendanceChart(reportData.summary);
+                populateAttendanceTable(reportData.attendance);
+                populateLateArrivals(reportData.lateArrivals);
+                populateAbsentEmployees(reportData.absentEmployees);
+
+                loadingEl.classList.add('hidden');
+                dataEl.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Failed to load daily report:", error);
+                loadingEl.innerHTML = 
+                    `<p class="text-red-500 font-semibold">${translations.couldNotLoadReport}</p>`;
+            }
+        }
+
+        function populateReportHeader(date) {
+            const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString(document.documentElement.lang === 'ar' ? 'ar-SA' : 'en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('report-date').textContent = formattedDate;
+        }
+
+        function populateSummaryCards(summary) {
+            document.getElementById('present-count').textContent = summary.present;
+            document.getElementById('absent-count').textContent = summary.absent;
+            document.getElementById('late-count').textContent = summary.late;
+            document.getElementById('total-count').textContent = summary.total;
+        }
+
+        function renderAttendanceChart(summary) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+
+            attendanceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [translations.present, translations.absent, translations.late],
+                    datasets: [{
+                        data: [summary.present, summary.absent, summary.late],
+                        backgroundColor: [
+                            '#10b981', // green
+                            '#ef4444', // red
+                            '#f59e0b'  // amber
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        function populateAttendanceTable(attendance) {
+            const tableBody = document.getElementById('attendanceTableBody');
+            tableBody.innerHTML = '';
+
+            if (attendance.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center p-8 text-gray-500">
+                            ${translations.noRecordsForDate}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            attendance.forEach(record => {
+                const statusText = {
+                    'Present': translations.present,
+                    'Late': translations.late,
+                    'Absent': translations.absent
+                }[record.status] || record.status;
+
+                const row = `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-[#003366] bg-opacity-10 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fa-solid fa-user text-[#003366]"></i>
+                                </div>
+                                <div class="font-medium text-slate-800">${record.employee_name}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">${record.department}</td>
+                        <td class="px-6 py-4 text-gray-600">${record.check_in || '--:--'}</td>
+                        <td class="px-6 py-4 text-gray-600">${record.check_out || '--:--'}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                                record.status === 'Present' ? 'bg-green-100 text-green-700' :
+                                record.status === 'Late' ? 'bg-amber-100 text-amber-700' :
+                                'bg-red-100 text-red-700'
+                            }">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">${record.hours_worked || '--'}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function populateLateArrivals(lateArrivals) {
+            const container = document.getElementById('lateArrivalsList');
+            container.innerHTML = '';
+
+            if (lateArrivals.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-4">
+                        <i class="fa-solid fa-clock"></i>
+                        <p class="mt-2">${translations.noLateArrivals}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            lateArrivals.forEach(employee => {
+                const item = `
+                    <div class="flex justify-between items-center p-3 bg-amber-50 rounded-lg border border-amber-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fa-solid fa-user-clock text-amber-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">${employee.name}</div>
+                                <div class="text-sm text-gray-500">${employee.department}</div>
+                            </div>
+                        </div>
+                        <div class="text-amber-600 font-semibold">${employee.check_in_time}</div>
+                    </div>
+                `;
+                container.innerHTML += item;
+            });
+        }
+
+        function populateAbsentEmployees(absentEmployees) {
+            const container = document.getElementById('absentEmployeesList');
+            container.innerHTML = '';
+
+            if (absentEmployees.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-4">
+                        <i class="fa-solid fa-user-slash"></i>
+                        <p class="mt-2">${translations.allPresent}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            absentEmployees.forEach(employee => {
+                const item = `
+                    <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fa-solid fa-user-slash text-red-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">${employee.name}</div>
+                                <div class="text-sm text-gray-500">${employee.department}</div>
+                            </div>
+                        </div>
+                        <span class="text-red-600 font-semibold">${translations.absentStatus}</span>
+                    </div>
+                `;
+                container.innerHTML += item;
+            });
+        }
+
+        async function exportToPDF() {
+            const date = document.getElementById('dateSelector').value;
+            if (!date) {
+                alert(translations.pleaseSelectDate);
+                return;
+            }
+
+            try {
+                // Show loading state
+                const btn = document.getElementById('export-pdf-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>{{ _("Generating PDF...") }}';
+                btn.disabled = true;
+
+                // Request PDF from server
+                const response = await fetch(`/api/reports/daily/pdf?date=${date}`, {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Download the PDF
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `daily_report_${date}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                alert(translations.pdfError);
+            } finally {
+                // Restore button state
+                const btn = document.getElementById('export-pdf-btn');
+                btn.innerHTML = '<i class="fas fa-file-pdf mr-2"></i>{{ _("Export PDF") }}';
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
+
+        function filterTable() {
+            const searchTerm = document.getElementById('searchEmployee').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const tableBody = document.getElementById('attendanceTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (const row of rows) {
+                if (row.cells.length > 1) {
+                    const employeeName = row.cells[0].textContent.toLowerCase();
+                    const status = row.cells[4].textContent.trim();
+
+                    const nameMatch = employeeName.includes(searchTerm);
+                    const statusMatch = (statusFilter === 'all') || (status === translations[statusFilter.toLowerCase()]);
+
+                    if (nameMatch && statusMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+    </script>
+</body>
+
+</html>

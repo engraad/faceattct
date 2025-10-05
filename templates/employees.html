@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" dir="{{ 'rtl' if get_locale() == 'ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Employees Management - Attendance Tracker') }}</title>
+
+    <!-- Google Fonts: Arabic & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Font based on language */
+        [dir="ltr"] body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div class="flex flex-col min-h-screen">
+        {% if role == 'admin' %}
+            {% include 'includes/header.html' %}
+        {% elif role == 'employee' %}
+            {% include 'includes/employee_header.html' %}
+        {% endif %}
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-8 flex-grow">
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-gray-900">{{ _('Employees Management') }}</h2>
+                    <p class="text-gray-600 mt-2">{{ _('Manage all registered employees and their details') }}</p>
+                </div>
+                <button onclick="showAddEmployeeModal()"
+                    class="bg-[#002244] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#003366] transition-colors flex items-center space-x-2 btn-hover-scale shadow-md hover:shadow-lg">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>{{ _('Add Employee') }}</span>
+                </button>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" id="searchInput" placeholder="{{ _('Search employees by name or department...') }}"
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                        </div>
+                    </div>
+                    <select id="statusFilter"
+                        class="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">{{ _('All Status') }}</option>
+                        <option value="active">{{ _('Active') }}</option>
+                        <option value="inactive">{{ _('Inactive') }}</option>
+                    </select>
+                    <select id="departmentFilter"
+                        class="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">{{ _('All Departments') }}</option>
+                        <option value="IT">{{ _('IT Department') }}</option>
+                        <option value="HR">{{ _('Human Resources') }}</option>
+                        <option value="Finance">{{ _('Finance') }}</option>
+                        <option value="Operations">{{ _('Operations') }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Employees Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Employee') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('ID') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Department') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Position') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Status') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Face Registered') }}</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">{{ _('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="7" class="text-center p-8 text-gray-500">
+                                    <i class="fa-solid fa-spinner fa-spin fa-lg"></i>
+                                    <p class="mt-2">{{ _('Loading employees...') }}</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-8">
+                <div class="text-sm text-gray-600" id="paginationInfo">
+                    {{ _('Showing 0 of 0 employees') }}
+                </div>
+                <div class="flex space-x-2">
+                    <button id="prevPage" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors">
+                        {{ _('Previous') }}
+                    </button>
+                    <button id="nextPage" class="px-3 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors">
+                        {{ _('Next') }}
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Employee Modal -->
+<div id="addEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-lg mx-4 my-8">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-800">{{ _('Add New Employee') }}</h3>
+            <button onclick="hideAddEmployeeModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark fa-lg"></i>
+            </button>
+        </div>
+        <form id="addEmployeeForm" novalidate enctype="multipart/form-data">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Profile Picture -->
+                <div class="md:col-span-1 flex flex-col items-center">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ _('Profile Picture') }}</label>
+                    <div class="relative w-32 h-32">
+                        <img id="add_profile_pic_preview" src="{{ url_for('static', filename='default-avatar.svg') }}" alt="Profile Preview" class="w-full h-full rounded-full object-cover border-2 border-slate-200">
+                        <label for="add_profile_pic" class="absolute bottom-0 right-0 bg-[#002244] text-white rounded-full p-2 cursor-pointer hover:bg-[#003366]">
+                            <i class="fa-solid fa-camera"></i>
+                            <input type="file" id="add_profile_pic" name="profile_pic" class="hidden" accept="image/*" onchange="previewImage(event, 'add_profile_pic_preview')">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Employee Details -->
+                <div class="md:col-span-2 space-y-4">
+                    <div>
+                        <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Full Name *') }}</label>
+                        <input type="text" id="full_name" name="full_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                    
+                        <span id="full_name_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Email *') }}</label>
+                       <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                        <span id="email_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div>
+                    <label for="departmentSelect" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Department *') }}</label>
+                      <select name="department_id" id="departmentSelect" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                        <option value="">{{ _('Select Department') }}</option>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                    <span id="department_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+                <div>
+                    <label for="position" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Position *') }}</label>
+                   <input type="text" id="position" name="position" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]" placeholder="{{ _('e.g., Software Engineer') }}">
+                    <span id="position_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+                <div>
+                    <label for="hired_date" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Hire Date') }}</label>
+                       <input type="date" id="hired_date" name="hired_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                
+                </div>
+            </div>
+
+            <!-- General Error Message Display -->
+            <div id="addEmployeeError" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-exclamation-circle mr-2"></i>
+                    <span id="addEmployeeErrorText"></span>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-8">
+                <button type="button" onclick="hideAddEmployeeModal()" id="cancelAddEmployee" class="px-4 py-2 text-gray-600 border border-slate-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    {{ _('Cancel') }}
+                </button>
+              <button type="submit" id="submitAddEmployee" class="px-4 py-2 bg-[#002244] text-white rounded-lg hover:bg-[#003366] transition-colors flex items-center btn-hover-scale">
+                    <span id="submitAddEmployeeText">{{ _('Add Employee') }}</span>
+                    <div id="submitAddEmployeeSpinner" class="hidden ml-2">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div id="editEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-lg mx-4 my-8">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-800">{{ _('Edit Employee') }}</h3>
+            <button onclick="hideEditEmployeeModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark fa-lg"></i>
+            </button>
+        </div>
+        <form id="editEmployeeForm" novalidate enctype="multipart/form-data">
+            <input type="hidden" id="edit_employee_id" name="employee_id">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Profile Picture -->
+                <div class="md:col-span-1 flex flex-col items-center">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ _('Profile Picture') }}</label>
+                    <div class="relative w-32 h-32">
+                        <img id="edit_profile_pic_preview" src="{{ url_for('static', filename='default-avatar.svg') }}" alt="Profile Preview" class="w-full h-full rounded-full object-cover border-2 border-gray-200">
+                          <label for="edit_profile_pic" class="absolute bottom-0 right-0 bg-[#002244] text-white rounded-full p-2 cursor-pointer hover:bg-[#003366]">
+                            <i class="fa-solid fa-camera"></i>
+                            <input type="file" id="edit_profile_pic" name="profile_pic" class="hidden" accept="image/*" onchange="previewImage(event, 'edit_profile_pic_preview')">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Employee Details -->
+                <div class="md:col-span-2 space-y-4">
+                    <div>
+                        <label for="edit_full_name" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Full Name *') }}</label>
+                          <input type="text" id="edit_full_name" name="full_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                        
+                        <span id="edit_full_name_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                    </div>
+                    <div>
+                        <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Email *') }}</label>
+                         <input type="email" id="edit_email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                        <span id="edit_email_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div>
+                    <label for="edit_departmentSelect" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Department *') }}</label>
+                    <select name="department_id" id="edit_departmentSelect" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+                        <option value="">{{ _('Select Department') }}</option>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                    <span id="edit_department_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+                <div>
+                    <label for="edit_position" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Position *') }}</label>
+                      <input type="text" id="edit_position" name="position" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]" placeholder="{{ _('e.g., Software Engineer') }}">
+                    <span id="edit_position_error" class="text-red-500 text-xs mt-1 hidden"></span>
+                </div>
+                <div>
+                    <label for="edit_hired_date" class="block text-sm font-medium text-gray-700 mb-2">{{ _('Hire Date') }}</label>
+                   <input type="date" id="edit_hired_date" name="hired_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]">
+            </div>
+            </div>
+
+            <!-- General Error Message Display -->
+            <div id="editEmployeeError" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-exclamation-circle mr-2"></i>
+                    <span id="editEmployeeErrorText"></span>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-8">
+                <button type="button" onclick="hideEditEmployeeModal()" id="cancelEditEmployee" class="px-4 py-2 text-slate-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    {{ _('Cancel') }}
+                </button>
+               <button type="submit" id="submitEditEmployee" class="px-4 py-2 bg-[#002244] text-white rounded-lg hover:bg-[#003366] transition-colors flex items-center btn-hover-scale">
+                    <span id="submitEditEmployeeText">{{ _('Save Changes') }}</span>
+                    <div id="submitEditEmployeeSpinner" class="hidden ml-2">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+    <script>
+        let currentPage = 1;
+        const pageSize = 10;
+        let allEmployees = [];
+        let allDepartmentsData = []; // New global variable
+
+        /**
+         * @description دالة مساعدة لإنشاء رؤوس المصادقة للطلبات.
+         * @returns {Headers} كائن الرؤوس مع رمز المصادقة.
+         */
+        function getAuthHeaders(isFormData = false) {
+            const token = localStorage.getItem('access_token');
+            const headers = new Headers();
+            if (!isFormData) {
+                headers.append('Content-Type', 'application/json');
+            }
+            if (token) {
+                headers.append('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchEmployees();
+            loadDepartments();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', filterEmployees);
+            document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+            document.getElementById('departmentFilter').addEventListener('change', filterEmployees);
+            document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+            document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+            
+            document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
+            document.getElementById('editEmployeeForm').addEventListener('submit', handleEditEmployee);
+        }
+
+        function previewImage(event, previewId) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById(previewId);
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function showEditEmployeeModal() {
+            document.getElementById('editEmployeeModal').classList.remove('hidden');
+            // Clear previous validation errors
+            document.querySelectorAll('#editEmployeeForm span[id$="_error"]').forEach(span => span.classList.add('hidden'));
+            document.querySelectorAll('#editEmployeeForm input, #editEmployeeForm select').forEach(el => el.classList.remove('border-red-500'));
+            document.getElementById('editEmployeeError').classList.add('hidden');
+        }
+
+        function hideEditEmployeeModal() {
+            document.getElementById('editEmployeeModal').classList.add('hidden');
+        }
+
+        async function fetchEmployees() {
+            try {
+                const response = await fetch('/api/employees', { headers: getAuthHeaders() });
+                if (response.status === 401) {
+                    window.location.href = '/login'; // Redirect to login if unauthorized
+                    return;
+                }
+                if (!response.ok) throw new Error("{{ _('Failed to fetch employees') }}");
+                
+                allEmployees = await response.json();
+                renderEmployees();
+            } catch (error) {
+                console.error('Error fetching employees:', error);
+                document.getElementById('employeesTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center p-8 text-red-500">
+                            {{ _('Failed to load employees. Please try again.') }}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/api/departments/list', { headers: getAuthHeaders() });
+                if (!response.ok) throw new Error("{{ _('Failed to fetch departments') }}");
+
+                const data = await response.json();
+                const departmentSelectModal = document.getElementById('departmentSelect');
+                const editDepartmentSelect = document.getElementById('edit_departmentSelect');
+                const departmentFilterSelect = document.getElementById('departmentFilter');
+
+                // Clear existing options
+                departmentSelectModal.innerHTML = `<option value="">{{ _('Select Department') }}</option>`;
+                editDepartmentSelect.innerHTML = `<option value="">{{ _('Select Department') }}</option>`;
+                departmentFilterSelect.innerHTML = `<option value="all">{{ _('All Departments') }}</option>`;
+
+                if (data.success && data.departments) {
+                    allDepartmentsData = data.departments; // Store departments globally
+                    data.departments.forEach(dept => {
+                        // For modal
+                        const optionModal = document.createElement('option');
+                        optionModal.value = dept.id;
+                        optionModal.textContent = dept.name;
+                        departmentSelectModal.appendChild(optionModal.cloneNode(true));
+                        editDepartmentSelect.appendChild(optionModal);
+
+                        // For filter
+                        const optionFilter = document.createElement('option');
+                        optionFilter.value = dept.name; // Use name for filtering
+                        optionFilter.textContent = dept.name;
+                        departmentFilterSelect.appendChild(optionFilter);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+
+        function renderEmployees() {
+            const filteredEmployees = filterEmployeesData();
+            const startIndex = (currentPage - 1) * pageSize;
+            const paginatedEmployees = filteredEmployees.slice(startIndex, startIndex + pageSize);
+            
+            const tableBody = document.getElementById('employeesTableBody');
+            tableBody.innerHTML = '';
+
+            if (paginatedEmployees.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center p-8 text-gray-500">
+                            {{ _('No employees found matching your criteria.') }}
+                        </td>
+                    </tr>
+                `;
+                updatePaginationInfo(0);
+                return;
+            }
+
+            paginatedEmployees.forEach(employee => {
+                const profilePic = employee.avatar_url || '{{ url_for("static", filename="default-avatar.svg") }}';
+                const row = `
+                    <tr class="hover:bg-gray-50  transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <img class="w-10 h-10 rounded-full mr-3 object-cover border border-gray-200" src="${profilePic}" alt="${employee.name}'s profile picture">
+                                <div>
+                                    <div class="font-medium text-gray-800">${employee.name}</div>
+                                    <div class="text-sm text-gray-500">${employee.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">${employee.empid}</td>
+                        <td class="px-6 py-4 text-gray-600">${employee.department}</td>
+                        <td class="px-6 py-4 text-gray-600">${employee.jobTitle}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${employee.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                ${employee.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${employee.face_registered ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                                ${employee.face_registered ? "{{ _('Yes') }}" : "{{ _('No') }}"}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex space-x-3">
+                                 <button onclick="viewEmployee(${employee.id})" class="text-[#003366] hover:text-[#002244] transition-colors" title="{{ _('View Employee') }}">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                 <button onclick="editEmployee(${employee.id})" class="text-blue-600 hover:text-blue-800 transition-colors" title="{{ _('Edit Employee') }}">
+                                
+                                    <i class="fa-solid fa-edit"></i>
+                                </button>
+                                   <button onclick="setupFaceRecognition(${employee.id})" class="text-green-600 hover:text-green-800 transition-colors" title="{{ _('Setup Face Recognition') }}">
+                                
+                                    <i class="fa-solid fa-camera"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+
+            updatePaginationInfo(filteredEmployees.length);
+        }
+
+        function filterEmployeesData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const departmentFilter = document.getElementById('departmentFilter').value;
+
+            return allEmployees.filter(employee => {
+                const matchesSearch = employee.name.toLowerCase().includes(searchTerm) ||
+                                    (employee.department && employee.department.toLowerCase().includes(searchTerm)) ||
+                                    employee.email.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || employee.status === statusFilter;
+                const matchesDepartment = departmentFilter === 'all' || (employee.department && employee.department === departmentFilter);
+
+                return matchesSearch && matchesStatus && matchesDepartment;
+            });
+        }
+
+        function filterEmployees() {
+            currentPage = 1;
+            renderEmployees();
+        }
+
+        function changePage(direction) {
+            const filteredEmployees = filterEmployeesData();
+            const totalPages = Math.ceil(filteredEmployees.length / pageSize);
+            
+            const newPage = currentPage + direction;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderEmployees();
+            }
+        }
+
+        function updatePaginationInfo(totalEmployees) {
+            if (totalEmployees === 0) {
+                document.getElementById('paginationInfo').textContent = "{{ _('No employees found') }}";
+                document.getElementById('prevPage').disabled = true;
+                document.getElementById('nextPage').disabled = true;
+                return;
+            }
+            const startIndex = (currentPage - 1) * pageSize + 1;
+            const endIndex = Math.min(startIndex + pageSize - 1, totalEmployees);
+            
+            document.getElementById('paginationInfo').textContent = 
+                `{{ _('Showing') }} ${startIndex}-${endIndex} {{ _('of') }} ${totalEmployees} {{ _('employees') }}`;
+            
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = endIndex >= totalEmployees;
+        }
+
+        function showAddEmployeeModal() {
+            document.getElementById('addEmployeeModal').classList.remove('hidden');
+            document.getElementById('addEmployeeForm').reset();
+            document.getElementById('add_profile_pic_preview').src = '{{ url_for("static", filename="default-avatar.svg") }}';
+            // Clear previous validation errors
+            document.querySelectorAll('span[id$="_error"]').forEach(span => span.classList.add('hidden'));
+            document.querySelectorAll('input, select').forEach(el => el.classList.remove('border-red-500'));
+            document.getElementById('addEmployeeError').classList.add('hidden');
+        }
+
+        function hideAddEmployeeModal() {
+            document.getElementById('addEmployeeModal').classList.add('hidden');
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+            successDiv.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i><span>${message}</span>`;
+            document.body.appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        /**
+         * ====================================================================
+         *                  التحقق من صحة نموذج إضافة موظف
+         * ====================================================================
+         */
+
+        function validateField(id, errorId, message, validationFn) {
+            const input = document.getElementById(id);
+            const error = document.getElementById(errorId);
+            const value = input.value.trim();
+
+            if (!validationFn(value)) {
+                error.textContent = message;
+                error.classList.remove('hidden');
+                input.classList.add('border-red-500');
+                return false;
+            }
+
+            error.classList.add('hidden');
+            input.classList.remove('border-red-500');
+            return true;
+        }
+
+        function validateAddEmployeeForm() {
+            let isValid = true;
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+            isValid &= validateField('full_name', 'full_name_error', "{{ _('Full Name is required.') }}", value => value !== '');
+            isValid &= validateField('email', 'email_error', "{{ _('Please enter a valid email address.') }}", value => emailRegex.test(value));
+            isValid &= validateField('departmentSelect', 'department_error', "{{ _('Please select a department.') }}", value => value !== '');
+            isValid &= validateField('position', 'position_error', "{{ _('Position is required.') }}", value => value !== '');
+
+            return isValid;
+        }
+
+        async function handleAddEmployee(event) {
+            event.preventDefault();
+
+            if (!validateAddEmployeeForm()) {
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitAddEmployee');
+            const submitText = document.getElementById('submitAddEmployeeText');
+            const submitSpinner = document.getElementById('submitAddEmployeeSpinner');
+            const errorDiv = document.getElementById('addEmployeeError');
+            const errorText = document.getElementById('addEmployeeErrorText');
+
+            errorDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitText.textContent = "{{ _('Adding...') }}";
+            submitSpinner.classList.remove('hidden');
+
+            try {
+                const formData = new FormData(event.target);
+
+                const response = await fetch('/api/employees', {
+                    method: 'POST',
+                    headers: getAuthHeaders(true),
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    hideAddEmployeeModal();
+                    fetchEmployees();
+                    showSuccessMessage("{{ _('Employee added successfully!') }}");
+                } else {
+                    errorText.textContent = result.error || "{{ _('Failed to add employee') }}";
+                    errorDiv.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error adding employee:', error);
+                errorText.textContent = "{{ _('Network error. Please try again.') }}";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitText.textContent = "{{ _('Add Employee') }}";
+                submitSpinner.classList.add('hidden');
+            }
+        }
+
+        function viewEmployee(id) {
+            window.location.href = `/employee/${id}`;
+        }
+
+        async function editEmployee(id) {
+            try {
+                const response = await fetch(`/api/employees/${id}`, { headers: getAuthHeaders() });
+                if (!response.ok) throw new Error("{{ _('Failed to fetch employee data') }}");
+                const employee = await response.json();
+
+                document.getElementById('edit_employee_id').value = employee.id;
+                document.getElementById('edit_full_name').value = employee.full_name || employee.name || '';
+                document.getElementById('edit_email').value = employee.email || '';
+
+                const profilePicPreview = document.getElementById('edit_profile_pic_preview');
+                profilePicPreview.src = employee.avatar_url || '{{ url_for("static", filename="default-avatar.svg") }}';
+
+                // Handle department selection
+                const editDepartmentSelect = document.getElementById('edit_departmentSelect');
+                if (employee.department_id) {
+                    editDepartmentSelect.value = employee.department_id;
+                } else if (employee.department && allDepartmentsData.length > 0) {
+                    const department = allDepartmentsData.find(dept => dept.name.trim() === employee.department.trim());
+                    if (department) {
+                        editDepartmentSelect.value = department.id;
+                    } else {
+                        editDepartmentSelect.value = '';
+                    }
+                } else {
+                    editDepartmentSelect.value = '';
+                }
+
+                document.getElementById('edit_position').value = employee.position || employee.jobTitle || '';
+                
+                if (employee.hired_date) {
+                    try {
+                        const date = new Date(employee.hired_date);
+                        if (!isNaN(date.getTime())) {
+                            document.getElementById('edit_hired_date').value = date.toISOString().split('T')[0];
+                        } else {
+                            document.getElementById('edit_hired_date').value = '';
+                        }
+                    } catch (dateError) {
+                        console.warn('Invalid hired_date format:', employee.hired_date, dateError);
+                        document.getElementById('edit_hired_date').value = '';
+                    }
+                } else {
+                    document.getElementById('edit_hired_date').value = '';
+                }
+
+                showEditEmployeeModal();
+            } catch (error) {
+                console.error('Error fetching employee for edit:', error);
+                showSuccessMessage("{{ _('Failed to load employee data for editing.') }}");
+            }
+        }
+
+        /**
+         * ====================================================================
+         *                  التحقق من صحة نموذج تعديل موظف
+         * ====================================================================
+         */
+        function validateEditEmployeeForm() {
+            let isValid = true;
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+            isValid &= validateField('edit_full_name', 'edit_full_name_error', "{{ _('Full Name is required.') }}", value => value !== '');
+            isValid &= validateField('edit_email', 'edit_email_error', "{{ _('Please enter a valid email address.') }}", value => emailRegex.test(value));
+            isValid &= validateField('edit_departmentSelect', 'edit_department_error', "{{ _('Please select a department.') }}", value => value !== '');
+            isValid &= validateField('edit_position', 'edit_position_error', "{{ _('Position is required.') }}", value => value !== '');
+
+            return isValid;
+        }
+
+        async function handleEditEmployee(event) {
+            event.preventDefault();
+
+            if (!validateEditEmployeeForm()) {
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitEditEmployee');
+            const submitText = document.getElementById('submitEditEmployeeText');
+            const submitSpinner = document.getElementById('submitEditEmployeeSpinner');
+            const errorDiv = document.getElementById('editEmployeeError');
+            const errorText = document.getElementById('editEmployeeErrorText');
+
+            errorDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitText.textContent = "{{ _('Saving...') }}";
+            submitSpinner.classList.remove('hidden');
+
+            try {
+                const employeeId = document.getElementById('edit_employee_id').value;
+                const formData = new FormData(event.target);
+
+                const response = await fetch(`/api/employees/${employeeId}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(true),
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    hideEditEmployeeModal();
+                    fetchEmployees(); // Re-fetch employees to update the table
+                    showSuccessMessage("{{ _('Employee updated successfully!') }}");
+                } else {
+                    errorText.textContent = result.error || "{{ _('Failed to update employee') }}";
+                    errorDiv.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error updating employee:', error);
+                errorText.textContent = "{{ _('Network error. Please try again.') }}";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitText.textContent = "{{ _('Save Changes') }}";
+                submitSpinner.classList.add('hidden');
+            }
+        }
+
+        function setupFaceRecognition(id) {
+            window.location.href = `/employees/${id}/face-registration?employee_id=${id}`;
+        }
+
+    </script>
+</body>
+
+</html>
