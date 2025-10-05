@@ -1,0 +1,2528 @@
+# Arabic translations for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-09-14 10:07+0300\n"
+"PO-Revision-Date: 2025-09-14 08:59+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ar\n"
+"Language-Team: ar <LL@li.org>\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : "
+"n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
+
+#: app_new.py:1439 app_new.py:1455 app_new.py:4794 app_new.py:4795
+#: templates/dashboard.html:140 templates/settings.html:139
+#: test_translation.py:69
+msgid "System Settings"
+msgstr "إعدادات النظام"
+
+#: templates/accounts.html:7
+msgid "Account Management - Attendance System"
+msgstr "إدارة الحسابات - نظام الحضور"
+
+#: templates/accounts.html:151
+msgid "User Account Management"
+msgstr "إدارة حسابات المستخدمين"
+
+#: templates/accounts.html:152
+msgid "Add and edit system user accounts"
+msgstr "إضافة وتعديل حسابات مستخدمي النظام"
+
+#: templates/accounts.html:157 templates/accounts.html:226
+msgid "Add New Account"
+msgstr "إضافة حساب جديد"
+
+#: templates/accounts.html:167 templates/accounts.html:196
+#: templates/accounts.html:234 templates/employee_detail.html:122
+#: templates/employee_detail.html:246
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#: templates/accounts.html:168 templates/accounts.html:200
+#: templates/accounts.html:242
+msgid "Role"
+msgstr "الدور"
+
+#: templates/accounts.html:169
+msgid "Linked Employee"
+msgstr "الموظف المرتبط"
+
+#: templates/accounts.html:170
+msgid "Creation Date"
+msgstr "تاريخ الإنشاء"
+
+#: templates/accounts.html:171 templates/employees.html:115
+msgid "Actions"
+msgstr "الإجراءات"
+
+#: templates/accounts.html:187
+msgid "Edit User Account"
+msgstr "تعديل حساب المستخدم"
+
+#: templates/accounts.html:202 templates/accounts.html:244
+#: templates/attendance_history.html:80 templates/attendance_history.html:138
+#: templates/daily_report.html:181 templates/dashboard.html:217
+#: templates/employees.html:109 templates/monthly_report.html:162
+msgid "Employee"
+msgstr "الموظف"
+
+#: templates/accounts.html:203 templates/accounts.html:245
+msgid "Admin"
+msgstr "مدير"
+
+#: templates/accounts.html:207 templates/accounts.html:249
+msgid "Link to Employee (Optional)"
+msgstr "ربط بالموظف (اختياري)"
+
+#: templates/accounts.html:215 templates/accounts.html:258
+#: templates/accounts.html:276 templates/departments.html:207
+#: templates/departments.html:234 templates/employee_detail.html:282
+#: templates/employees.html:214 templates/employees.html:295
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: templates/accounts.html:216 templates/employee_detail.html:285
+#: templates/employee_detail.html:349 templates/employees.html:298
+#: templates/employees.html:774
+msgid "Save Changes"
+msgstr "حفظ التغييرات"
+
+#: templates/accounts.html:238 templates/login.html:50
+msgid "Password"
+msgstr "كلمة المرور"
+
+#: templates/accounts.html:251 templates/accounts.html:338
+msgid "No link"
+msgstr "لا يوجد رابط"
+
+#: templates/accounts.html:259
+msgid "Add Account"
+msgstr "إضافة حساب"
+
+#: templates/accounts.html:271
+msgid "Are you sure?"
+msgstr "هل أنت متأكد؟"
+
+#: templates/accounts.html:273 templates/departments.html:229
+msgid "This action cannot be undone."
+msgstr "لا يمكن التراجع عن هذا الإجراء."
+
+#: templates/accounts.html:277
+msgid "Confirm"
+msgstr "تأكيد"
+
+#: templates/accounts.html:291 templates/face_setup.html:410
+msgid "Success!"
+msgstr "نجح!"
+
+#: templates/accounts.html:292
+msgid "The operation was successful."
+msgstr "تمت العملية بنجاح."
+
+#: templates/accounts.html:294
+msgid "New Password:"
+msgstr "كلمة المرور الجديدة:"
+
+#: templates/accounts.html:301
+msgid ""
+"Please provide this password to the user securely and save it in a safe "
+"place."
+msgstr "يرجى توفير كلمة المرور هذه للمستخدم بأمان وحفظها في مكان آمن."
+
+#: templates/accounts.html:304 templates/accounts.html:324
+#: templates/face_setup.html:395
+msgid "OK"
+msgstr "موافق"
+
+#: templates/accounts.html:319
+msgid "An error occurred!"
+msgstr "حدث خطأ!"
+
+#: templates/accounts.html:321
+msgid "An unexpected error occurred."
+msgstr "حدث خطأ غير متوقع."
+
+#: templates/accounts.html:331
+msgid "Loading accounts..."
+msgstr "جاري تحميل الحسابات..."
+
+#: templates/accounts.html:332
+msgid "Failed to load the list of accounts from the server."
+msgstr "فشل في تحميل قائمة الحسابات من الخادم."
+
+#: templates/accounts.html:333
+msgid "No accounts to display."
+msgstr "لا توجد حسابات للعرض."
+
+#: templates/accounts.html:334
+msgid "<span class=\"text-slate-400\">Not linked</span>"
+msgstr "<span class=\"text-slate-400\">غير مرتبط</span>"
+
+#: templates/accounts.html:335
+msgid "Edit Account"
+msgstr "تعديل الحساب"
+
+#: templates/accounts.html:336
+msgid "Delete Account"
+msgstr "حذف الحساب"
+
+#: templates/accounts.html:337 templates/accounts.html:351
+msgid "Reset Password"
+msgstr "إعادة تعيين كلمة المرور"
+
+#: templates/accounts.html:339
+msgid "Failed to load the list of employees."
+msgstr "فشل في تحميل قائمة الموظفين."
+
+#: templates/accounts.html:340
+msgid "Added"
+msgstr "تمت الإضافة"
+
+#: templates/accounts.html:341
+msgid "The new account has been created successfully."
+msgstr "تم إنشاء الحساب الجديد بنجاح."
+
+#: templates/accounts.html:342
+msgid "Failed to add account"
+msgstr "فشل في إضافة الحساب"
+
+#: templates/accounts.html:343
+msgid "Updated"
+msgstr "تم التحديث"
+
+#: templates/accounts.html:344
+msgid "The account details have been updated successfully."
+msgstr "تم تحديث تفاصيل الحساب بنجاح."
+
+#: templates/accounts.html:345
+msgid "Failed to update account"
+msgstr "فشل في تحديث الحساب"
+
+#: templates/accounts.html:346
+msgid "Confirm Deletion"
+msgstr "تأكيد الحذف"
+
+#: templates/accounts.html:347
+msgid "Are you sure you want to permanently delete this account?"
+msgstr "هل أنت متأكد أنك تريد حذف هذا الحساب نهائيًا؟"
+
+#: templates/accounts.html:348
+msgid "Deleted"
+msgstr "تم الحذف"
+
+#: templates/accounts.html:349
+msgid "The account has been deleted successfully."
+msgstr "تم حذف الحساب بنجاح."
+
+#: templates/accounts.html:350
+msgid "Failed to delete account"
+msgstr "فشل في حذف الحساب"
+
+#: templates/accounts.html:352
+msgid "A new random password will be generated. Do you want to continue?"
+msgstr "سيتم إنشاء كلمة مرور عشوائية جديدة. هل تريد المتابعة؟"
+
+#: templates/accounts.html:353
+msgid "Reset Successful"
+msgstr "تمت إعادة التعيين بنجاح"
+
+#: templates/accounts.html:354
+msgid "The password has been reset successfully."
+msgstr "تم إعادة تعيين كلمة المرور بنجاح."
+
+#: templates/accounts.html:355
+msgid "Failed to reset password"
+msgstr "فشل في إعادة تعيين كلمة المرور"
+
+#: templates/accounts.html:356 templates/employee_detail.html:353
+msgid "Copied!"
+msgstr "تم النسخ!"
+
+#: templates/attendance_history.html:7
+msgid "Attendance History - Admin Dashboard"
+msgstr "تاريخ الحضور - لوحة تحكم المدير"
+
+#: templates/attendance_history.html:76
+msgid "Filter Attendance Records"
+msgstr "تصفية سجلات الحضور"
+
+#: templates/attendance_history.html:82 templates/attendance_history.html:183
+msgid "All Employees"
+msgstr "جميع الموظفين"
+
+#: templates/attendance_history.html:86
+msgid "Start Date"
+msgstr "تاريخ البداية"
+
+#: templates/attendance_history.html:90
+msgid "End Date"
+msgstr "تاريخ النهاية"
+
+#: templates/attendance_history.html:94 templates/attendance_history.html:143
+#: templates/daily_report.html:185 templates/dashboard.html:219
+#: templates/employee_dashboard.html:106 templates/employee_detail.html:139
+#: templates/employees.html:113 templates/monthly_report.html:168
+msgid "Status"
+msgstr "الحالة"
+
+#: templates/attendance_history.html:96 templates/daily_report.html:170
+#: templates/employees.html:88
+msgid "All Status"
+msgstr "جميع الحالات"
+
+#: templates/attendance_history.html:97 templates/attendance_history.html:185
+#: templates/daily_report.html:126 templates/daily_report.html:171
+#: templates/daily_report.html:226 templates/dashboard.html:154
+#: templates/employee_dashboard.html:145 templates/employee_detail.html:334
+#: templates/weekly_report.html:264
+msgid "Present"
+msgstr "حاضر"
+
+#: templates/attendance_history.html:98 templates/attendance_history.html:186
+#: templates/daily_report.html:133 templates/daily_report.html:172
+#: templates/daily_report.html:227 templates/daily_report.html:232
+#: templates/dashboard.html:166 templates/employee_dashboard.html:147
+#: templates/employee_detail.html:336 templates/weekly_report.html:265
+msgid "Absent"
+msgstr "غائب"
+
+#: templates/attendance_history.html:99 templates/attendance_history.html:144
+#: templates/attendance_history.html:187 templates/daily_report.html:140
+#: templates/daily_report.html:173 templates/daily_report.html:228
+#: templates/dashboard.html:178 templates/employee_dashboard.html:146
+#: templates/employee_detail.html:335
+msgid "Late"
+msgstr "متأخر"
+
+#: templates/attendance_history.html:104
+msgid "Apply Filters"
+msgstr "تطبيق المرشحات"
+
+#: templates/attendance_history.html:114
+msgid "Attendance Records"
+msgstr "سجلات الحضور"
+
+#: templates/attendance_history.html:118
+msgid "Export"
+msgstr "تصدير"
+
+#: templates/attendance_history.html:121
+msgid "Refresh"
+msgstr "تحديث"
+
+#: templates/attendance_history.html:129 templates/employee_dashboard.html:113
+msgid "Loading attendance records..."
+msgstr "جاري تحميل سجلات الحضور..."
+
+#: templates/attendance_history.html:139 templates/employee_dashboard.html:103
+msgid "Date"
+msgstr "التاريخ"
+
+#: templates/attendance_history.html:140 templates/employee_dashboard.html:104
+#: templates/face_setup.html:233
+msgid "Check In"
+msgstr "تسجيل الدخول"
+
+#: templates/attendance_history.html:141 templates/employee_dashboard.html:105
+#: templates/face_setup.html:237
+msgid "Check Out"
+msgstr "تسجيل الخروج"
+
+#: templates/attendance_history.html:142
+msgid "Duration"
+msgstr "المدة"
+
+#: templates/attendance_history.html:175
+msgid "No Attendance Records Found"
+msgstr "لا توجد سجلات حضور"
+
+#: templates/attendance_history.html:176
+msgid "Try adjusting your filters or check back later."
+msgstr "حاول تعديل مرشحاتك أو تحقق مرة أخرى لاحقاً."
+
+#: templates/attendance_history.html:184
+msgid "Total Records"
+msgstr "إجمالي السجلات"
+
+#: templates/attendance_history.html:188 templates/employee_dashboard.html:73
+msgid "Attendance Rate"
+msgstr "معدل الحضور"
+
+#: templates/attendance_history.html:189
+msgid "On time"
+msgstr "في الوقت"
+
+#: templates/attendance_history.html:190
+msgid "m late"
+msgstr "دقيقة متأخر"
+
+#: templates/attendance_history.html:191 templates/employee_dashboard.html:148
+#: templates/employees.html:539
+msgid "Showing"
+msgstr "عرض"
+
+#: templates/attendance_history.html:192 templates/departments.html:259
+#: templates/employee_dashboard.html:149 templates/employees.html:539
+#: templates/face_setup.html:655
+msgid "of"
+msgstr "من"
+
+#: templates/attendance_history.html:193 templates/employee_dashboard.html:150
+msgid "records"
+msgstr "سجل"
+
+#: templates/attendance_history.html:194 templates/departments.html:258
+#: templates/employee_dashboard.html:151
+msgid "Page"
+msgstr "صفحة"
+
+#: templates/attendance_history.html:195
+msgid "Error loading employees:"
+msgstr "خطأ في تحميل الموظفين:"
+
+#: templates/attendance_history.html:196
+msgid "Error loading summary:"
+msgstr "خطأ في تحميل الملخص:"
+
+#: templates/attendance_history.html:197
+msgid "Error loading attendance data:"
+msgstr "خطأ في تحميل بيانات الحضور:"
+
+#: templates/daily_report.html:7 templates/includes/header.html:60
+#: templates/includes/header.html:125
+msgid "Daily Report"
+msgstr "التقرير اليومي"
+
+#: templates/daily_report.html:7 templates/departments.html:7
+#: templates/employee_detail.html:7 templates/includes/header.html:25
+msgid "Attendance Tracker"
+msgstr "متتبع الحضور"
+
+#: templates/daily_report.html:84
+msgid "Daily Attendance Report"
+msgstr "تقرير الحضور اليومي"
+
+#: templates/daily_report.html:85
+msgid "Loading date..."
+msgstr "جاري تحميل التاريخ..."
+
+#: templates/daily_report.html:93 templates/monthly_report.html:47
+#: templates/weekly_report.html:242
+msgid "Export PDF"
+msgstr "تصدير PDF"
+
+#: templates/daily_report.html:100
+msgid "Select Date"
+msgstr "تحديد التاريخ"
+
+#: templates/daily_report.html:104
+msgid "Load Report"
+msgstr "تحميل التقرير"
+
+#: templates/daily_report.html:107 templates/dashboard.html:192
+msgid "Today"
+msgstr "اليوم"
+
+#: templates/daily_report.html:115
+msgid "Loading daily report..."
+msgstr "جاري تحميل التقرير اليومي..."
+
+#: templates/daily_report.html:147
+msgid "Total"
+msgstr "المجموع"
+
+#: templates/daily_report.html:154 templates/daily_report.html:239
+msgid "Attendance Distribution"
+msgstr "توزيع الحضور"
+
+#: templates/daily_report.html:163
+msgid "Employee Attendance Details"
+msgstr "تفاصيل حضور الموظف"
+
+#: templates/daily_report.html:165 templates/monthly_report.html:150
+msgid "Search employees..."
+msgstr "البحث في الموظفين..."
+
+#: templates/daily_report.html:182 templates/employee_detail.html:150
+#: templates/employee_detail.html:255 templates/employees.html:111
+#: templates/monthly_report.html:163 templates/profile.html:228
+msgid "Department"
+msgstr "القسم"
+
+#: templates/daily_report.html:183
+msgid "Check-in Time"
+msgstr "وقت تسجيل الدخول"
+
+#: templates/daily_report.html:184
+msgid "Check-out Time"
+msgstr "وقت تسجيل الخروج"
+
+#: templates/daily_report.html:186
+msgid "Hours Worked"
+msgstr "ساعات العمل المؤداة"
+
+#: templates/daily_report.html:191
+msgid "Loading attendance data..."
+msgstr "جاري تحميل بيانات الحضور..."
+
+#: templates/daily_report.html:200 templates/employee_detail.html:177
+#: templates/monthly_report.html:166
+msgid "Late Arrivals"
+msgstr "المتأخرون في الوصول"
+
+#: templates/daily_report.html:204 templates/daily_report.html:230
+msgid "No late arrivals today"
+msgstr "لا يوجد متأخرون في الوصول اليوم"
+
+#: templates/daily_report.html:211
+msgid "Absent Employees"
+msgstr "الموظفون الغائبون"
+
+#: templates/daily_report.html:215 templates/daily_report.html:231
+msgid "All employees are present today"
+msgstr "جميع الموظفين حاضرون اليوم"
+
+#: templates/daily_report.html:224
+msgid "Please select a date"
+msgstr "يرجى تحديد تاريخ"
+
+#: templates/daily_report.html:225 templates/weekly_report.html:303
+msgid "Could not load report data. Please try again later."
+msgstr "تعذر تحميل بيانات التقرير. يرجى المحاولة مرة أخرى لاحقاً."
+
+#: templates/daily_report.html:229
+msgid "No attendance records found for this date"
+msgstr "لا توجد سجلات حضور لهذا التاريخ"
+
+#: templates/daily_report.html:233
+msgid "DAILY ATTENDANCE REPORT"
+msgstr "تقرير الحضور اليومي"
+
+#: templates/daily_report.html:234 templates/employee_detail.html:369
+msgid "Attendance Rate:"
+msgstr "معدل الحضور:"
+
+#: templates/daily_report.html:235 templates/monthly_report.html:190
+#: templates/weekly_report.html:310
+msgid "Generated:"
+msgstr "المعدل"
+
+#: templates/daily_report.html:236
+msgid "Present:"
+msgstr "حاضر:"
+
+#: templates/daily_report.html:237
+msgid "Absent:"
+msgstr "غائب:"
+
+#: templates/daily_report.html:238
+msgid "Late:"
+msgstr "متأخر:"
+
+#: templates/daily_report.html:240 templates/monthly_report.html:192
+#: templates/weekly_report.html:314
+msgid "Generated by Al-Saeed University"
+msgstr "تم إنشاؤه بواسطة جامعة ال سعيد"
+
+#: templates/daily_report.html:241 templates/monthly_report.html:193
+#: templates/weekly_report.html:315
+msgid "Error generating PDF report. Please try again."
+msgstr "خطأ في إنشاء تقرير PDF. يرجى المحاولة مرة أخرى."
+
+#: templates/dashboard.html:7
+msgid "Admin Dashboard - Attendance Tracker"
+msgstr "لوحة تحكم المدير - متتبع الحضور"
+
+#: templates/dashboard.html:82 templates/includes/employee_header.html:22
+#: templates/includes/header.html:31 templates/includes/header.html:108
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#: templates/dashboard.html:83
+msgid "Welcome back! Here's your real-time attendance overview."
+msgstr "مرحباً بعودتك! إليك نظرة عامة على الحضور في الوقت الفعلي."
+
+#: templates/dashboard.html:88 templates/employee_detail.html:189
+msgid "Quick Actions"
+msgstr "الإجراءات السريعة"
+
+#: templates/dashboard.html:96
+msgid "Manage Employees"
+msgstr "إدارة الموظفين"
+
+#: templates/dashboard.html:97
+msgid "View and edit employee data"
+msgstr "عرض وتعديل بيانات الموظفين"
+
+#: templates/dashboard.html:107
+msgid "Manage Departments"
+msgstr "إدارة الأقسام"
+
+#: templates/dashboard.html:108
+msgid "Organize company structure"
+msgstr "تنظيم هيكل الشركة"
+
+#: templates/dashboard.html:118
+msgid "View Attendance History"
+msgstr "عرض تاريخ الحضور"
+
+#: templates/dashboard.html:119
+msgid "Browse attendance records"
+msgstr "تصفح سجلات الحضور"
+
+#: templates/dashboard.html:129
+msgid "Employee Check-In"
+msgstr "تسجيل دخول الموظف"
+
+#: templates/dashboard.html:130
+msgid "Face recognition attendance"
+msgstr "حضور بالتعرف على الوجه"
+
+#: templates/dashboard.html:141
+msgid "Configure attendance rules"
+msgstr "تهيئة قواعد الحضور"
+
+#: templates/dashboard.html:190
+msgid "Alerts"
+msgstr "التنبيهات"
+
+#: templates/dashboard.html:204
+msgid "Weekly Attendance Summary"
+msgstr "ملخص الحضور الأسبوعي"
+
+#: templates/dashboard.html:212
+msgid "Recent Activity"
+msgstr "النشاط الأخير"
+
+#: templates/dashboard.html:218
+msgid "Time"
+msgstr "الوقت"
+
+#: templates/dashboard.html:224
+msgid "Loading activity..."
+msgstr "جاري تحميل النشاط..."
+
+#: templates/dashboard.html:279
+msgid "No recent activity."
+msgstr "لا يوجد نشاط أخير."
+
+#: templates/dashboard.html:299
+msgid "Failed to load activity."
+msgstr "فشل في تحميل النشاط."
+
+#: templates/dashboard.html:336
+msgid "Daily Attendance"
+msgstr "الحضور اليومي"
+
+#: templates/dashboard.html:362
+msgid "Failed to load data"
+msgstr "فشل في تحميل البيانات"
+
+#: templates/departments.html:7 templates/includes/header.html:43
+#: templates/includes/header.html:117
+msgid "Departments"
+msgstr "الأقسام"
+
+#: templates/departments.html:85
+msgid "Department Management"
+msgstr "إدارة الأقسام"
+
+#: templates/departments.html:86
+msgid "Manage organizational departments and their information"
+msgstr "إدارة أقسام المؤسسة ومعلوماتها"
+
+#: templates/departments.html:90 templates/departments.html:176
+#: templates/departments.html:186 templates/departments.html:260
+msgid "Add Department"
+msgstr "إضافة قسم"
+
+#: templates/departments.html:128
+msgid "Search departments..."
+msgstr "البحث في الأقسام..."
+
+#: templates/departments.html:134
+msgid "Search"
+msgstr "بحث"
+
+#: templates/departments.html:143
+msgid "Loading departments..."
+msgstr "جاري تحميل الأقسام..."
+
+#: templates/departments.html:172
+msgid "No Departments Found"
+msgstr "لم يتم العثور على أقسام"
+
+#: templates/departments.html:173
+msgid "Get started by creating your first department."
+msgstr "ابدأ بإنشاء قسمك الأول."
+
+#: templates/departments.html:197
+msgid "Department Name"
+msgstr "اسم القسم"
+
+#: templates/departments.html:200
+msgid "Enter department name"
+msgstr "أدخل اسم القسم"
+
+#: templates/departments.html:211 templates/departments.html:261
+msgid "Create Department"
+msgstr "إنشاء قسم"
+
+#: templates/departments.html:228
+msgid "Delete Department"
+msgstr "حذف قسم"
+
+#: templates/departments.html:229
+msgid "Are you sure you want to delete"
+msgstr "هل أنت متأكد من أنك تريد الحذف"
+
+#: templates/departments.html:238 templates/departments.html:267
+msgid "Delete"
+msgstr "حذف"
+
+#: templates/departments.html:249
+msgid "Total Departments"
+msgstr "إجمالي الأقسام"
+
+#: templates/departments.html:250
+msgid "Total Employees"
+msgstr "إجمالي الموظفين"
+
+#: templates/departments.html:251
+msgid "Avg per Department"
+msgstr "المتوسط لكل قسم"
+
+#: templates/departments.html:252
+msgid "Largest Department"
+msgstr "أكبر قسم"
+
+#: templates/departments.html:253 templates/departments.html:256
+#: templates/employees.html:539 templates/weekly_report.html:309
+msgid "employees"
+msgstr "الموظف"
+
+#: templates/departments.html:254 templates/employee_detail.html:337
+#: templates/profile.html:320
+msgid "N/A"
+msgstr "غير متوفر"
+
+#: templates/departments.html:255
+msgid "Failed to load departments"
+msgstr "فشل في تحميل الأقسام"
+
+#: templates/departments.html:257
+msgid "View Employees"
+msgstr "عرض الموظفين"
+
+#: templates/departments.html:262
+msgid "Edit Department"
+msgstr "تعديل قسم"
+
+#: templates/departments.html:263
+msgid "Update Department"
+msgstr "تحديث قسم"
+
+#: templates/departments.html:264
+msgid "Failed to load department details"
+msgstr "فشل في تحميل تفاصيل القسم"
+
+#: templates/departments.html:265
+msgid "Failed to save department"
+msgstr "فشل في حفظ القسم"
+
+#: templates/departments.html:266
+msgid "Failed to delete department"
+msgstr "فشل في حذف القسم"
+
+#: templates/employee_dashboard.html:6 templates/employee_dashboard.html:18
+msgid "Employee Dashboard"
+msgstr "لوحة تحكم الموظف"
+
+#: templates/employee_dashboard.html:27 templates/employee_dashboard.html:140
+#: templates/employee_detail.html:119 templates/employee_detail.html:123
+#: templates/employee_detail.html:127 templates/employee_detail.html:132
+#: templates/employee_detail.html:140 templates/employee_detail.html:151
+#: templates/employee_detail.html:155 templates/employee_detail.html:159
+#: templates/employee_detail.html:323
+#: templates/includes/employee_header.html:17 templates/profile.html:149
+#: templates/profile.html:150 templates/profile.html:151
+#: templates/profile.html:157 templates/profile.html:161
+#: templates/profile.html:165 templates/profile.html:169
+#: templates/profile.html:180 templates/profile.html:184
+#: templates/profile.html:188
+msgid "Loading..."
+msgstr "جاري التحميل..."
+
+#: templates/employee_dashboard.html:32
+#: templates/includes/employee_header.html:25 templates/includes/header.html:89
+#: templates/includes/header.html:138
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+#: templates/employee_dashboard.html:36
+#: templates/includes/employee_header.html:29 templates/includes/header.html:96
+#: templates/includes/header.html:144
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+#: templates/employee_dashboard.html:50
+msgid "Attendance Summary (Current Month)"
+msgstr "ملخص الحضور (الشهر الحالي)"
+
+#: templates/employee_dashboard.html:55
+msgid "Working Days"
+msgstr "أيام العمل"
+
+#: templates/employee_dashboard.html:59 templates/employee_detail.html:173
+msgid "Present Days"
+msgstr "أيام الحضور"
+
+#: templates/employee_dashboard.html:63
+msgid "Late Days"
+msgstr "أيام التأخر"
+
+#: templates/employee_dashboard.html:67 templates/employee_detail.html:181
+msgid "Absent Days"
+msgstr "أيام الغياب"
+
+#: templates/employee_dashboard.html:77
+msgid "Total Hours Worked"
+msgstr "إجمالي ساعات العمل"
+
+#: templates/employee_dashboard.html:88
+msgid "My Attendance Records"
+msgstr "سجلات حضوري"
+
+#: templates/employee_dashboard.html:94
+msgid "Filter"
+msgstr "تصفية"
+
+#: templates/employee_dashboard.html:107
+msgid "Hours"
+msgstr "ساعات"
+
+#: templates/employee_dashboard.html:108
+msgid "Notes"
+msgstr "ملاحظات"
+
+#: templates/employee_dashboard.html:126 templates/employees.html:137
+msgid "Previous"
+msgstr "السابق"
+
+#: templates/employee_dashboard.html:130 templates/employees.html:140
+msgid "Next"
+msgstr "التالي"
+
+#: templates/employee_dashboard.html:141
+msgid "Failed to fetch profile"
+msgstr "فشل في جلب الملف الشخصي"
+
+#: templates/employee_dashboard.html:142
+msgid "Failed to fetch attendance summary"
+msgstr "فشل في جلب ملخص الحضور"
+
+#: templates/employee_dashboard.html:143
+msgid "Failed to fetch attendance records"
+msgstr "فشل في جلب سجلات الحضور"
+
+#: templates/employee_dashboard.html:144
+msgid "No attendance records found"
+msgstr "لم يتم العثور على سجلات حضور"
+
+#: templates/employee_detail.html:7 templates/employee_detail.html:91
+msgid "Employee Details"
+msgstr "تفاصيل الموظف"
+
+#: templates/employee_detail.html:78
+msgid "Back to Employees"
+msgstr "العودة إلى الموظفين"
+
+#: templates/employee_detail.html:92
+msgid "Loading employee information..."
+msgstr "جاري تحميل معلومات الموظف..."
+
+#: templates/employee_detail.html:99
+msgid "Edit"
+msgstr "تعديل"
+
+#: templates/employee_detail.html:104 templates/employee_detail.html:299
+msgid "Register Face"
+msgstr "تسجيل الوجه"
+
+#: templates/employee_detail.html:115 templates/profile.html:200
+msgid "Personal Information"
+msgstr "المعلومات الشخصية"
+
+#: templates/employee_detail.html:118 templates/employee_detail.html:241
+msgid "Full Name"
+msgstr "الاسم الكامل"
+
+#: templates/employee_detail.html:126 templates/employee_detail.html:324
+msgid "Employee ID"
+msgstr "رقم الموظف"
+
+#: templates/employee_detail.html:130 templates/profile.html:223
+msgid "Access Code"
+msgstr "رمز الوصول"
+
+#: templates/employee_detail.html:133
+msgid "Copy access code"
+msgstr "نسخ رمز الوصول"
+
+#: templates/employee_detail.html:147
+msgid "Work Information"
+msgstr "معلومات العمل"
+
+#: templates/employee_detail.html:154 templates/employee_detail.html:263
+#: templates/employees.html:112 templates/profile.html:233
+msgid "Position"
+msgstr "المنصب"
+
+#: templates/employee_detail.html:158
+msgid "Face Registration"
+msgstr "تسجيل الوجه"
+
+#: templates/employee_detail.html:170
+msgid "This Month"
+msgstr "هذا الشهر"
+
+#: templates/employee_detail.html:193
+msgid "Generate Report"
+msgstr "إنشاء تقرير"
+
+#: templates/employee_detail.html:201
+msgid "Recent Check-ins"
+msgstr "عمليات الدخول الأخيرة"
+
+#: templates/employee_detail.html:205
+msgid "Loading recent activity..."
+msgstr "جاري تحميل النشاط الأخير..."
+
+#: templates/employee_detail.html:218 templates/employees.html:231
+#: templates/employees.html:480
+msgid "Edit Employee"
+msgstr "تعديل موظف"
+
+#: templates/employee_detail.html:228 templates/employees.html:160
+#: templates/employees.html:241
+msgid "Profile Picture"
+msgstr "صورة الملف الشخصي"
+
+#: templates/employee_detail.html:257 templates/employee_detail.html:342
+#: templates/employees.html:189 templates/employees.html:270
+#: templates/employees.html:403 templates/employees.html:404
+msgid "Select Department"
+msgstr "اختيار القسم"
+
+#: templates/employee_detail.html:264 templates/employees.html:196
+#: templates/employees.html:277
+msgid "e.g., Software Engineer"
+msgstr "مثال: مهندس برمجيات"
+
+#: templates/employee_detail.html:268 templates/employees.html:200
+#: templates/employees.html:281
+msgid "Hire Date"
+msgstr "تاريخ التوظيف"
+
+#: templates/employee_detail.html:308
+msgid "Please ensure good lighting and look directly at the camera"
+msgstr "يرجى التأكد من وجود إضاءة جيدة والنظر مباشرة إلى الكاميرا"
+
+#: templates/employee_detail.html:312
+msgid "Capture Face"
+msgstr "التقاط الوجه"
+
+#: templates/employee_detail.html:316
+msgid "Multiple images will be captured for better accuracy"
+msgstr "سيتم التقاط صور متعددة للحصول على دقة أفضل"
+
+#: templates/employee_detail.html:325
+msgid "Not provided"
+msgstr "غير مقدم"
+
+#: templates/employee_detail.html:326
+msgid "Not generated"
+msgstr "غير مولد"
+
+#: templates/employee_detail.html:327
+msgid "Not assigned"
+msgstr "غير مخصص"
+
+#: templates/employee_detail.html:328
+msgid "Registered"
+msgstr "مسجل"
+
+#: templates/employee_detail.html:329
+msgid "Not Registered"
+msgstr "غير مسجل"
+
+#: templates/employee_detail.html:330 templates/employees.html:89
+msgid "Active"
+msgstr "نشط"
+
+#: templates/employee_detail.html:331 templates/employees.html:90
+msgid "Inactive"
+msgstr "غير نشط"
+
+#: templates/employee_detail.html:332
+msgid "No recent activity"
+msgstr "لا يوجد نشاط أخير"
+
+#: templates/employee_detail.html:333
+msgid "Failed to load activity"
+msgstr "فشل في تحميل النشاط"
+
+#: templates/employee_detail.html:338
+msgid "Invalid employee ID"
+msgstr "رقم موظف غير صحيح"
+
+#: templates/employee_detail.html:339
+msgid "Failed to fetch employee details"
+msgstr "فشل في جلب تفاصيل الموظف"
+
+#: templates/employee_detail.html:340
+msgid "Failed to fetch attendance statistics, using default values"
+msgstr "فشل في جلب إحصائيات الحضور، سيتم استخدام القيم الافتراضية"
+
+#: templates/employee_detail.html:341 templates/employees.html:395
+msgid "Failed to fetch departments"
+msgstr "فشل في جلب الأقسام"
+
+#: templates/employee_detail.html:343 templates/employees.html:708
+msgid "Failed to load employee data for editing."
+msgstr "فشل في تحميل بيانات الموظف للتعديل."
+
+#: templates/employee_detail.html:344 templates/employees.html:594
+#: templates/employees.html:721
+msgid "Full Name is required."
+msgstr "الاسم الكامل مطلوب."
+
+#: templates/employee_detail.html:345 templates/employees.html:595
+#: templates/employees.html:722
+msgid "Please enter a valid email address."
+msgstr "يرجى إدخال عنوان بريد إلكتروني صحيح."
+
+#: templates/employee_detail.html:346 templates/employees.html:596
+#: templates/employees.html:723
+msgid "Please select a department."
+msgstr "يرجى اختيار قسم."
+
+#: templates/employee_detail.html:347 templates/employees.html:597
+#: templates/employees.html:724
+msgid "Position is required."
+msgstr "المنصب مطلوب."
+
+#: templates/employee_detail.html:348 templates/employees.html:744
+msgid "Saving..."
+msgstr "جاري الحفظ..."
+
+#: templates/employee_detail.html:350 templates/employees.html:762
+msgid "Employee updated successfully!"
+msgstr "تم تحديث الموظف بنجاح!"
+
+#: templates/employee_detail.html:351 templates/employees.html:764
+msgid "Failed to update employee"
+msgstr "فشل في تحديث الموظف"
+
+#: templates/employee_detail.html:352 templates/employees.html:642
+#: templates/employees.html:770 templates/face_setup.html:790
+msgid "Network error. Please try again."
+msgstr "خطأ في الشبكة. يرجى المحاولة مرة أخرى."
+
+#: templates/employee_detail.html:354
+msgid "Failed to copy access code"
+msgstr "فشل في نسخ رمز الوصول"
+
+#: templates/employee_detail.html:355
+msgid "Report generated successfully!"
+msgstr "تم إنشاء التقرير بنجاح!"
+
+#: templates/employee_detail.html:356
+msgid "Failed to generate report."
+msgstr "فشل في إنشاء التقرير."
+
+#: templates/employee_detail.html:357
+msgid "EMPLOYEE ATTENDANCE REPORT"
+msgstr "تقرير حضور الموظف"
+
+#: templates/employee_detail.html:358
+msgid "Generated on:"
+msgstr "تم إنشاؤه في:"
+
+#: templates/employee_detail.html:359
+msgid "Employee Information:"
+msgstr "معلومات الموظف:"
+
+#: templates/employee_detail.html:360
+msgid "Name:"
+msgstr "الاسم:"
+
+#: templates/employee_detail.html:361
+msgid "ID:"
+msgstr "الرقم:"
+
+#: templates/employee_detail.html:362
+msgid "Department:"
+msgstr "القسم:"
+
+#: templates/employee_detail.html:363
+msgid "Position:"
+msgstr "المنصب:"
+
+#: templates/employee_detail.html:364
+msgid "Status:"
+msgstr "الحالة"
+
+#: templates/employee_detail.html:365
+msgid "Attendance Statistics:"
+msgstr "إحصائيات الحضور:"
+
+#: templates/employee_detail.html:366
+msgid "✓ Present Days:"
+msgstr "✓ أيام الحضور:"
+
+#: templates/employee_detail.html:367
+msgid "⏰ Late Arrivals:"
+msgstr "⏰ التأخيرات:"
+
+#: templates/employee_detail.html:368
+msgid "✗ Absent Days:"
+msgstr "✗ أيام الغياب:"
+
+#: templates/employee_detail.html:370
+msgid "Generated by Attendance Tracker System"
+msgstr "تم إنشاؤه بواسطة نظام متتبع الحضور"
+
+#: templates/employees.html:7
+msgid "Employees Management - Attendance Tracker"
+msgstr "إدارة الموظفين - متتبع الحضور"
+
+#: templates/employees.html:66
+msgid "Employees Management"
+msgstr "إدارة الموظفين"
+
+#: templates/employees.html:67
+msgid "Manage all registered employees and their details"
+msgstr "إدارة جميع الموظفين المسجلين وتفاصيلهم"
+
+#: templates/employees.html:72 templates/employees.html:217
+#: templates/employees.html:646
+msgid "Add Employee"
+msgstr "إضافة موظف"
+
+#: templates/employees.html:82
+msgid "Search employees by name or department..."
+msgstr "البحث في الموظفين بالاسم أو القسم..."
+
+#: templates/employees.html:94 templates/employees.html:405
+#: templates/monthly_report.html:154 templates/monthly_report.html:184
+msgid "All Departments"
+msgstr "جميع الأقسام"
+
+#: templates/employees.html:95
+msgid "IT Department"
+msgstr "قسم تكنولوجيا المعلومات"
+
+#: templates/employees.html:96
+msgid "Human Resources"
+msgstr "الموارد البشرية"
+
+#: templates/employees.html:97
+msgid "Finance"
+msgstr "المالية"
+
+#: templates/employees.html:98
+msgid "Operations"
+msgstr "العمليات"
+
+#: templates/employees.html:110
+msgid "ID"
+msgstr "الرقم"
+
+#: templates/employees.html:114
+msgid "Face Registered"
+msgstr "الوجه مسجل"
+
+#: templates/employees.html:122
+msgid "Loading employees..."
+msgstr "جاري تحميل الموظفين..."
+
+#: templates/employees.html:133
+msgid "Showing 0 of 0 employees"
+msgstr "عرض 0 من 0 موظف"
+
+#: templates/employees.html:151
+msgid "Add New Employee"
+msgstr "إضافة موظف جديد"
+
+#: templates/employees.html:173 templates/employees.html:254
+msgid "Full Name *"
+msgstr "الاسم الكامل *"
+
+#: templates/employees.html:178 templates/employees.html:259
+msgid "Email *"
+msgstr "البريد الإلكتروني *"
+
+#: templates/employees.html:187 templates/employees.html:268
+msgid "Department *"
+msgstr "القسم *"
+
+#: templates/employees.html:195 templates/employees.html:276
+msgid "Position *"
+msgstr "المنصب *"
+
+#: templates/employees.html:376
+msgid "Failed to fetch employees"
+msgstr "فشل في جلب الموظفين"
+
+#: templates/employees.html:385
+msgid "Failed to load employees. Please try again."
+msgstr "فشل في تحميل الموظفين. يرجى المحاولة مرة أخرى."
+
+#: templates/employees.html:441
+msgid "No employees found matching your criteria."
+msgstr "لم يتم العثور على موظفين يطابقون معاييرك."
+
+#: templates/employees.html:472
+msgid "Yes"
+msgstr "نعم"
+
+#: templates/employees.html:472
+msgid "No"
+msgstr "لا"
+
+#: templates/employees.html:477
+msgid "View Employee"
+msgstr "عرض الموظف"
+
+#: templates/employees.html:483
+msgid "Setup Face Recognition"
+msgstr "إعداد التعرف على الوجه"
+
+#: templates/employees.html:530
+msgid "No employees found"
+msgstr "لم يتم العثور على موظفين"
+
+#: templates/employees.html:617
+msgid "Adding..."
+msgstr "جاري الإضافة..."
+
+#: templates/employees.html:634
+msgid "Employee added successfully!"
+msgstr "تم إضافة الموظف بنجاح!"
+
+#: templates/employees.html:636
+msgid "Failed to add employee"
+msgstr "فشل في إضافة الموظف"
+
+#: templates/employees.html:658
+msgid "Failed to fetch employee data"
+msgstr "فشل في جلب بيانات الموظف"
+
+#: templates/face_setup.html:7
+msgid "Employee Attendance - Face Recognition"
+msgstr "حضور الموظف - التعرف على الوجه"
+
+#: templates/face_setup.html:211
+msgid "Employee Attendance"
+msgstr "حضور الموظف"
+
+#: templates/face_setup.html:214
+msgid "Check-In / Check-Out"
+msgstr "تسجيل الدخول / الخروج"
+
+#: templates/face_setup.html:216
+msgid "Check-in: Before 9:30 AM | Check-out: After 10:00 PM"
+msgstr "تسجيل الدخول: قبل 9:30 ص | تسجيل الخروج: بعد 10:00 م"
+
+#: templates/face_setup.html:227
+msgid "Select Your Action"
+msgstr "اختر إجراءك"
+
+#: templates/face_setup.html:228
+msgid "Choose whether you're checking in or checking out"
+msgstr "اختر ما إذا كنت تقوم بتسجيل الدخول أو الخروج"
+
+#: templates/face_setup.html:244
+msgid "Face Recognition Attendance"
+msgstr "حضور بالتعرف على الوجه"
+
+#: templates/face_setup.html:246
+msgid ""
+"Position your face in the camera and we'll recognize you. You have 3 "
+"attempts, then access code fallback."
+msgstr ""
+
+#: templates/face_setup.html:251
+msgid "Attempts:"
+msgstr "المحاولات:"
+
+#: templates/face_setup.html:270
+msgid "Initializing camera..."
+msgstr "جاري تهيئة الكاميرا..."
+
+#: templates/face_setup.html:282
+msgid "Instructions for Best Results"
+msgstr "تعليمات للحصول على أفضل النتائج"
+
+#: templates/face_setup.html:284
+msgid "• Position your face in the center of the oval"
+msgstr "• ضع وجهك في وسط الدائرة البيضاوية"
+
+#: templates/face_setup.html:285
+msgid "• Ensure good lighting on your face"
+msgstr "• تأكد من وجود إضاءة جيدة على وجهك"
+
+#: templates/face_setup.html:286
+msgid "• Look directly at the camera"
+msgstr "• انظر مباشرة إلى الكاميرا"
+
+#: templates/face_setup.html:287
+msgid "• Remove sunglasses, hats, or masks"
+msgstr "• أزل النظارات الشمسية أو القبعات أو الأقنعة"
+
+#: templates/face_setup.html:288
+msgid "• Stay still when capturing"
+msgstr "• ابق هادئاً عند التقاط الصورة"
+
+#: templates/face_setup.html:300
+msgid "Ready to capture your face"
+msgstr "جاهز لالتقاط وجهك"
+
+#: templates/face_setup.html:303
+msgid "Click the capture button when ready"
+msgstr "اضغط على زر الالتقاط عندما تكون جاهزاً"
+
+#: templates/face_setup.html:312
+msgid "Capture Photo"
+msgstr "التقاط صورة"
+
+#: templates/face_setup.html:317 templates/face_setup.html:386
+#: templates/monthly_report.html:183
+msgid "Try Again"
+msgstr "حاول مرة أخرى"
+
+#: templates/face_setup.html:330
+msgid "Good Lighting"
+msgstr "إضاءة جيدة"
+
+#: templates/face_setup.html:336
+msgid "Look at Camera"
+msgstr "انظر إلى الكاميرا"
+
+#: templates/face_setup.html:342
+msgid "Center Your Face"
+msgstr "ضع وجهك في الوسط"
+
+#: templates/face_setup.html:352
+msgid "Processing Your Photo"
+msgstr "جاري معالجة صورتك"
+
+#: templates/face_setup.html:353
+msgid "Please wait while we analyze your facial features..."
+msgstr "يرجى الانتظار أثناء تحليل ملامح وجهك..."
+
+#: templates/face_setup.html:367
+msgid "An Error Occurred"
+msgstr "حدث خطأ"
+
+#: templates/face_setup.html:369
+msgid "Something went wrong."
+msgstr "حدث خطأ ما."
+
+#: templates/face_setup.html:377
+msgid "Enter Access Code"
+msgstr "أدخل رمز الوصول"
+
+#: templates/face_setup.html:382
+msgid "Verify Code"
+msgstr "تحقق من الرمز"
+
+#: templates/face_setup.html:411
+msgid "Welcome, [Employee Name]!"
+msgstr "مرحباً، [اسم الموظف]!"
+
+#: templates/face_setup.html:511
+msgid "Camera ready"
+msgstr "الكاميرا جاهزة"
+
+#: templates/face_setup.html:511
+msgid "Position your face and click capture"
+msgstr "ضع وجهك واضغط على الالتقاط"
+
+#: templates/face_setup.html:516
+msgid "Camera access denied"
+msgstr "تم رفض الوصول إلى الكاميرا"
+
+#: templates/face_setup.html:516
+msgid "Please allow camera access to continue"
+msgstr "يرجى السماح بالوصول إلى الكاميرا للمتابعة"
+
+#: templates/face_setup.html:560 templates/face_setup.html:735
+msgid "Please select Check In or Check Out first"
+msgstr "يرجى اختيار تسجيل الدخول أو الخروج أولاً"
+
+#: templates/face_setup.html:588
+msgid "Face recognition failed"
+msgstr "فشل التعرف على الوجه"
+
+#: templates/face_setup.html:595
+msgid "Network error occurred"
+msgstr "حدث خطأ في الشبكة"
+
+#: templates/face_setup.html:612 templates/includes/header.html:131
+msgid "Check-In"
+msgstr "تسجيل الدخول"
+
+#: templates/face_setup.html:612
+msgid "Check-Out"
+msgstr "تسجيل الخروج"
+
+#: templates/face_setup.html:612
+msgid "Successful!"
+msgstr "نجح!"
+
+#: templates/face_setup.html:613
+msgid "Welcome,"
+msgstr "مرحباً،"
+
+#: templates/face_setup.html:639
+msgid "Time Restriction"
+msgstr "قيد زمني"
+
+#: templates/face_setup.html:654
+msgid "Attempt Failed"
+msgstr "فشلت المحاولة"
+
+#: templates/face_setup.html:655
+msgid "Attempt"
+msgstr "محاولة"
+
+#: templates/face_setup.html:665 templates/face_setup.html:671
+msgid "Ready to capture"
+msgstr "جاهز للالتقاط"
+
+#: templates/face_setup.html:665
+msgid "Position your face and try again"
+msgstr "ضع وجهك وحاول مرة أخرى"
+
+#: templates/face_setup.html:671
+msgid "Position your face in the center"
+msgstr "ضع وجهك في الوسط"
+
+#: templates/face_setup.html:712
+msgid "Face Recognition Failed"
+msgstr "فشل التعرف على الوجه"
+
+#: templates/face_setup.html:713
+msgid "We couldn't recognize you after 3 attempts. Please use your access code."
+msgstr "لم نتمكن من التعرف عليك بعد 3 محاولات. يرجى استخدام رمز الوصول."
+
+#: templates/face_setup.html:730
+msgid "Please enter your access code"
+msgstr "يرجى إدخال رمز الوصول"
+
+#: templates/face_setup.html:740
+msgid "Verifying..."
+msgstr "جاري التحقق..."
+
+#: templates/face_setup.html:740
+msgid "Checking access code and taking security photo..."
+msgstr "جاري التحقق من رمز الوصول والتقاط صورة أمان..."
+
+#: templates/face_setup.html:783
+msgid "Invalid Access Code"
+msgstr "رمز وصول غير صحيح"
+
+#: templates/face_setup.html:784
+msgid "The code is incorrect. Please try again."
+msgstr "الرمز غير صحيح. يرجى المحاولة مرة أخرى."
+
+#: templates/face_setup.html:795
+msgid "Error capturing security photo. Please try again."
+msgstr "خطأ في التقاط صورة الأمان. يرجى المحاولة مرة أخرى."
+
+#: templates/login.html:7
+msgid "Login - Al-Saeed University"
+msgstr "تسجيل الدخول - جامعة ال سعيد"
+
+#: templates/login.html:36
+msgid "Al-Saeed University"
+msgstr "جامعة ال سعيد"
+
+#: templates/login.html:43
+msgid "E-mail Address"
+msgstr "عنوان البريد الإلكتروني"
+
+#: templates/login.html:44
+msgid "Enter your E-mail"
+msgstr "أدخل بريدك الإلكتروني"
+
+#: templates/login.html:51
+msgid "Enter your Password"
+msgstr "أدخل كلمة المرور"
+
+#: templates/login.html:57
+msgid "Forgot password?"
+msgstr "نسيت كلمة المرور؟"
+
+#: templates/login.html:67
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+#: templates/login.html:90
+msgid "Please enter both email and password."
+msgstr "يرجى إدخال البريد الإلكتروني وكلمة المرور."
+
+#: templates/login.html:136
+msgid "An unexpected error occurred. Please try again."
+msgstr "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+
+#: templates/monthly_report.html:7
+msgid "Monthly Report - Attendance System"
+msgstr "التقرير الشهري - نظام الحضور"
+
+#: templates/monthly_report.html:36
+msgid "Monthly Attendance Report"
+msgstr "تقرير الحضور الشهري"
+
+#: templates/monthly_report.html:37
+msgid "Comprehensive monthly attendance analysis and insights"
+msgstr "تحليل شامل ومعلومات تفصيلية لحضور الشهر"
+
+#: templates/monthly_report.html:41
+msgid "Month:"
+msgstr "الشهر:"
+
+#: templates/monthly_report.html:55
+msgid "Loading monthly report..."
+msgstr "جاري تحميل التقرير الشهري..."
+
+#: templates/monthly_report.html:65
+msgid "Total Working Days"
+msgstr "إجمالي أيام العمل"
+
+#: templates/monthly_report.html:77
+msgid "Average Attendance"
+msgstr "متوسط الحضور"
+
+#: templates/monthly_report.html:89
+msgid "Total Late Arrivals"
+msgstr "إجمالي التأخيرات"
+
+#: templates/monthly_report.html:101
+msgid "Perfect Attendance"
+msgstr "حضور مثالي"
+
+#: templates/monthly_report.html:115
+msgid "Daily Attendance Trend"
+msgstr "اتجاه الحضور اليومي"
+
+#: templates/monthly_report.html:121
+msgid "Department Attendance"
+msgstr "حضور الأقسام"
+
+#: templates/monthly_report.html:130
+msgid "Top Performers"
+msgstr "أفضل الأداء"
+
+#: templates/monthly_report.html:138
+msgid "Attendance Concerns"
+msgstr "مخاوف الحضور"
+
+#: templates/monthly_report.html:148
+msgid "Employee Monthly Summary"
+msgstr "ملخص الموظف الشهري"
+
+#: templates/monthly_report.html:164
+msgid "Days Present"
+msgstr "أيام الحضور"
+
+#: templates/monthly_report.html:165
+msgid "Days Absent"
+msgstr "أيام الغياب"
+
+#: templates/monthly_report.html:167 templates/monthly_report.html:185
+msgid "Attendance %"
+msgstr "نسبة الحضور %"
+
+#: templates/monthly_report.html:182
+msgid "Failed to load monthly report"
+msgstr "فشل في تحميل التقرير الشهري"
+
+#: templates/monthly_report.html:186
+msgid "Excellent"
+msgstr "ممتاز"
+
+#: templates/monthly_report.html:187
+msgid "Good"
+msgstr "جيد"
+
+#: templates/monthly_report.html:188
+msgid "Needs Improvement"
+msgstr "يحتاج تحسين"
+
+#: templates/monthly_report.html:189
+msgid "MONTHLY ATTENDANCE REPORT"
+msgstr "تقرير الحضور الشهري"
+
+#: templates/monthly_report.html:191
+msgid "EMPLOYEE MONTHLY SUMMARY"
+msgstr "ملخص الموظف الشهري"
+
+#: templates/monthly_report.html:194
+msgid "Error:"
+msgstr "خطأ"
+
+#: templates/monthly_report.html:195
+msgid "Unknown error occurred"
+msgstr "حدث خطأ غير معروف"
+
+#: templates/profile.html:7
+msgid "Profile - Attendance Tracker"
+msgstr "الملف الشخصي - متتبع الحضور"
+
+#: templates/profile.html:121
+msgid "Profile Settings"
+msgstr "إعدادات الملف الشخصي"
+
+#: templates/profile.html:122
+msgid "Manage your account information and preferences"
+msgstr "إدارة معلومات حسابك وتفضيلاتك"
+
+#: templates/profile.html:176
+msgid "Account Info"
+msgstr "معلومات الحساب"
+
+#: templates/profile.html:179
+msgid "Last Login:"
+msgstr "آخر تسجيل دخول:"
+
+#: templates/profile.html:183
+msgid "Account Created:"
+msgstr "تاريخ إنشاء الحساب:"
+
+#: templates/profile.html:187
+msgid "Role:"
+msgstr "الدور:"
+
+#: templates/profile.html:202
+msgid "Update your personal details and contact information"
+msgstr "تحديث تفاصيلك الشخصية ومعلومات الاتصال"
+
+#: templates/profile.html:208
+msgid "First Name"
+msgstr "الاسم الأول"
+
+#: templates/profile.html:213
+msgid "Last Name"
+msgstr "اسم العائلة"
+
+#: templates/profile.html:218
+msgid "Email Address *"
+msgstr "عنوان البريد الإلكتروني *"
+
+#: templates/profile.html:245 templates/profile.html:260
+#: templates/profile.html:298
+msgid "Change Password"
+msgstr "تغيير كلمة المرور"
+
+#: templates/profile.html:262
+msgid "Update your password to keep your account secure"
+msgstr "حدث كلمة المرور للحفاظ على أمان حسابك"
+
+#: templates/profile.html:278
+msgid "Current Password"
+msgstr "كلمة المرور الحالية"
+
+#: templates/profile.html:283
+msgid "New Password"
+msgstr "كلمة المرور الجديدة"
+
+#: templates/profile.html:286
+msgid "Password must be at least 8 characters long"
+msgstr "يجب أن تكون كلمة المرور 8 أحرف على الأقل"
+
+#: templates/profile.html:289
+msgid "Confirm New Password"
+msgstr "تأكيد كلمة المرور الجديدة"
+
+#: templates/profile.html:310
+msgid "The password has been changed successfully"
+msgstr "تم تغيير كلمة المرور بنجاح"
+
+#: templates/profile.html:315
+msgid "Failed to load profile data"
+msgstr "فشل في تحميل بيانات الملف الشخصي"
+
+#: templates/profile.html:316
+msgid "File size must be less than 5MB"
+msgstr "يجب أن يكون حجم الملف أقل من 5 ميجابايت"
+
+#: templates/profile.html:317
+msgid "Avatar updated successfully!"
+msgstr "تم تحديث الصورة الرمزية بنجاح!"
+
+#: templates/profile.html:318
+msgid "Failed to upload avatar"
+msgstr "فشل في رفع الصورة الرمزية"
+
+#: templates/profile.html:319
+msgid "Failed to change password"
+msgstr "فشل في تغيير كلمة المرور"
+
+#: templates/settings.html:7
+msgid "System Settings - Attendance Tracker"
+msgstr "إعدادات النظام - متتبع الحضور"
+
+#: templates/settings.html:140
+msgid "Configure your attendance system preferences and policies"
+msgstr "تهيئة تفضيلات وإجراءات نظام الحضور"
+
+#: templates/settings.html:148
+msgid "General"
+msgstr "عام"
+
+#: templates/settings.html:151 templates/weekly_report.html:306
+msgid "Attendance"
+msgstr "الحضور"
+
+#: templates/settings.html:154
+msgid "Notifications"
+msgstr "الإشعارات"
+
+#: templates/settings.html:157
+msgid "Security"
+msgstr "الأمان"
+
+#: templates/settings.html:168
+msgid "General Settings"
+msgstr "الإعدادات العامة"
+
+#: templates/settings.html:174
+msgid "System Language"
+msgstr "لغة النظام"
+
+#: templates/settings.html:175
+msgid "Choose the default language for the system"
+msgstr "اختر اللغة الافتراضية للنظام"
+
+#: templates/settings.html:179
+msgid "English"
+msgstr "الإنجليزية"
+
+#: templates/settings.html:180
+msgid "Arabic"
+msgstr "العربية"
+
+#: templates/settings.html:187
+msgid "Date Format"
+msgstr "تنسيق التاريخ"
+
+#: templates/settings.html:188
+msgid "How dates should be displayed"
+msgstr "كيفية عرض التواريخ"
+
+#: templates/settings.html:200
+msgid "Time Format"
+msgstr "تنسيق الوقت"
+
+#: templates/settings.html:201
+msgid "12-hour or 24-hour clock"
+msgstr "ساعة 12 أو 24 ساعة"
+
+#: templates/settings.html:204
+msgid "12-hour (AM/PM)"
+msgstr "12 ساعة (ص/م)"
+
+#: templates/settings.html:205
+msgid "24-hour"
+msgstr "24 ساعة"
+
+#: templates/settings.html:215
+msgid "Attendance Policies"
+msgstr "إجراءات الحضور"
+
+#: templates/settings.html:221
+msgid "Work Start Time"
+msgstr "وقت بدء العمل"
+
+#: templates/settings.html:226
+msgid "Work End Time"
+msgstr "وقت انتهاء العمل"
+
+#: templates/settings.html:234
+msgid "Check-in Deadline"
+msgstr "مهلة تسجيل الدخول"
+
+#: templates/settings.html:237
+msgid "Employees must check in before this time."
+msgstr "يجب على الموظفين تسجيل الدخول قبل هذا الوقت."
+
+#: templates/settings.html:242
+msgid "Checkout Start Time"
+msgstr "وقت بدء تسجيل الخروج"
+
+#: templates/settings.html:245
+msgid "Employees can only check out after this time."
+msgstr "يمكن للموظفين تسجيل الخروج فقط بعد هذا الوقت."
+
+#: templates/settings.html:250
+msgid "Late Arrival Tolerance (minutes)"
+msgstr "تسامح التأخر في الوصول (بالدقائق)"
+
+#: templates/settings.html:253
+msgid "Employees arriving after this many minutes will be marked as late"
+msgstr "سيتم اعتبار الموظفين الذين يصلون بعد هذا العدد من الدقائق متأخرين"
+
+#: templates/settings.html:259
+msgid "Enforce Strict Checkout Policy"
+msgstr "فرض إجراء تسجيل خروج صارم"
+
+#: templates/settings.html:260
+msgid "If enabled, checkout is only allowed after the official 'Work End Time'."
+msgstr "إذا تم تمكينه، يُسمح بتسجيل الخروج فقط بعد 'وقت انتهاء العمل' الرسمي."
+
+#: templates/settings.html:271
+msgid "Auto Check-out"
+msgstr "تسجيل خروج تلقائي"
+
+#: templates/settings.html:272
+msgid "Automatically check out employees at end of day"
+msgstr "تسجيل خروج الموظفين تلقائياً في نهاية اليوم"
+
+#: templates/settings.html:282
+msgid "Weekend Days"
+msgstr "أيام نهاية الأسبوع"
+
+#: templates/settings.html:286
+msgid "Monday"
+msgstr "الاثنين"
+
+#: templates/settings.html:290
+msgid "Tuesday"
+msgstr "الثلاثاء"
+
+#: templates/settings.html:294
+msgid "Wednesday"
+msgstr "الأربعاء"
+
+#: templates/settings.html:298
+msgid "Thursday"
+msgstr "الخميس"
+
+#: templates/settings.html:302
+msgid "Friday"
+msgstr "الجمعة"
+
+#: templates/settings.html:306
+msgid "Saturday"
+msgstr "السبت"
+
+#: templates/settings.html:310
+msgid "Sunday"
+msgstr "الأحد"
+
+#: templates/settings.html:321
+msgid "Notification Preferences"
+msgstr "تفضيلات الإشعارات"
+
+#: templates/settings.html:327
+msgid "Email Notifications"
+msgstr "إشعارات البريد الإلكتروني"
+
+#: templates/settings.html:328
+msgid "Receive email alerts for important events"
+msgstr "تلقي تنبيهات البريد الإلكتروني للأحداث المهمة"
+
+#: templates/settings.html:339
+msgid "Browser Notifications"
+msgstr "إشعارات المتصفح"
+
+#: templates/settings.html:340
+msgid "Show desktop notifications"
+msgstr "عرض إشعارات سطح المكتب"
+
+#: templates/settings.html:350
+msgid "Notification Types"
+msgstr "أنواع الإشعارات"
+
+#: templates/settings.html:354
+msgid "Late arrivals"
+msgstr "التأخيرات في الوصول"
+
+#: templates/settings.html:358
+msgid "Absences"
+msgstr "الغيابات"
+
+#: templates/settings.html:362
+msgid "Overtime hours"
+msgstr "ساعات العمل الإضافي"
+
+#: templates/settings.html:366
+msgid "System updates"
+msgstr "تحديثات النظام"
+
+#: templates/settings.html:377
+msgid "Security Settings"
+msgstr "إعدادات الأمان"
+
+#: templates/settings.html:382
+msgid "Session Timeout (minutes)"
+msgstr "مهلة الجلسة (بالدقائق)"
+
+#: templates/settings.html:385
+msgid "Automatic logout after inactivity"
+msgstr "تسجيل خروج تلقائي بعد الخمول"
+
+#: templates/settings.html:390
+msgid "Password Policy"
+msgstr "إجراءات كلمة المرور"
+
+#: templates/settings.html:394
+msgid "Require complex passwords"
+msgstr "طلب كلمات مرور معقدة"
+
+#: templates/settings.html:398
+msgid "Password expiration (90 days)"
+msgstr "انتهاء صلاحية كلمة المرور (90 يوماً)"
+
+#: templates/settings.html:402
+msgid "Prevent password reuse"
+msgstr "منع إعادة استخدام كلمة المرور"
+
+#: templates/settings.html:410
+msgid "Two-Factor Authentication"
+msgstr "المصادقة الثنائية"
+
+#: templates/settings.html:411
+msgid "Add an extra layer of security to your account"
+msgstr "إضافة طبقة إضافية من الأمان لحسابك"
+
+#: templates/settings.html:422
+msgid "API Access"
+msgstr "وصول API"
+
+#: templates/settings.html:423
+msgid "Enable REST API for integration"
+msgstr "تمكين REST API للتكامل"
+
+#: templates/settings.html:440
+msgid "Save Settings"
+msgstr "حفظ الإعدادات"
+
+#: templates/settings.html:528
+msgid "Failed to load settings. Using default values."
+msgstr "فشل في تحميل الإعدادات. سيتم استخدام القيم الافتراضية."
+
+#: templates/weekly_report.html:7
+msgid "Weekly Report - Academia"
+msgstr "التقرير الأسبوعي - الأكاديميا"
+
+#: templates/weekly_report.html:232
+msgid "Weekly Attendance Report"
+msgstr "تقرير الحضور الأسبوعي"
+
+#: templates/weekly_report.html:233
+msgid "Loading week dates..."
+msgstr "جاري تحميل تواريخ الأسبوع..."
+
+#: templates/weekly_report.html:238
+msgid "Print"
+msgstr "طباعة"
+
+#: templates/weekly_report.html:251
+msgid "Generating weekly report..."
+msgstr "جاري إنشاء التقرير الأسبوعي..."
+
+#: templates/weekly_report.html:258
+msgid "Attendance Summary"
+msgstr "ملخص الحضور"
+
+#: templates/weekly_report.html:263
+msgid "Day"
+msgstr "اليوم"
+
+#: templates/weekly_report.html:266
+msgid "Avg. Check-in Time"
+msgstr "متوسط وقت تسجيل الدخول"
+
+#: templates/weekly_report.html:277
+msgid "Weekly Attendance Average"
+msgstr "متوسط الحضور الأسبوعي"
+
+#: templates/weekly_report.html:285
+msgid "Employee Punctuality"
+msgstr "انتظام الموظفين"
+
+#: templates/weekly_report.html:288
+msgid "Most Punctual"
+msgstr "الأكثر انتظاماً"
+
+#: templates/weekly_report.html:292
+msgid "Least Punctual"
+msgstr "الأقل انتظاماً"
+
+#: templates/weekly_report.html:304
+msgid "Week of"
+msgstr "أسبوع"
+
+#: templates/weekly_report.html:305
+msgid "No data available"
+msgstr "لا توجد بيانات متاحة"
+
+#: templates/weekly_report.html:307
+msgid "WEEKLY ATTENDANCE REPORT"
+msgstr "تقرير الحضور الأسبوعي"
+
+#: templates/weekly_report.html:308
+msgid "Weekly Average:"
+msgstr "المتوسط الأسبوعي:"
+
+#: templates/weekly_report.html:311
+msgid "Attendance Trend"
+msgstr "اتجاه الحضور"
+
+#: templates/weekly_report.html:312
+msgid "Most Punctual:"
+msgstr "الأكثر انتظاماً:"
+
+#: templates/weekly_report.html:313
+msgid "Least Punctual:"
+msgstr "الأقل انتظاماً:"
+
+#: templates/welcome.html:7
+msgid "Welcome - Attendance System"
+msgstr "الترحيب - نظام الحضور"
+
+#: templates/welcome.html:89
+msgid "Welcome to Your"
+msgstr "مرحباً بك في"
+
+#: templates/welcome.html:91
+msgid "Workplace"
+msgstr "مكان عملك"
+
+#: templates/welcome.html:95
+msgid "Ready to start your journey with us? Let's get you set up for success."
+msgstr "جاهز لبدء رحلتك معنا؟ دعنا نساعدك في الإعداد للنجاح."
+
+#: templates/welcome.html:99
+msgid "Secure • Fast • Easy Setup"
+msgstr "آمن • سريع • إعداد سهل"
+
+#: templates/welcome.html:109
+msgid "Face Recognition"
+msgstr "التعرف على الوجه"
+
+#: templates/welcome.html:110
+msgid "Quick & secure identification"
+msgstr "تحديد سريع وآمن"
+
+#: templates/welcome.html:116
+msgid "Time Tracking"
+msgstr "تتبع الوقت"
+
+#: templates/welcome.html:117
+msgid "Automated attendance logging"
+msgstr "تسجيل الحضور التلقائي"
+
+#: templates/welcome.html:123
+msgid "Analytics"
+msgstr "التحليلات"
+
+#: templates/welcome.html:124
+msgid "Track your progress"
+msgstr "تتبع تقدمك"
+
+#: templates/welcome.html:133
+msgid "Click Here to Prepare You for This Day"
+msgstr "اضغط هنا للتحضير لهذا اليوم"
+
+#: templates/welcome.html:139
+msgid "Already registered?"
+msgstr "مسجل بالفعل؟"
+
+#: templates/welcome.html:143
+msgid "Go to Login"
+msgstr "الذهاب إلى تسجيل الدخول"
+
+#: templates/welcome.html:150
+msgid "This setup will take approximately 2-3 minutes"
+msgstr "سيستغرق هذا الإعداد حوالي 2-3 دقائق"
+
+#: templates/welcome.html:155
+msgid "New Employee Setup"
+msgstr "إعداد موظف جديد"
+
+#: templates/welcome.html:159
+msgid "Secure Process"
+msgstr "عملية آمنة"
+
+#: templates/welcome.html:163
+msgid "Support Available"
+msgstr "دعم متاح"
+
+#: templates/welcome.html:178
+msgid "Preparing Your Setup"
+msgstr "جاري تحضير إعدادك"
+
+#: templates/welcome.html:179
+msgid "Please wait while we initialize your onboarding process..."
+msgstr "يرجى الانتظار أثناء تهيئة عملية التهيئة الخاصة بك..."
+
+#: templates/welcome.html:193
+msgid "Need Help?"
+msgstr "تحتاج مساعدة؟"
+
+#: templates/welcome.html:204
+msgid "What is this setup?"
+msgstr "ما هذا الإعداد؟"
+
+#: templates/welcome.html:205
+msgid ""
+"This is a one-time setup to register your face for our attendance system."
+" It's quick, secure, and will make your daily check-ins effortless."
+msgstr ""
+
+#: templates/welcome.html:213
+msgid "Is it secure?"
+msgstr "هل هو آمن؟"
+
+#: templates/welcome.html:214
+msgid ""
+"Yes! Your facial data is encrypted and stored securely. We follow "
+"industry-standard security practices to protect your privacy."
+msgstr ""
+
+#: templates/welcome.html:222
+msgid "How long does it take?"
+msgstr "كم يستغرق الوقت؟"
+
+#: templates/welcome.html:223
+msgid ""
+"The entire process takes about 2-3 minutes. You'll capture a few photos "
+"and verify your identity."
+msgstr ""
+
+#: templates/welcome.html:228
+msgid "Need additional support?"
+msgstr "تحتاج دعماً إضافياً؟"
+
+#: templates/welcome.html:232
+msgid "Email Support"
+msgstr "دعم البريد الإلكتروني"
+
+#: templates/welcome.html:236
+msgid "Call Support"
+msgstr "دعم الهاتف"
+
+#: templates/includes/employee_header.html:8
+msgid "Employee Portal"
+msgstr "بوابة الموظف"
+
+#: templates/includes/header.html:35 templates/includes/header.html:111
+msgid "Employees"
+msgstr "الموظفون"
+
+#: templates/includes/header.html:39 templates/includes/header.html:114
+msgid "Account Management"
+msgstr "إدارة الحساب"
+
+#: templates/includes/header.html:47 templates/includes/header.html:120
+msgid "Attendance History"
+msgstr "تاريخ الحضور"
+
+#: templates/includes/header.html:53 templates/includes/header.html:123
+msgid "Reports"
+msgstr "التقارير"
+
+#: templates/includes/header.html:63 templates/includes/header.html:126
+msgid "Weekly Report"
+msgstr "التقرير الأسبوعي"
+
+#: templates/includes/header.html:67 templates/includes/header.html:127
+msgid "Monthly Report"
+msgstr "التقرير الشهري"
+
+#: templates/includes/header.html:73 templates/includes/header.html:134
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: templates/includes/header.html:92 templates/includes/header.html:141
+msgid "Help"
+msgstr "المساعدة"
+
+#: templates/help.html:7
+msgid "Help & About - Attendance System"
+msgstr "المساعدة ونظام الحضور"
+
+#: templates/help.html:28
+msgid "Help & Documentation"
+msgstr "المساعدة والتوثيق"
+
+#: templates/help.html:29
+msgid "Everything you need to know about the Facial Recognition Attendance System"
+msgstr "كل ما تحتاج إليه عن نظام التعرف على الوجه للحضور"
+
+#: templates/help.html:38
+msgid "Face Recognition"
+msgstr "التعرف على الوجه"
+
+#: templates/help.html:39
+msgid "Learn how to use the facial recognition check-in system"
+msgstr "تعلم كيفية استخدام نظام التعرف على الوجه للحضور"
+
+#: templates/help.html:42 templates/help.html:54 templates/help.html:66
+msgid "Learn More →"
+msgstr "تعلم المزيد →"
+
+#: templates/help.html:50
+msgid "Access Codes"
+msgstr "أرقام الوصول"
+
+#: templates/help.html:51
+msgid "How to use your unique access code for check-in"
+msgstr "كيفية استخدام رمز الوصول الخاص بك للحضور"
+
+#: templates/help.html:62
+msgid "Reports"
+msgstr "التقارير"
+
+#: templates/help.html:63
+msgid "Understanding attendance reports and analytics"
+msgstr "فهم تقارير الحضور والتحليلات"
+
+#: templates/help.html:77
+msgid "Getting Started"
+msgstr "البدء"
+
+#: templates/help.html:81
+msgid "First Time Setup"
+msgstr "الإعداد للمرة الأولى"
+
+#: templates/help.html:83
+msgid "When you first join the company, your face will be registered in the system by HR. You'll also receive a unique 6-digit access code as a backup method."
+msgstr "عندما تنضم إلى الشركة للمرة الأولى، سيتم تسجيل وجهك في النظام بواسطة قسم الموارد البشرية. ستحصل أيضاً على رمز وصول مكون من 6 أرقام كطريقة احتياطية."
+
+#: templates/help.html:87
+msgid "Daily Check-In"
+msgstr "تسجيل الدخول اليومي"
+
+#: templates/help.html:89
+msgid "Use any of the three methods: Face Recognition, Biometric Scan, or Access Code. The system automatically determines if you're checking in or out based on your last activity."
+msgstr "استخدم أي من الطرق الثلاثة: التعرف على الوجه، المسح البيومتري، أو رمز الوصول. يحدد النظام تلقائياً إذا كنت تقوم بتسجيل الدخول أو الخروج بناءاً على حركتك الأخيرة."
+
+#: templates/help.html:99
+msgid "Face Recognition Check-In"
+msgstr "تسجيل الدخول بالتعرف على الوجه"
+
+#: templates/help.html:103
+msgid "How to Use"
+msgstr "كيفية الاستخدام"
+
+#: templates/help.html:105
+msgid "Navigate to the Face Recognition page"
+msgstr "الانتقال إلى صفحة التعرف على الوجه"
+
+#: templates/help.html:106
+msgid "Allow camera access when prompted"
+msgstr "السماح بوصول الكاميرا عندما يتم الطلب"
+
+#: templates/help.html:107
+msgid "Position your face in the camera frame"
+msgstr "ضع وجهك في إطار الكاميرا"
+
+#: templates/help.html:108
+msgid "Click \"Capture Face\" when ready"
+msgstr "اضغط \"التقط الوجه\" عندما تكون جاهزاً"
+
+#: templates/help.html:109
+msgid "Wait for recognition and confirmation"
+msgstr "انتظر التعرف والتأكيد"
+
+#: templates/help.html:113
+msgid "Tips for Best Results"
+msgstr "نصائح للحصول على أفضل النتائج"
+
+#: templates/help.html:115
+msgid "Ensure good lighting on your face"
+msgstr "تأكد من وجود إضاءة جيدة على وجهك"
+
+#: templates/help.html:116
+msgid "Look directly at the camera"
+msgstr "انظر مباشرة إلى الكاميرا"
+
+#: templates/help.html:117
+msgid "Remove sunglasses or masks"
+msgstr "أزل النظارات الشمسية أو الأقنعة"
+
+#: templates/help.html:118
+msgid "Keep your face centered in the frame"
+msgstr "ابق وجهك مركزاً في الإطار"
+
+#: templates/help.html:119
+msgid "Stay still during capture"
+msgstr "ابق هادئاً أثناء التقط"
+
+#: templates/help.html:129
+msgid "Access Code Check-In"
+msgstr "تسجيل الدخول برمز الوصول"
+
+#: templates/help.html:133
+msgid "Using Your Access Code"
+msgstr "استخدام رمز وصولك"
+
+#: templates/help.html:135
+msgid "Go to the Code Check-In page"
+msgstr "الانتقال إلى صفحة تسجيل الدخول بالرمز"
+
+#: templates/help.html:136
+msgid "Enter your 6-digit access code"
+msgstr "أدخل رمز وصولك المكون من 6 أرقام"
+
+#: templates/help.html:137
+msgid "Click Submit or press Enter"
+msgstr "اضغط إرسال أو اضغط Enter"
+
+#: templates/help.html:138
+msgid "Wait for verification"
+msgstr "انتظر التحقق"
+
+#: templates/help.html:139
+msgid "Receive confirmation message"
+msgstr "استلم رسالة التأكيد"
+
+#: templates/help.html:143
+msgid "Important Notes"
+msgstr "ملاحظات مهمة"
+
+#: templates/help.html:145
+msgid "Your access code is unique to you"
+msgstr "رمز الوصول خاص بك وحدك"
+
+#: templates/help.html:146
+msgid "Keep your code confidential"
+msgstr "احفظ سرية رمزك"
+
+#: templates/help.html:147
+msgid "Contact HR if you forget your code"
+msgstr "اتصل بقسم الموارد البشرية إذا نسيت رمزك"
+
+#: templates/help.html:148
+msgid "Codes are case-sensitive"
+msgstr "الأرقام تكون حساسة لحالة الأحرف"
+
+#: templates/help.html:149
+msgid "Use as backup when face recognition fails"
+msgstr "استخدم كبديل عندما يفشل التعرف على الوجه"
+
+#: templates/help.html:159
+msgid "Understanding Reports"
+msgstr "فهم التقارير"
+
+#: templates/help.html:163
+msgid "Daily Reports"
+msgstr "التقارير اليومية"
+
+#: templates/help.html:165
+msgid "View attendance for a specific day, including who is present, absent, or late."
+msgstr "عرض الحضور ليوم معين، مع من حاضر، غائب، أو متأخر."
+
+#: templates/help.html:168
+msgid "Summary statistics (present, absent, late counts)"
+msgstr "إحصائيات ملخصة (عدد الحاضرين، الغائبين، المتأخرين)"
+
+#: templates/help.html:169
+msgid "Detailed attendance table with check-in/out times"
+msgstr "جدول حضور مفصل مع أوقات تسجيل الدخول/الخروج"
+
+#: templates/help.html:170
+msgid "Late arrivals list"
+msgstr "قائمة الواصلين المتأخرين"
+
+#: templates/help.html:171
+msgid "Absent employees list"
+msgstr "قائمة الموظفين الغائبين"
+
+#: templates/help.html:175
+msgid "Weekly Reports"
+msgstr "التقارير الأسبوعية"
+
+#: templates/help.html:177
+msgid "Analyze attendance patterns over a week (Monday to Friday)."
+msgstr "تحليل أنماط الحضور على مدى أسبوع (من الاثنين إلى الجمعة)."
+
+#: templates/help.html:180
+msgid "Daily attendance breakdown"
+msgstr "تفصيل الحضور اليومي"
+
+#: templates/help.html:181
+msgid "Average check-in times per day"
+msgstr "متوسط أوقات تسجيل الدخول كل يوم"
+
+#: templates/help.html:182
+msgid "Most and least punctual employees"
+msgstr "أكثر الموظفين المنتظمين"
+
+#: templates/help.html:183
+msgid "Attendance trends visualization"
+msgstr "تخطيط إتجاهات الحضور"
+
+#: templates/help.html:193
+msgid "Troubleshooting"
+msgstr "الإصلاح"
+
+#: templates/help.html:197
+msgid "Face Recognition Not Working"
+msgstr "التعرف على الوجه لا يعمل"
+
+#: templates/help.html:199
+msgid "Check camera permissions in your browser"
+msgstr "تحقق من إذن الكاميرا في متصفحك"
+
+#: templates/help.html:200
+msgid "Ensure adequate lighting"
+msgstr "تأكد من وجود إضاءة كافية"
+
+#: templates/help.html:201
+msgid "Try the access code method instead"
+msgstr "جرب طريقة رمز الوصول بدلاً منه"
+
+#: templates/help.html:202
+msgid "Contact IT support if issues persist"
+msgstr "اتصل بدعم المعلوماتية إذا استمرت المشكلات"
+
+#: templates/help.html:206
+msgid "Forgot Access Code"
+msgstr "نسيت رمز الوصول"
+
+#: templates/help.html:208
+msgid "Check your employee profile"
+msgstr "تحقق من ملف موظفك الشخصي"
+
+#: templates/help.html:209
+msgid "Contact HR department"
+msgstr "اتصل بقسم الموارد البشرية"
+
+#: templates/help.html:210
+msgid "Use face recognition as alternative"
+msgstr "استخدم التعرف على الوجه كبديل"
+
+#: templates/help.html:211
+msgid "Request code reset from admin"
+msgstr "اطلب إعادة تعيين الرمز من المسؤول"
+
+#: templates/help.html:215
+msgid "System Not Responding"
+msgstr "النظام لا يستجيب"
+
+#: templates/help.html:217
+msgid "Refresh the page"
+msgstr "أعد تحديث الصفحة"
+
+#: templates/help.html:218
+msgid "Clear browser cache"
+msgstr "مسح ذاكرة المتصفح"
+
+#: templates/help.html:219
+msgid "Try a different browser"
+msgstr "جرب متصفح مختلف"
+
+#: templates/help.html:220
+msgid "Report to IT support"
+msgstr "الإبلاغ عن دعم المعلوماتية"
+
+#: templates/help.html:230
+msgid "About This System"
+msgstr "حول هذا النظام"
+
+#: templates/help.html:234
+msgid "System Information"
+msgstr "معلومات النظام"
+
+#: templates/help.html:237
+msgid "Version:"
+msgstr "الإصدار:"
+
+#: templates/help.html:241
+msgid "Last Updated:"
+msgstr "آخر تحديث:"
+
+#: templates/help.html:242
+msgid "December 2024"
+msgstr "كانون 2024"
+
+#: templates/help.html:245
+msgid "Technology:"
+msgstr "التقنية:"
+
+#: templates/help.html:246
+msgid "AI-Powered"
+msgstr "مدعوم بالذكاء الاصطناعي"
+
+#: templates/help.html:249
+msgid "Security:"
+msgstr "الأمان:"
+
+#: templates/help.html:250
+msgid "Enterprise Grade"
+msgstr "مستوى شركة"
+
+#: templates/help.html:255
+msgid "Features"
+msgstr "الميزات"
+
+#: templates/help.html:257
+msgid "Facial Recognition Technology"
+msgstr "تقنية التعرف على الوجه"
+
+#: templates/help.html:258
+msgid "Biometric Authentication"
+msgstr "المصادقة البيومترية"
+
+#: templates/help.html:259
+msgid "Access Code Backup"
+msgstr "نسخة احتياطية برمز الوصول"
+
+#: templates/help.html:260
+msgid "Real-time Attendance Tracking"
+msgstr "تتبع الحضور في الوقت الفعلي"
+
+#: templates/help.html:261
+msgid "Comprehensive Reporting"
+msgstr "تقارير شاملة"
+
+#: templates/help.html:262
+msgid "Mobile-Friendly Interface"
+msgstr "واجهة متجاوبة مع الجوال"
+
+#: templates/help.html:272
+msgid "Need More Help?"
+msgstr "تحتاج مساعدة أكثر؟"
+
+#: templates/help.html:279
+msgid "Email Support"
+msgstr "دعم البريد الإلكتروني"
+
+#: templates/help.html:286
+msgid "Phone Support"
+msgstr "دعم الهاتف"
+
+#: templates/help.html:293
+msgid "Support Hours"
+msgstr "ساعات الدعم"
+
+#: templates/help.html:294
+msgid "Mon-Fri, 9AM-5PM"
+msgstr "الاثنين-الجمعة، 9صباحاً-5مساءً"
+
